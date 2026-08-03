@@ -1,7 +1,6 @@
 import {
   createOrder,
   getOrdersByUser,
-  cancelOrder,
 } from "../models/order.model.js";
 
 
@@ -294,68 +293,3 @@ export async function myOrders(req,res){
 
 
 }
-
-
-
-
-export async function cancelMyOrder(req,res){
-
-
-  try{
-
-
-    const result =
-      cancelOrder(
-        req.params.id,
-        req.user.id
-      );
-
-
-
-    if(!result.success){
-
-
-      return res.status(400).json({
-
-        success:false,
-
-        message:result.message
-
-      });
-
-
-    }
-
-
-
-    return res.json({
-
-      success:true,
-
-      message:result.message
-
-    });
-
-
-
-  }catch(error){
-
-
-    console.error(error);
-
-
-
-    return res.status(500).json({
-
-      success:false,
-
-      message:"Cancel order failed"
-
-    });
-
-
-  }
-
-
-}
-

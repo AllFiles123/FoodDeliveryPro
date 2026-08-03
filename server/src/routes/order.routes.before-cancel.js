@@ -3,7 +3,6 @@ import { Router } from "express";
 import {
   placeOrder,
   myOrders,
-  cancelMyOrder,
 } from "../controllers/order.controller.js";
 
 import {
@@ -31,13 +30,4 @@ router.get(
 
 
 
-router.patch(
-  "/:id/cancel",
-  authMiddleware,
-  cancelMyOrder
-);
-
-
-
 export default router;
-

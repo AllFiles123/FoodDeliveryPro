@@ -43,6 +43,7 @@ async function connectDatabase() {
 
 
 
+
   if (fs.existsSync(databaseFile)) {
 
 
@@ -88,7 +89,6 @@ async function connectDatabase() {
 
 
 
-
 function runMigrations(){
 
 
@@ -96,7 +96,13 @@ function runMigrations(){
 
 
 
-  const tables = db.exec(`
+  /*
+    Orders Table Upgrade
+    Existing Data Safe
+  */
+
+
+  const columns = db.exec(`
 
     PRAGMA table_info(orders)
 
@@ -104,116 +110,106 @@ function runMigrations(){
 
 
 
-  if(!tables.length) return;
+  if(columns.length){
 
 
-
-  const existingColumns =
-    tables[0].values.map(
-      row=>row[1]
-    );
-
-
-
-  const newColumns = {
-
-
-    customerName:
-    "TEXT DEFAULT ''",
-
-
-    customerPhone:
-    "TEXT DEFAULT ''",
-
-
-    deliveryType:
-    "TEXT DEFAULT ''",
-
-
-    zone:
-    "TEXT DEFAULT ''",
-
-
-    division:
-    "TEXT DEFAULT ''",
-
-
-    district:
-    "TEXT DEFAULT ''",
-
-
-    upazila:
-    "TEXT DEFAULT ''",
-
-
-    area:
-    "TEXT DEFAULT ''",
-
-
-    fullAddress:
-    "TEXT DEFAULT ''",
-
-
-    subtotal:
-    "REAL DEFAULT 0",
-
-
-    vat:
-    "REAL DEFAULT 0",
-
-
-    discount:
-    "REAL DEFAULT 0",
-
-
-    paymentStatus:
-    "TEXT DEFAULT 'Pending'",
-
-
-    orderStatus:
-    "TEXT DEFAULT 'Pending'",
-
-
-    updatedAt:
-    "DATETIME DEFAULT CURRENT_TIMESTAMP"
-
-
-  };
-
-
-
-
-  Object.entries(newColumns)
-  .forEach(([column,type])=>{
-
-
-    if(
-      !existingColumns.includes(column)
-    ){
-
-
-      db.run(`
-
-        ALTER TABLE orders
-
-        ADD COLUMN ${column}
-
-        ${type}
-
-      `);
-
-
-
-      console.log(
-        `Migration Added: ${column}`
+    const existingColumns =
+      columns[0].values.map(
+        row=>row[1]
       );
 
 
-    }
+
+    const newColumns = {
 
 
-  });
+      customerName:
+      "TEXT DEFAULT ''",
 
+
+      customerPhone:
+      "TEXT DEFAULT ''",
+
+
+      division:
+      "TEXT DEFAULT ''",
+
+
+      district:
+      "TEXT DEFAULT ''",
+
+
+      upazila:
+      "TEXT DEFAULT ''",
+
+
+      area:
+      "TEXT DEFAULT ''",
+
+
+      fullAddress:
+      "TEXT DEFAULT ''",
+
+
+      subtotal:
+      "REAL DEFAULT 0",
+
+
+      vat:
+      "REAL DEFAULT 0",
+
+
+      paymentStatus:
+      "TEXT DEFAULT 'Pending'",
+
+
+      orderStatus:
+      "TEXT DEFAULT 'Pending'",
+
+
+      updatedAt:
+      "DATETIME DEFAULT CURRENT_TIMESTAMP"
+
+
+    };
+
+
+
+    Object.entries(newColumns)
+      .forEach(
+        ([column,type])=>{
+
+
+          if(
+            !existingColumns.includes(column)
+          ){
+
+
+            db.run(`
+
+              ALTER TABLE orders
+
+              ADD COLUMN ${column}
+
+              ${type}
+
+            `);
+
+
+            console.log(
+              `Migration Added: ${column}`
+            );
+
+
+          }
+
+
+        }
+
+      );
+
+
+  }
 
 
 }
@@ -223,7 +219,7 @@ function runMigrations(){
 
 
 
-function getDatabase(){
+function getDatabase() {
 
   return db;
 
@@ -233,8 +229,7 @@ function getDatabase(){
 
 
 
-
-function saveDatabase(){
+function saveDatabase() {
 
 
   if(!db) return;
