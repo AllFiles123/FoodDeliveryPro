@@ -36,186 +36,110 @@ export const createOrderTable = () => {
 export const createOrder = (order) => {
 
   const {
-
     userId,
-
     items,
-
     totalAmount,
-
     address,
-
     deliveryAddress,
-
     paymentMethod,
-
     customerName,
-
     customerPhone,
-
     deliveryType,
-
     zone,
-
     division,
-
     district,
-
     upazila,
-
     area,
-
     fullAddress,
-
     subtotal,
-
     vat,
-
     discount,
-
+    paymentStatus,
     restaurantName,
-
-    paymentStatus
-
-
+    trackingStatus,
+    trackingHistory
   } = order;
 
 
-
   const orderNumber =
-    "FD" +
-    Date.now();
+    "FD" + Date.now();
 
 
+  const db = getDatabase();
 
-  const stmt = getDatabase().prepare(`
 
+  const stmt = db.prepare(`
     INSERT INTO orders
-
     (
-
       userId,
-
       items,
-
       totalAmount,
-
       deliveryAddress,
-
       paymentMethod,
-
       customerName,
-
       customerPhone,
-
       deliveryType,
-
       zone,
-
       division,
-
       district,
-
       upazila,
-
       area,
-
       fullAddress,
-
       subtotal,
-
       vat,
-
       discount,
-
       paymentStatus,
-
       orderNumber,
-
       restaurantName,
-
       trackingStatus,
-
       trackingHistory
-
     )
 
-
     VALUES
-
     (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-
   `);
 
 
-
-  const result = stmt.run(
-
+  stmt.run(
     userId,
-
-    JSON.stringify(items),
-
+    JSON.stringify(items || []),
     totalAmount || 0,
-
     address || deliveryAddress || fullAddress || "",
-
     paymentMethod || "COD",
-
     customerName || "",
-
     customerPhone || "",
-
     deliveryType || "",
-
     zone || "",
-
     division || "",
-
     district || "",
-
     upazila || "",
-
     area || "",
-
     fullAddress || "",
-
     subtotal || 0,
-
     vat || 0,
-
     discount || 0,
-
     paymentStatus || "Pending",
-
     orderNumber,
-
     restaurantName || "",
-
-    "Order Placed",
-
-    JSON.stringify([
-      {
-        status:"Order Placed",
-        time:new Date().toISOString()
-      }
-    ])
-
+    trackingStatus || "Order Placed",
+    JSON.stringify(trackingHistory || [])
   );
 
 
+  stmt.free();
 
-  return {
 
-    id: result.lastInsertRowid,
+  const result = db.exec(
+    "SELECT last_insert_rowid()"
+  );
 
-    orderNumber
 
-  };
+  saveDatabase();
+
+
+  return result[0].values[0][0];
 
 };
-
-
-
 
 
 export const getOrdersByUser = (userId) => {
