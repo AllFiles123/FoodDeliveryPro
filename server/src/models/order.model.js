@@ -126,6 +126,7 @@ export const createOrder = (order) => {
   );
 
 
+  saveDatabase();
   stmt.free();
 
 
