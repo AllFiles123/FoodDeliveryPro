@@ -117,6 +117,10 @@ function runMigrations(){
 
   const newColumns = {
 
+    deliveryAddress:
+    "TEXT DEFAULT ''",
+
+
 
     customerName:
     "TEXT DEFAULT ''",
