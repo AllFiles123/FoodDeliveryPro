@@ -1,31 +1,41 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { Clock, MapPin, Star } from "lucide-react";
 
 import restaurantService from "../../services/restaurantService";
-
 
 
 export default function RestaurantListPage() {
 
 
-  const [restaurants, setRestaurants] = useState([]);
-
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
 
+  const [restaurants,setRestaurants] = useState([]);
 
-  useEffect(() => {
-
-
-    const loadRestaurants = async () => {
+  const [loading,setLoading] = useState(true);
 
 
-      try {
 
 
-        const response = await restaurantService.getRestaurants();
+  useEffect(()=>{
 
-        console.log("Restaurant API Response:", response);
+
+    const loadRestaurants = async()=>{
+
+
+      try{
+
+
+        const response =
+          await restaurantService.getRestaurants();
+
+
+        console.log(
+          "Restaurant API Response:",
+          response
+        );
 
 
         setRestaurants(
@@ -33,15 +43,13 @@ export default function RestaurantListPage() {
         );
 
 
-      } catch(error) {
+      }catch(error){
 
 
-        console.error(
-          error
-        );
+        console.error(error);
 
 
-      } finally {
+      }finally{
 
 
         setLoading(false);
@@ -56,7 +64,9 @@ export default function RestaurantListPage() {
     loadRestaurants();
 
 
-  }, []);
+  },[]);
+
+
 
 
 
@@ -67,28 +77,31 @@ export default function RestaurantListPage() {
 
     return (
 
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#FFF8F3] flex items-center justify-center">
 
         <motion.p
 
           animate={{
-            opacity:[0.3,1,0.3],
+            opacity:[0.3,1,0.3]
           }}
 
           transition={{
-            repeat:Infinity,
             duration:1,
+            repeat:Infinity
           }}
 
-          className="text-white text-xl"
+          className="text-xl font-bold text-orange-500"
+
         >
-          Loading Restaurants...
+
+          Finding Restaurants 🍽️
+
         </motion.p>
+
 
       </div>
 
     );
-
 
   }
 
@@ -96,9 +109,11 @@ export default function RestaurantListPage() {
 
 
 
+
+
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-orange-600 px-6 py-10">
+    <div className="min-h-screen bg-[#FFF8F3] px-5 py-8">
 
 
       <div className="mx-auto max-w-6xl">
@@ -108,64 +123,107 @@ export default function RestaurantListPage() {
 
           initial={{
             opacity:0,
-            y:-20,
+            y:-30
           }}
 
           animate={{
             opacity:1,
-            y:0,
+            y:0
           }}
 
-          className="mb-8 text-center text-3xl font-bold text-white"
+          className="text-3xl font-bold text-slate-800"
+
         >
 
-          Explore Restaurants 🍽️
+          Popular Restaurants 🍴
 
         </motion.h1>
 
 
 
+        <p className="mt-2 text-slate-500">
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          Choose your favourite food
 
-
-          {
-            restaurants.map((restaurant,index)=>(
-
-
-              <motion.div
-
-                key={restaurant.id}
-
-                initial={{
-                  opacity:0,
-                  y:40,
-                }}
-
-                animate={{
-                  opacity:1,
-                  y:0,
-                }}
-
-                transition={{
-                  delay:index*0.1,
-                }}
-
-
-                className="rounded-3xl border border-white/20 bg-white/10 p-5 backdrop-blur-xl shadow-2xl"
-
-              >
-
-
-                <div className="h-40 rounded-2xl bg-white/10 flex items-center justify-center text-5xl">
-
-                  🍴
-
-                </div>
+        </p>
 
 
 
-                <h2 className="mt-5 text-xl font-bold text-white">
+
+
+        {
+          restaurants.length === 0 && (
+
+            <p className="mt-10 text-center text-slate-500">
+
+              No restaurants available
+
+            </p>
+
+          )
+        }
+
+
+
+
+
+
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+
+        {
+          restaurants.map((restaurant,index)=>(
+
+
+            <motion.div
+
+
+              key={restaurant.id}
+
+
+              initial={{
+                opacity:0,
+                y:40
+              }}
+
+              animate={{
+                opacity:1,
+                y:0
+              }}
+
+              transition={{
+                delay:index*0.1
+              }}
+
+
+              whileTap={{
+                scale:0.96
+              }}
+
+
+              onClick={()=>navigate(`/restaurants/${restaurant.id}`)}
+
+
+              className="cursor-pointer overflow-hidden rounded-3xl bg-white shadow-xl border border-orange-100"
+
+            >
+
+
+
+              <div className="h-44 bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-7xl">
+
+                🍽️
+
+              </div>
+
+
+
+
+
+              <div className="p-5">
+
+
+                <h2 className="text-xl font-bold text-slate-800">
 
                   {restaurant.name}
 
@@ -173,7 +231,7 @@ export default function RestaurantListPage() {
 
 
 
-                <p className="mt-2 text-sm text-white/70">
+                <p className="mt-2 line-clamp-2 text-sm text-slate-500">
 
                   {restaurant.description}
 
@@ -181,34 +239,65 @@ export default function RestaurantListPage() {
 
 
 
-                <div className="mt-4 space-y-2 text-white/80">
 
 
-                  <p>
-                    ⭐ {restaurant.rating}
-                  </p>
+                <div className="mt-5 space-y-3 text-sm text-slate-600">
 
 
-                  <p>
-                    🚚 {restaurant.deliveryTime}
-                  </p>
+                  <div className="flex items-center gap-2">
+
+                    <Star size={16} className="text-orange-500 fill-orange-500"/>
+
+                    {restaurant.rating}
+
+                  </div>
 
 
-                  <p>
-                    📍 {restaurant.location}
-                  </p>
+
+                  <div className="flex items-center gap-2">
+
+                    <Clock size={16} className="text-orange-500"/>
+
+                    {restaurant.deliveryTime}
+
+                  </div>
+
+
+
+                  <div className="flex items-center gap-2">
+
+                    <MapPin size={16} className="text-orange-500"/>
+
+                    {restaurant.location}
+
+                  </div>
 
 
                 </div>
 
 
 
-              </motion.div>
 
 
-            ))
+                <button
 
-          }
+                  className="mt-6 w-full rounded-xl bg-orange-500 py-3 font-bold text-white"
+
+                >
+
+                  View Menu 🍔
+
+                </button>
+
+
+              </div>
+
+
+            </motion.div>
+
+
+          ))
+        }
 
 
         </div>

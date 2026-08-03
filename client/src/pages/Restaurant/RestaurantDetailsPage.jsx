@@ -6,6 +6,9 @@ import restaurantService from "../../services/restaurantService";
 import RestaurantHeader from "./components/RestaurantHeader";
 import FoodCard from "./components/FoodCard";
 
+import { useCart } from "../../context/CartContext";
+import { useToast } from "../../context/ToastContext";
+
 
 export default function RestaurantDetailsPage() {
 
@@ -13,11 +16,23 @@ export default function RestaurantDetailsPage() {
   const { id } = useParams();
 
 
+  const {
+    addToCart
+  } = useCart();
+
+
+  const {
+    showToast
+  } = useToast();
+
+
+
   const [restaurant,setRestaurant] = useState(null);
 
   const [foods,setFoods] = useState([]);
 
   const [loading,setLoading] = useState(true);
+
 
 
 
@@ -34,6 +49,7 @@ export default function RestaurantDetailsPage() {
           await restaurantService.getRestaurantById(id);
 
 
+
         const foodResponse =
           await restaurantService.getFoodsByRestaurantId(id);
 
@@ -42,6 +58,7 @@ export default function RestaurantDetailsPage() {
         setRestaurant(
           restaurantResponse.restaurant
         );
+
 
 
         setFoods(
@@ -73,15 +90,66 @@ export default function RestaurantDetailsPage() {
 
 
 
+
+  const handleAddToCart = (food)=>{
+
+
+    addToCart({
+
+      id: food.id,
+
+      name: food.name,
+
+      price: food.price,
+
+      description: food.description,
+
+      restaurantId: id,
+
+      restaurantName: restaurant?.name
+
+    });
+
+
+
+    showToast(
+      "Added to cart 🛒",
+      "success"
+    );
+
+
+  };
+
+
+
+
+
+
+
   if(loading){
 
     return (
 
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#FFF8F3] flex items-center justify-center">
 
-        <p className="text-white text-xl">
+        <motion.p
+
+          animate={{
+            opacity:[0.3,1,0.3]
+          }}
+
+          transition={{
+            repeat:Infinity,
+            duration:1
+          }}
+
+          className="text-orange-500 text-xl font-semibold"
+
+        >
+
           Loading Restaurant...
-        </p>
+
+        </motion.p>
 
       </div>
 
@@ -93,11 +161,13 @@ export default function RestaurantDetailsPage() {
 
 
 
+
+
   if(!restaurant){
 
     return (
 
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#FFF8F3] flex items-center justify-center">
 
         <p className="text-slate-800">
           Restaurant not found
@@ -108,6 +178,8 @@ export default function RestaurantDetailsPage() {
     );
 
   }
+
+
 
 
 
@@ -130,7 +202,11 @@ export default function RestaurantDetailsPage() {
           y:0
         }}
 
-        className="mx-auto max-w-5xl rounded-[28px] bg-white p-6 shadow-xl border border-orange-100"
+        transition={{
+          duration:0.5
+        }}
+
+        className="mx-auto max-w-5xl"
 
       >
 
@@ -150,21 +226,47 @@ export default function RestaurantDetailsPage() {
 
 
 
+        <div className="mt-6 grid gap-6 sm:grid-cols-2">
 
-        <div className="mt-5 grid gap-5 sm:grid-cols-2">
+
+          {
+            foods.map((food,index)=>(
 
 
-        {
-          foods.map((food)=>(
-            <FoodCard
-              key={food.id}
-              food={food}
-              onAdd={(item)=>{
-                console.log("Add To Cart:", item);
-              }}
-            />
-          ))
-        }
+              <motion.div
+
+                key={food.id}
+
+                initial={{
+                  opacity:0,
+                  y:30
+                }}
+
+                animate={{
+                  opacity:1,
+                  y:0
+                }}
+
+                transition={{
+                  delay:index*0.1
+                }}
+
+              >
+
+                <FoodCard
+
+                  food={food}
+
+                  onAdd={handleAddToCart}
+
+                />
+
+
+              </motion.div>
+
+
+            ))
+          }
 
 
         </div>

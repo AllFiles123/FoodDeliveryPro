@@ -10,6 +10,7 @@ import authRoutes from "./routes/auth.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
 import restaurantRoutes from "./routes/restaurant.routes.js";
 import foodRoutes from "./routes/food.routes.js";
+import orderRoutes from "./routes/order.routes.js";
 
 import {
   createUserTable,
@@ -20,6 +21,7 @@ import {
   createRestaurantTable,
 } from "./models/restaurant.model.js";
 import { createFoodTable } from "./models/food.model.js";
+import { createOrderTable } from "./models/order.model.js";
 
 
 const app = express();
@@ -103,6 +105,13 @@ app.use(
 );
 
 
+// Order Routes
+app.use(
+  "/api/orders",
+  orderRoutes
+);
+
+
 
 app.use((req, res) => {
 
@@ -137,6 +146,7 @@ createPasswordResetTable();
 
 createRestaurantTable();
 createFoodTable();
+createOrderTable();
 
 
 
