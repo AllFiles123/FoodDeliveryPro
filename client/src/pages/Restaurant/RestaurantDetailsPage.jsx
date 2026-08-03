@@ -102,7 +102,11 @@ export default function RestaurantDetailsPage() {
 
       price: food.price,
 
+      image: food.image || "",
+
       description: food.description,
+
+      rating: food.rating,
 
       restaurantId: id,
 
@@ -178,7 +182,6 @@ export default function RestaurantDetailsPage() {
     );
 
   }
-
 
 
 

@@ -4,11 +4,15 @@ import {
   placeOrder,
   myOrders,
   cancelMyOrder,
+  trackOrder,
+  changeOrderStatus,
 } from "../controllers/order.controller.js";
+
 
 import {
   authMiddleware,
 } from "../middleware/auth.middleware.js";
+
 
 
 const router = Router();
@@ -31,6 +35,16 @@ router.get(
 
 
 
+// User order tracking
+router.get(
+  "/:id/track",
+  authMiddleware,
+  trackOrder
+);
+
+
+
+// Cancel order
 router.patch(
   "/:id/cancel",
   authMiddleware,
@@ -39,5 +53,14 @@ router.patch(
 
 
 
-export default router;
+// Update status
+// Later admin panel এ ব্যবহার হবে
+router.patch(
+  "/:id/status",
+  authMiddleware,
+  changeOrderStatus
+);
 
+
+
+export default router;

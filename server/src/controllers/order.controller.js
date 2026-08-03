@@ -2,6 +2,8 @@ import {
   createOrder,
   getOrdersByUser,
   cancelOrder,
+  updateOrderStatus,
+  getOrderById,
 } from "../models/order.model.js";
 
 
@@ -13,7 +15,6 @@ export async function placeOrder(req,res){
 
 
     const {
-
 
       items,
 
@@ -53,9 +54,7 @@ export async function placeOrder(req,res){
       discount,
 
 
-      paymentStatus,
-
-      orderStatus
+      restaurantName,
 
 
     } = req.body;
@@ -65,13 +64,9 @@ export async function placeOrder(req,res){
 
 
     if(
-
       !items ||
-
       !Array.isArray(items) ||
-
-      items.length === 0
-
+      items.length===0
     ){
 
       return res.status(400).json({
@@ -107,9 +102,7 @@ export async function placeOrder(req,res){
 
 
 
-    if(
-      !paymentMethod
-    ){
+    if(!paymentMethod){
 
       return res.status(400).json({
 
@@ -144,7 +137,7 @@ export async function placeOrder(req,res){
 
 
 
-    createOrder({
+    const order = createOrder({
 
       userId:req.user.id,
 
@@ -201,14 +194,22 @@ export async function placeOrder(req,res){
       discount,
 
 
-      paymentStatus,
+      restaurantName:
 
 
-      orderStatus
+      restaurantName || "",
+
+
+      paymentStatus:
+
+      paymentMethod==="Cash on Delivery"
+
+      ? "Pending"
+
+      : "Paid"
 
 
     });
-
 
 
 
@@ -218,7 +219,9 @@ export async function placeOrder(req,res){
 
       success:true,
 
-      message:"Order placed successfully"
+      message:"Order placed successfully",
+
+      order
 
     });
 
@@ -244,7 +247,6 @@ export async function placeOrder(req,res){
 
 
 }
-
 
 
 
@@ -298,6 +300,8 @@ export async function myOrders(req,res){
 
 
 
+
+
 export async function cancelMyOrder(req,res){
 
 
@@ -306,8 +310,11 @@ export async function cancelMyOrder(req,res){
 
     const result =
       cancelOrder(
+
         req.params.id,
+
         req.user.id
+
       );
 
 
@@ -350,6 +357,140 @@ export async function cancelMyOrder(req,res){
       success:false,
 
       message:"Cancel order failed"
+
+    });
+
+
+  }
+
+
+}
+
+
+
+
+
+export async function trackOrder(req,res){
+
+
+  try{
+
+
+    const order =
+      getOrderById(
+        req.params.id,
+        req.user.id
+      );
+
+
+
+    if(!order){
+
+
+      return res.status(404).json({
+
+        success:false,
+
+        message:"Order not found"
+
+      });
+
+
+    }
+
+
+
+    return res.json({
+
+      success:true,
+
+      order
+
+    });
+
+
+
+  }catch(error){
+
+
+    console.error(error);
+
+
+    return res.status(500).json({
+
+      success:false,
+
+      message:"Tracking failed"
+
+    });
+
+
+  }
+
+
+}
+
+
+
+
+
+
+export async function changeOrderStatus(req,res){
+
+
+  try{
+
+
+    const {
+
+      status
+
+    } = req.body;
+
+
+
+    if(!status){
+
+
+      return res.status(400).json({
+
+        success:false,
+
+        message:"Status required"
+
+      });
+
+
+    }
+
+
+
+    const result =
+      updateOrderStatus(
+
+        req.params.id,
+
+        status
+
+      );
+
+
+
+    return res.json(result);
+
+
+
+  }catch(error){
+
+
+    console.error(error);
+
+
+    return res.status(500).json({
+
+      success:false,
+
+      message:"Status update failed"
 
     });
 

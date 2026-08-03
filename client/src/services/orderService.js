@@ -27,6 +27,19 @@ const orderService = {
 
     return response.data;
 
+  },
+
+
+
+  cancelOrder: async(id)=>{
+
+    const response =
+      await api.patch(
+        `/orders/${id}/cancel`
+      );
+
+    return response.data;
+
   }
 
 

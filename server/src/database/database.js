@@ -171,7 +171,31 @@ function runMigrations(){
 
 
     orderStatus:
-    "TEXT DEFAULT 'Pending'",
+    "TEXT DEFAULT 'Order Placed'",
+
+
+    orderNumber:
+    "TEXT DEFAULT ''",
+
+
+    restaurantName:
+    "TEXT DEFAULT ''",
+
+
+    trackingStatus:
+    "TEXT DEFAULT 'Order Placed'",
+
+
+    trackingHistory:
+    "TEXT DEFAULT '[]'",
+
+
+    estimatedDeliveryTime:
+    "TEXT DEFAULT '30-45 minutes'",
+
+
+    cancelledAt:
+    "DATETIME DEFAULT NULL",
 
 
     updatedAt:
