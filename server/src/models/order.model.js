@@ -235,23 +235,33 @@ export const getOrdersByUser = (userId) => {
 
 
 
-  return stmt.all(userId).map(order => ({
+  const orders = [];
 
+  stmt.bind([userId]);
 
-    ...order,
+  while(stmt.step()){
 
+    const order = stmt.getAsObject();
 
-    items:
+    orders.push({
 
-    JSON.parse(order.items || "[]"),
+      ...order,
 
+      items:
 
-    trackingHistory:
+      JSON.parse(order.items || "[]"),
 
-    JSON.parse(order.trackingHistory || "[]")
+      trackingHistory:
 
+      JSON.parse(order.trackingHistory || "[]")
 
-  }));
+    });
+
+  }
+
+  stmt.free();
+
+  return orders;
 
 };
 
