@@ -37,7 +37,6 @@ export const createOrder = (order) => {
 
   const {
     userId,
-    userId,
     items,
     totalAmount,
     address,
