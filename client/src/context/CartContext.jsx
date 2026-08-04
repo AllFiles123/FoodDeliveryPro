@@ -72,7 +72,13 @@ export function CartProvider({ children }) {
   };
 
   const clearCart = () => {
+
     setCart([]);
+
+    localStorage.removeItem(
+      "fooddeliverypro-cart"
+    );
+
   };
 
   const totalItems = useMemo(

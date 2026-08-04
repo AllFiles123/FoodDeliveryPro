@@ -166,7 +166,9 @@ export default function OrdersPage(){
 
 
           const activeStep =
-            trackingSteps.indexOf(currentStatus);
+            currentStatus === "Cancelled"
+            ? -1
+            : trackingSteps.indexOf(currentStatus);
 
 
           let trackingHistory=[];
