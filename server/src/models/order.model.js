@@ -65,6 +65,7 @@ export const createOrder = (order) => {
     "FD" + Date.now();
 
 
+console.log("CREATE ORDER USERID =", userId);
   const db = getDatabase();
 
 

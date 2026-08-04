@@ -137,6 +137,8 @@ export async function placeOrder(req,res){
 
 
 
+console.log("REQ USER =", req.user);
+console.log("REQ USER ID =", req.user?.id);
     const order = createOrder({
 
       userId:req.user.id,
