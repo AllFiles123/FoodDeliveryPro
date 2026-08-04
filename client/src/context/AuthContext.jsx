@@ -6,20 +6,30 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
 
 
-  const [user, setUser] = useState(() => {
+  const [user,setUser] = useState(()=>{
 
-    try {
+    try{
+
+      const token =
+        localStorage.getItem("token");
 
       const savedUser =
         localStorage.getItem("user");
 
-      return savedUser
-        ? JSON.parse(savedUser)
-        : null;
 
-    } catch {
+      if(!token || !savedUser){
+        return null;
+      }
+
+
+      return JSON.parse(savedUser);
+
+
+    }catch(error){
 
       localStorage.removeItem("user");
+      localStorage.removeItem("token");
+
       return null;
 
     }
@@ -28,7 +38,7 @@ export function AuthProvider({ children }) {
 
 
 
-  const login = (userData, token) => {
+  const login = (userData,token)=>{
 
 
     if(token){
@@ -41,13 +51,17 @@ export function AuthProvider({ children }) {
     }
 
 
-    localStorage.setItem(
-      "user",
-      JSON.stringify(userData)
-    );
+    if(userData){
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(userData)
+      );
 
 
-    setUser(userData);
+      setUser(userData);
+
+    }
 
 
   };
@@ -55,7 +69,7 @@ export function AuthProvider({ children }) {
 
 
 
-  const logout = () => {
+  const logout = ()=>{
 
 
     setUser(null);
@@ -66,28 +80,22 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("token");
 
 
-    // extra cleanup
-
     localStorage.removeItem("cart");
+
 
   };
 
 
 
-  return (
+  return(
 
     <AuthContext.Provider
 
       value={{
-
         user,
-
         login,
-
         logout,
-
-        isAuthenticated: !!user,
-
+        isAuthenticated:!!user
       }}
 
     >

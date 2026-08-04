@@ -119,9 +119,22 @@ export default function LoginPage() {
 
 
       login(
-        response.user || {
-          email: formData.email,
+        {
+          id: response.user?.id || null,
+
+          fullName:
+            response.user?.fullName || "",
+
+          email:
+            response.user?.email || formData.email,
+
+          phone:
+            response.user?.phone || "",
+
+          role:
+            response.user?.role || "user",
         },
+
         response.token
       );
 

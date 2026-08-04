@@ -65,15 +65,49 @@ export default function OrdersPage(){
 
   const cancelOrder = async(id)=>{
 
-    if(!confirm("Cancel this order?"))
+    if(!window.confirm("Cancel this order?"))
       return;
 
-    await orderService.cancelOrder(id);
 
-    loadOrders();
+    try{
+
+      const response =
+        await orderService.cancelOrder(id);
+
+
+      console.log(
+        "Cancel Response:",
+        response
+      );
+
+
+      alert(
+        response.message ||
+        "Order cancelled successfully"
+      );
+
+
+      await loadOrders();
+
+
+    }catch(error){
+
+
+      console.error(
+        "Cancel Error:",
+        error
+      );
+
+
+      alert(
+        error?.response?.data?.message ||
+        "Order cancel failed"
+      );
+
+
+    }
 
   };
-
 
 
   if(loading){
@@ -125,10 +159,14 @@ export default function OrdersPage(){
 
 
 
+          const currentStatus =
+            order.orderStatus ||
+            order.trackingStatus ||
+            "Order Placed";
+
+
           const activeStep =
-            trackingSteps.indexOf(
-              order.orderStatus
-            );
+            trackingSteps.indexOf(currentStatus);
 
 
           let trackingHistory=[];
@@ -199,7 +237,7 @@ export default function OrdersPage(){
 
 
               <span className="inline-block mt-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-600">
-                {order.orderStatus}
+                {currentStatus}
               </span>
 
 
@@ -267,137 +305,187 @@ export default function OrdersPage(){
 
 
 
+
             <div className="border-t pt-5">
 
 
-              <h3 className="font-bold text-lg">
+              <h3 className="text-xl font-bold text-slate-800">
                 Order Summary
               </h3>
 
 
 
-              <div className="mt-4 space-y-3">
+              {/* ITEM DETAILS */}
 
-              {
-                items.map(item=>{
+              <div className="mt-5 rounded-2xl bg-orange-50 p-4">
 
-                  const itemQty = item.quantity || item.qty || 1;
+                <h4 className="font-bold text-orange-600 mb-3">
+                  🍔 Item Details
+                </h4>
 
-                  return (
+
+                {
+                  items.map(item=>{
+
+                    const itemQty = Number(item.quantity || item.qty || 1);
+
+                    return (
+
+                    <div
+                      key={item.id}
+                      className="flex items-center gap-3"
+                    >
 
 
-                  <div
-                    key={item.id}
-                    className="flex items-center gap-3"
-                  >
+                      {
+                        item.image ?
 
-                    {
-                      item.image ?
+                        <img
+                          src={item.image}
+                          className="h-16 w-16 rounded-xl object-cover"
+                        />
 
-                      <img
-                        src={item.image}
-                        className="h-16 w-16 rounded-xl object-cover"
-                      />
+                        :
 
-                      :
+                        <div className="h-16 w-16 rounded-xl bg-white flex items-center justify-center text-2xl">
+                          🍔
+                        </div>
 
-                      <div className="h-16 w-16 rounded-xl bg-orange-100 flex items-center justify-center text-2xl">
-                        🍔
+                      }
+
+
+                      <div className="flex-1">
+
+                        <p className="font-bold">
+                          {item.name}
+                        </p>
+
+                        <p className="text-sm text-gray-500">
+                          Quantity: {itemQty}
+                        </p>
+
                       </div>
 
-                    }
 
-
-
-                    <div className="flex-1">
-
-                      <p className="font-bold">
-                        {item.name}
+                      <p className="font-bold text-orange-600">
+                        ৳ {Number(item.price || 0) * itemQty}
                       </p>
 
-                      <p className="text-sm text-gray-500">
-                        Qty: {itemQty}
-                      </p>
 
                     </div>
 
+                    )
 
-
-                    <p className="font-bold text-orange-500">
-                      ৳ {item.price * itemQty}
-                    </p>
-
-
-                  </div>
-
-                  )
-                })
+                  })
                 }
 
 
-
               </div>
 
 
 
 
+              <div className="my-5 border-t border-dashed"></div>
 
-              <div className="mt-5 border-t pt-4 space-y-2 text-sm">
+
+
+
+              {/* CUSTOMER DETAILS */}
+
+              <div className="rounded-2xl bg-white border p-4">
+
+                <h4 className="font-bold text-slate-800 mb-3">
+                  👤 Customer Details
+                </h4>
 
 
                 <p>
-                  Subtotal: ৳ {order.subtotal}
+                  Name: {order.customerName || "N/A"}
                 </p>
 
-                <p>
-                  Delivery: ৳ {order.deliveryCharge}
-                </p>
-
-                <p>
-                  VAT: ৳ {order.vat}
-                </p>
-
-                <p className="font-bold text-lg">
-                  Total: ৳ {order.totalAmount}
-                </p>
-
-
-              </div>
-
-
-
-
-
-
-              <div className="mt-5 space-y-3">
-
-
-                <p className="flex gap-2">
+                <p className="flex gap-2 mt-2">
                   <Phone size={18}/>
                   {order.customerPhone || "No phone"}
                 </p>
 
 
-                <p className="flex gap-2">
+                <p className="flex gap-2 mt-2">
                   <MapPin size={18}/>
-                  {order.fullAddress || order.address}
-                </p>
-
-
-                <p className="flex gap-2">
-                  <CreditCard size={18}/>
-                  {order.paymentMethod}
-                </p>
-
-
-                <p className="flex gap-2">
-                  <Clock size={18}/>
-                  {order.estimatedDeliveryTime}
+                  {order.fullAddress || order.address || "No address"}
                 </p>
 
 
               </div>
 
+
+
+
+              <div className="my-5 border-t border-dashed"></div>
+
+
+
+
+              {/* PAYMENT DETAILS */}
+
+              <div className="rounded-2xl bg-white border p-4">
+
+
+                <h4 className="font-bold text-slate-800 mb-3">
+                  💳 Payment Details
+                </h4>
+
+
+                <p>
+                  Method: {order.paymentMethod}
+                </p>
+
+
+                <p className="mt-2">
+                  Status: {order.paymentStatus || "Pending"}
+                </p>
+
+
+              </div>
+
+
+
+
+              <div className="my-5 border-t border-dashed"></div>
+
+
+
+
+              {/* BILL SUMMARY */}
+
+              <div className="rounded-2xl bg-orange-50 p-4">
+
+
+                <h4 className="font-bold text-orange-600 mb-3">
+                  💰 Bill Summary
+                </h4>
+
+
+                <p>
+                  Subtotal: ৳ {order.subtotal || order.totalAmount}
+                </p>
+
+
+                <p>
+                  Delivery: ৳ {order.deliveryCharge || 0}
+                </p>
+
+
+                <p>
+                  VAT: ৳ {order.vat || 0}
+                </p>
+
+
+                <p className="mt-3 text-lg font-bold">
+                  Total: ৳ {order.totalAmount}
+                </p>
+
+
+              </div>
 
 
               <motion.div
@@ -457,7 +545,7 @@ export default function OrdersPage(){
 
 
                 {
-                  order.orderStatus==="Out for Delivery" &&
+                  (order.orderStatus || order.trackingStatus)==="Out for Delivery" &&
 
                   <p className="mt-3 text-sm font-semibold text-orange-600">
 
@@ -675,8 +763,8 @@ export default function OrdersPage(){
 
 
               {
-                order.orderStatus!=="Delivered" &&
-                order.orderStatus!=="Cancelled" &&
+                currentStatus!=="Delivered" &&
+                currentStatus!=="Cancelled" &&
 
 
                 <button

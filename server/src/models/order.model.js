@@ -250,6 +250,10 @@ export const cancelOrder = (id,userId) => {
 
     orderStatus='Cancelled',
 
+    trackingStatus='Cancelled',
+
+    trackingHistory=?,
+
     cancelledAt=CURRENT_TIMESTAMP,
 
     updatedAt=CURRENT_TIMESTAMP
@@ -262,6 +266,13 @@ export const cancelOrder = (id,userId) => {
 
 
   return stmt.run([
+
+    JSON.stringify([
+      {
+        status:"Cancelled",
+        time:new Date().toISOString()
+      }
+    ]),
 
     id,
 
