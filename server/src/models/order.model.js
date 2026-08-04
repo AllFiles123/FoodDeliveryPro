@@ -132,7 +132,7 @@ console.log("CREATE ORDER USERID =", userId);
 
 
   const result = db.exec(
-    "SELECT last_insert_rowid()"
+    `SELECT id FROM orders WHERE orderNumber='${orderNumber}'`
   );
 
 
