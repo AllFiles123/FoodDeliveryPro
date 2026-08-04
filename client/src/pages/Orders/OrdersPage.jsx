@@ -279,7 +279,11 @@ export default function OrdersPage(){
               <div className="mt-4 space-y-3">
 
               {
-                items.map(item=>(
+                items.map(item=>{
+
+                  const itemQty = item.quantity || item.qty || 1;
+
+                  return (
 
 
                   <div
@@ -312,7 +316,7 @@ export default function OrdersPage(){
                       </p>
 
                       <p className="text-sm text-gray-500">
-                        Qty: {item.qty}
+                        Qty: {itemQty}
                       </p>
 
                     </div>
@@ -320,13 +324,14 @@ export default function OrdersPage(){
 
 
                     <p className="font-bold text-orange-500">
-                      ৳ {item.price * item.qty}
+                      ৳ {item.price * itemQty}
                     </p>
 
 
                   </div>
 
-                  ))
+                  )
+                })
                 }
 
 

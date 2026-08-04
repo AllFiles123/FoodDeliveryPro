@@ -237,7 +237,7 @@ export default function CheckoutPage() {
 
           price:item.price,
 
-          qty:item.qty,
+          quantity:item.qty,
 
         })),
 

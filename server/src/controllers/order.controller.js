@@ -306,52 +306,39 @@ export async function myOrders(req,res){
 
 export async function cancelMyOrder(req,res){
 
-
   try{
 
-
-    const result =
-      cancelOrder(
-
-        req.params.id,
-
-        req.user.id
-
-      );
+    const result = cancelOrder(
+      req.params.id,
+      req.user.id
+    );
 
 
-
-    if(!result.success){
-
+    if(!result.changes){
 
       return res.status(400).json({
 
         success:false,
 
-        message:result.message
+        message:"Order not found or already cancelled"
 
       });
 
-
     }
-
 
 
     return res.json({
 
       success:true,
 
-      message:result.message
+      message:"Order cancelled successfully"
 
     });
 
 
-
   }catch(error){
 
-
     console.error(error);
-
 
 
     return res.status(500).json({
@@ -362,15 +349,9 @@ export async function cancelMyOrder(req,res){
 
     });
 
-
   }
 
-
 }
-
-
-
-
 
 export async function trackOrder(req,res){
 
