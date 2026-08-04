@@ -101,7 +101,7 @@ console.log("CREATE ORDER USERID =", userId);
   `);
 
 
-  stmt.run(
+  stmt.run([
     userId,
     JSON.stringify(items || []),
     totalAmount || 0,
@@ -124,7 +124,7 @@ console.log("CREATE ORDER USERID =", userId);
     restaurantName || "",
     trackingStatus || "Order Placed",
     JSON.stringify(trackingHistory || [])
-  );
+  ]);
 
 
   saveDatabase();
@@ -261,13 +261,13 @@ export const cancelOrder = (id,userId) => {
 
 
 
-  return stmt.run(
+  return stmt.run([
 
     id,
 
     userId
 
-  );
+  ]);
 
 };
 
@@ -297,7 +297,7 @@ export const updateOrderStatus = (id,status) => {
 
 
 
-  return stmt.run(
+  return stmt.run([
 
     status,
 
@@ -305,7 +305,7 @@ export const updateOrderStatus = (id,status) => {
 
     id
 
-  );
+  ]);
 
 };
 
