@@ -308,10 +308,23 @@ export async function cancelMyOrder(req,res){
 
   try{
 
-    cancelOrder(
+    const result = cancelOrder(
       req.params.id,
       req.user.id
     );
+
+
+    if(!result || result.changes === 0){
+
+      return res.status(400).json({
+
+        success:false,
+
+        message:"Order not found or cannot be cancelled"
+
+      });
+
+    }
 
 
     return res.json({
