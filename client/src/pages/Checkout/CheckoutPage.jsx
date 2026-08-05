@@ -320,10 +320,6 @@ export default function CheckoutPage() {
 
 
 
-      setTimeout(()=>{
-        navigate("/orders");
-      },1500);
-
 
 
     }catch(error){
@@ -357,7 +353,11 @@ export default function CheckoutPage() {
 
     <>
 
-    {showSuccess && <OrderSuccessAnimation />}
+    {showSuccess && (
+      <OrderSuccessAnimation
+        onClose={() => navigate("/orders")}
+      />
+    )}
 
     <div className="min-h-screen bg-[#FFF8F3] px-5 py-8 pb-32">
 

@@ -1,6 +1,5 @@
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 
 import {
   House,
@@ -49,25 +48,6 @@ export default function BottomNavigation() {
   const {
     totalItems
   } = useCart();
-
-  const [cartBounce, setCartBounce] = useState(false);
-  const [previousItems, setPreviousItems] = useState(totalItems);
-
-  useEffect(() => {
-    if (totalItems > previousItems) {
-      setCartBounce(true);
-
-      const timer = setTimeout(() => {
-        setCartBounce(false);
-      }, 700);
-
-      setPreviousItems(totalItems);
-
-      return () => clearTimeout(timer);
-    }
-
-    setPreviousItems(totalItems);
-  }, [totalItems, previousItems]);
 
 
 
@@ -120,22 +100,7 @@ export default function BottomNavigation() {
                       <div className="relative">
 
 
-                        <motion.div
-                          animate={
-                            item.name === "Cart" && cartBounce
-                              ? {
-                                  scale: [1, 1.35, 1],
-                                  rotate: [0, -12, 12, 0],
-                                }
-                              : {}
-                          }
-                          transition={{
-                            duration: 0.5,
-                            type: "spring",
-                          }}
-                        >
-                          <Icon size={23}/>
-                        </motion.div>
+                        <Icon size={23}/>
 
 
 
@@ -151,11 +116,7 @@ export default function BottomNavigation() {
                               }}
 
                               animate={{
-                                scale:[0,1.3,1]
-                              }}
-                              transition={{
-                                type:"spring",
-                                stiffness:300
+                                scale:1
                               }}
 
                               className="absolute -right-3 -top-3 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white"
