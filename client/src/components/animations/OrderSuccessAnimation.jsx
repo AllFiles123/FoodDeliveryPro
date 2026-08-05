@@ -1,77 +1,87 @@
-
 import { motion } from "framer-motion";
-import { CheckCircle, Package, Clock } from "lucide-react";
+import {
+  CheckCircle,
+  PackageCheck,
+  Clock3,
+  ArrowRight,
+} from "lucide-react";
 
 export default function OrderSuccessAnimation({ onClose }) {
-
   return (
-
     <motion.div
-      initial={{opacity:0}}
-      animate={{opacity:1}}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-5"
     >
-
       <motion.div
-        initial={{scale:0.7,y:40}}
-        animate={{scale:1,y:0}}
+        initial={{ scale: 0.8, y: 40, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
         transition={{
-          type:"spring",
-          stiffness:120
+          type: "spring",
+          stiffness: 160,
+          damping: 18,
         }}
-        className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-2xl"
+        className="relative w-full max-w-md overflow-hidden rounded-[32px] bg-white p-8 shadow-[0_25px_70px_rgba(0,0,0,0.18)]"
       >
-
         <motion.div
           animate={{
-            scale:[1,1.15,1]
+            scale: [1, 1.08, 1],
           }}
           transition={{
-            repeat:Infinity,
-            duration:1.5
+            repeat: Infinity,
+            duration: 2,
           }}
-          className="mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-orange-500 text-white"
+          className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-600 shadow-xl"
         >
-          <CheckCircle size={55}/>
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white">
+            <CheckCircle
+              size={52}
+              className="text-orange-500"
+            />
+          </div>
         </motion.div>
 
-
-        <h2 className="text-3xl font-bold text-gray-800">
-          Order Confirmed 🎉
+        <h2 className="mt-7 text-center text-3xl font-extrabold text-slate-800">
+          Order Confirmed
         </h2>
 
-
-        <p className="mt-3 text-gray-500">
-          Your delicious food is being prepared.
+        <p className="mt-3 text-center text-sm leading-6 text-slate-500">
+          Your order has been received successfully.
+          Our restaurant has already started preparing it.
         </p>
 
-
-        <div className="mt-6 space-y-3 rounded-2xl bg-orange-50 p-4 text-left">
-
+        <div className="mt-7 rounded-2xl bg-orange-50 p-5 space-y-4">
           <div className="flex items-center gap-3">
-            <Package className="text-orange-500"/>
-            <span>Restaurant is preparing your order</span>
+            <PackageCheck
+              size={22}
+              className="text-orange-500"
+            />
+            <span className="text-sm font-medium">
+              Restaurant accepted your order
+            </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <Clock className="text-orange-500"/>
-            <span>Estimated delivery: 30-40 minutes</span>
+            <Clock3
+              size={22}
+              className="text-orange-500"
+            />
+            <span className="text-sm font-medium">
+              Estimated delivery 30–40 minutes
+            </span>
           </div>
-
         </div>
 
-
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={onClose}
-          className="mt-6 w-full rounded-xl bg-orange-500 py-3 font-semibold text-white"
+          className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 py-4 font-bold text-white shadow-lg"
         >
           Track My Order
-        </button>
-
-
+          <ArrowRight size={20} />
+        </motion.button>
       </motion.div>
-
     </motion.div>
-
   );
 }
