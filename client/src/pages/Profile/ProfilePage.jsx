@@ -1,22 +1,29 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { LogOut } from "lucide-react";
+import {
+  ArrowLeft,
+  Settings,
+  Pencil,
+  User,
+  Package,
+  MapPin,
+  CreditCard,
+  Bell,
+  Moon,
+  HelpCircle,
+  LogOut,
+  ChevronRight,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import profileService from "../../services/profileService";
-
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
-
-import PrimaryButton from "../../components/buttons/PrimaryButton";
-import PrimaryInput from "../../components/inputs/PrimaryInput";
 
 
 export default function ProfilePage() {
 
-
   const navigate = useNavigate();
-
 
   const {
     user,
@@ -24,87 +31,46 @@ export default function ProfilePage() {
     logout
   } = useAuth();
 
-
   const {
     showToast
   } = useToast();
 
 
-  const [formData,setFormData] = useState({
-    fullName:"",
-    phone:"",
-  });
-
-
   const [loading,setLoading] = useState(false);
   const [pageLoading,setPageLoading] = useState(true);
-  const [editMode,setEditMode] = useState(false);
-
 
 
   useEffect(()=>{
 
-    let ignore = false;
-
-
     const loadProfile = async()=>{
-
 
       try{
 
+        const response = await profileService.getProfile();
 
-        const response =
-        await profileService.getProfile();
-
-
-
-        if(!ignore && response.user){
-
+        if(response.user){
 
           login(
             response.user,
             localStorage.getItem("token")
           );
 
-
-          setFormData({
-
-            fullName:
-            response.user.fullName || "",
-
-
-            phone:
-            response.user.phone || "",
-
-          });
-
-
         }
-
 
       }
       catch(error){
-
 
         console.error(
           "Profile Load Error:",
           error
         );
 
-
       }
       finally{
 
-
-        if(!ignore){
-
-          setPageLoading(false);
-
-        }
-
+        setPageLoading(false);
 
       }
-
 
     };
 
@@ -112,200 +78,146 @@ export default function ProfilePage() {
     loadProfile();
 
 
-
-    return ()=>{
-
-      ignore = true;
-
-    };
-
-
   },[]);
-
-
-
-
-
-  useEffect(()=>{
-
-
-    if(user && !formData.fullName){
-
-
-      setFormData({
-
-        fullName:user.fullName || "",
-
-        phone:user.phone || "",
-
-      });
-
-
-    }
-
-
-  },[user]);
-
-
-
-
-
-  const handleChange=(e)=>{
-
-    const {
-      name,
-      value
-    }=e.target;
-
-
-    setFormData((prev)=>({
-
-      ...prev,
-
-      [name]:value,
-
-    }));
-
-
-  };
-
-
-
-
-
-  const handleUpdate=async()=>{
-
-
-    setLoading(true);
-
-
-    try{
-
-
-      const response =
-      await profileService.updateProfile(formData);
-
-
-
-      login(
-
-        response.user,
-
-        localStorage.getItem("token")
-
-      );
-
-
-      showToast(
-        "Profile updated successfully",
-        "success"
-      );
-
-
-      setEditMode(false);
-
-
-
-    }
-    catch(error){
-
-
-      showToast(
-        "Profile update failed",
-        "error"
-      );
-
-
-    }
-    finally{
-
-
-      setLoading(false);
-
-
-    }
-
-
-  };
-
-
 
 
 
   const handleLogout=()=>{
 
-
     logout();
-
 
     showToast(
       "Logout Successful",
       "success"
     );
 
-
     navigate("/login",{
-      replace:true,
+      replace:true
     });
-
 
   };
 
 
 
-
-
-
   if(pageLoading){
-
 
     return (
 
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-200 via-orange-100 to-green-200">
 
-        <motion.p
-
-          animate={{
-            opacity:[0.3,1,0.3]
-          }}
-
-          transition={{
-            repeat:Infinity,
-            duration:1.2
-          }}
-
-          className="text-white text-xl"
-
-        >
-
+        <p className="text-slate-700 text-xl font-semibold">
           Loading Profile...
-
-        </motion.p>
-
+        </p>
 
       </div>
 
     );
 
-
   }
 
 
 
+  const menuOne=[
+    {
+      title:"Profile Details",
+      icon:User
+    },
+    {
+      title:"My Orders",
+      icon:Package
+    },
+    {
+      title:"My Addresses",
+      icon:MapPin
+    },
+    {
+      title:"Payment Methods",
+      icon:CreditCard
+    },
+    {
+      title:"Saved Cards",
+      icon:CreditCard
+    }
+  ];
+
+
+  const menuTwo=[
+    {
+      title:"Notifications",
+      icon:Bell
+    },
+    {
+      title:"Dark Mode",
+      icon:Moon
+    },
+    {
+      title:"Help & Support",
+      icon:HelpCircle
+    }
+  ];
+
+
+
+  const renderMenu=(items)=>(
+    
+    <div className="rounded-[24px] bg-white/70 backdrop-blur-xl shadow-lg border border-white/40 overflow-hidden">
+
+      {
+        items.map((item,index)=>{
+
+          const Icon=item.icon;
+
+          return(
+
+            <div
+              key={index}
+              className="flex items-center justify-between px-5 py-5 border-b border-slate-200/60 last:border-none"
+            >
+
+              <div className="flex items-center gap-4">
+
+                <Icon
+                  size={22}
+                  className="text-slate-700"
+                  strokeWidth={1.7}
+                />
+
+                <span className="text-slate-800 font-medium">
+                  {item.title}
+                </span>
+
+              </div>
+
+
+              <ChevronRight
+                size={20}
+                className="text-slate-400"
+                strokeWidth={1.7}
+              />
+
+            </div>
+
+          );
+
+        })
+      }
+
+    </div>
+
+  );
 
 
 
   return (
 
-
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-orange-600 px-6 py-10">
+    <div className="min-h-screen px-5 py-8 bg-gradient-to-br from-pink-200 via-orange-100 to-green-200">
 
 
       <motion.div
 
         initial={{
           opacity:0,
-          y:40
+          y:30
         }}
 
         animate={{
@@ -314,111 +226,112 @@ export default function ProfilePage() {
         }}
 
         transition={{
-          duration:0.6
+          duration:.5
         }}
 
-        className="mx-auto max-w-md rounded-3xl border border-white/20 bg-white/10 p-8 backdrop-blur-xl shadow-2xl"
+        className="max-w-md mx-auto space-y-6"
 
       >
 
 
-        <h1 className="text-center text-3xl font-bold text-white">
+        <div className="flex items-center justify-between">
 
-          My Profile 👤
+          <button
+            onClick={()=>navigate(-1)}
+            className="p-3 rounded-full bg-white/70 backdrop-blur shadow"
+          >
 
-        </h1>
+            <ArrowLeft size={22}/>
 
-
-
-        <div className="mt-8 space-y-5">
-
-
-          <PrimaryInput
-            name="fullName"
-            placeholder="Full Name"
-            value={formData.fullName}
-            onChange={handleChange}
-            disabled={!editMode}
-          />
+          </button>
 
 
+          <h1 className="text-xl font-bold text-slate-800">
+            Profile
+          </h1>
 
-          <PrimaryInput
-            name="phone"
-            placeholder="Phone Number"
-            value={formData.phone}
-            onChange={handleChange}
-            disabled={!editMode}
-          />
+
+          <button className="p-3 rounded-full bg-white/70 backdrop-blur shadow">
+
+            <Settings size={22}/>
+
+          </button>
+
+
+        </div>
 
 
 
-          <div className="rounded-xl bg-white/10 p-4 text-white">
+        <div className="rounded-[24px] bg-white/70 backdrop-blur-xl shadow-lg border border-white/40 p-5 flex items-center gap-4">
 
-            <p>Email</p>
 
-            <p className="text-white/70">
+          <div className="w-20 h-20 rounded-full bg-slate-200 overflow-hidden">
 
-              {user?.email}
+            <img
+              src="https://i.pravatar.cc/150"
+              alt="profile"
+              className="w-full h-full object-cover"
+            />
 
+          </div>
+
+
+          <div className="flex-1">
+
+            <h2 className="font-bold text-lg text-slate-900">
+              {user?.fullName || "David Warner"}
+            </h2>
+
+            <p className="text-sm text-slate-500">
+              {user?.email || "davidwarner@gmail.com"}
             </p>
 
           </div>
 
 
+          <button>
 
-          {
-            editMode ? (
-
-              <PrimaryButton
-                type="button"
-                disabled={loading}
-                onClick={handleUpdate}
-              >
-
-                {
-                  loading
-                  ? "Updating..."
-                  : "Save Changes"
-                }
-
-              </PrimaryButton>
-
-
-            ) : (
-
-              <PrimaryButton
-                type="button"
-                onClick={()=>setEditMode(true)}
-              >
-
-                Edit Profile
-
-              </PrimaryButton>
-
-            )
-
-          }
-
-
-
-          <button
-
-            onClick={handleLogout}
-
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-red-500 py-4 font-bold text-white transition hover:bg-red-600"
-
-          >
-
-            <LogOut size={20}/>
-
-            Logout
+            <Pencil
+              size={20}
+              className="text-slate-600"
+            />
 
           </button>
 
 
-
         </div>
+
+
+
+        {renderMenu(menuOne)}
+
+
+        {renderMenu(menuTwo)}
+
+
+
+        <button
+
+          onClick={handleLogout}
+
+          className="w-full rounded-[24px] bg-white/70 backdrop-blur-xl shadow-lg border border-white/40 p-5 flex items-center justify-between text-red-500 font-semibold"
+
+        >
+
+          <div className="flex items-center gap-4">
+
+            <LogOut size={22}/>
+
+            Logout
+
+          </div>
+
+
+          <ChevronRight size={20}/>
+
+
+        </button>
+
 
 
       </motion.div>
@@ -426,8 +339,6 @@ export default function ProfilePage() {
 
     </div>
 
-
   );
-
 
 }
