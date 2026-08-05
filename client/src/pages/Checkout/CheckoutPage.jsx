@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useCart } from "../../context/CartContext";
 import orderService from "../../services/orderService";
+import OrderSuccessAnimation from "../../components/animations/OrderSuccessAnimation";
 
 
 const dhakaZones = [
@@ -124,6 +125,9 @@ export default function CheckoutPage() {
 
 
   const [loading,setLoading] =
+    useState(false);
+
+  const [showSuccess,setShowSuccess] =
     useState(false);
 
 
@@ -312,11 +316,13 @@ export default function CheckoutPage() {
 
 
 
-      alert("Order Placed Successfully 🎉");
+      setShowSuccess(true);
 
 
 
-      navigate("/orders");
+      setTimeout(()=>{
+        navigate("/orders");
+      },1500);
 
 
 
@@ -348,6 +354,10 @@ export default function CheckoutPage() {
 
 
   return (
+
+    <>
+
+    {showSuccess && <OrderSuccessAnimation />}
 
     <div className="min-h-screen bg-[#FFF8F3] px-5 py-8 pb-32">
 
@@ -1036,6 +1046,7 @@ export default function CheckoutPage() {
 
     </div>
 
+    </>
 
   );
 
