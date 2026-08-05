@@ -1,16 +1,17 @@
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
   ChevronUp,
   Phone,
   MapPin,
+  Utensils,
+  UserRound,
   CreditCard,
+  Receipt,
+  Bike,
   XCircle,
   Clock,
   CheckCircle,
   Store,
-  Bike,
 } from "lucide-react";
 
 import orderService from "../../services/orderService";
@@ -322,7 +323,7 @@ export default function OrdersPage(){
               <div className="mt-5 rounded-2xl bg-orange-50 p-4">
 
                 <h4 className="font-bold text-orange-600 mb-3">
-                  🍔 Item Details
+                  <Utensils size={18} className='inline mr-2 text-orange-500'/> Item Details
                 </h4>
 
 
@@ -349,8 +350,8 @@ export default function OrdersPage(){
 
                         :
 
-                        <div className="h-16 w-16 rounded-xl bg-white flex items-center justify-center text-2xl">
-                          🍔
+                        <div className="h-16 w-16 rounded-xl bg-white flex items-center justify-center">
+                          <Utensils size={28} className="text-orange-500"/>
                         </div>
 
                       }
@@ -397,7 +398,7 @@ export default function OrdersPage(){
               <div className="rounded-2xl bg-white border p-4">
 
                 <h4 className="font-bold text-slate-800 mb-3">
-                  👤 Customer Details
+                  <UserRound size={18} className='inline mr-2 text-orange-500'/> Customer Details
                 </h4>
 
 
@@ -433,7 +434,7 @@ export default function OrdersPage(){
 
 
                 <h4 className="font-bold text-slate-800 mb-3">
-                  💳 Payment Details
+                  <CreditCard size={18} className='inline mr-2 text-orange-500'/> Payment Details
                 </h4>
 
 
@@ -463,7 +464,7 @@ export default function OrdersPage(){
 
 
                 <h4 className="font-bold text-orange-600 mb-3">
-                  💰 Bill Summary
+                  <Receipt size={18} className='inline mr-2 text-orange-500'/> Bill Summary
                 </h4>
 
 
@@ -537,7 +538,7 @@ export default function OrdersPage(){
 
                   >
 
-                    🛵
+                    <Bike size={28} className='text-orange-500'/>
 
                   </motion.div>
 
@@ -730,7 +731,7 @@ export default function OrdersPage(){
 
                             >
 
-                              🛵
+                              <Bike size={28} className='text-orange-500'/>
 
                             </motion.div>
 

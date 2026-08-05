@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import { useEffect, useState } from "react";
 
 import {
@@ -50,24 +50,19 @@ export default function BottomNavigation() {
     totalItems
   } = useCart();
 
-  const [cartBounce, setCartBounce] = useState(false);
+  const controls = useAnimation();
   const [previousItems, setPreviousItems] = useState(totalItems);
 
   useEffect(() => {
     if (totalItems > previousItems) {
-      setCartBounce(true);
-
-      const timer = setTimeout(() => {
-        setCartBounce(false);
-      }, 700);
-
-      setPreviousItems(totalItems);
-
-      return () => clearTimeout(timer);
+      controls.start({
+        scale:[1,1.35,1],
+        rotate:[0,-12,12,0],
+        transition:{duration:0.55}
+      });
     }
-
     setPreviousItems(totalItems);
-  }, [totalItems, previousItems]);
+  }, [totalItems, previousItems, controls]);
 
 
 
@@ -121,18 +116,7 @@ export default function BottomNavigation() {
 
 
                         <motion.div
-                          animate={
-                            item.name === "Cart" && cartBounce
-                              ? {
-                                  scale: [1, 1.35, 1],
-                                  rotate: [0, -12, 12, 0],
-                                }
-                              : {}
-                          }
-                          transition={{
-                            duration: 0.5,
-                            type: "spring",
-                          }}
+                          animate={item.name==="Cart" ? controls : {}}
                         >
                           <Icon size={23}/>
                         </motion.div>
