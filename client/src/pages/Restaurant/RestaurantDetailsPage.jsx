@@ -5,27 +5,22 @@ import { useParams } from "react-router-dom";
 import restaurantService from "../../services/restaurantService";
 import RestaurantHeader from "./components/RestaurantHeader";
 import FoodCard from "./components/FoodCard";
+import FlyToCartAnimation from "../../components/animations/FlyToCartAnimation";
 
 import { useCart } from "../../context/CartContext";
 import { useToast } from "../../context/ToastContext";
 
-
 export default function RestaurantDetailsPage() {
 
-
   const { id } = useParams();
-
 
   const {
     addToCart
   } = useCart();
 
-
   const {
     showToast
   } = useToast();
-
-
 
   const [restaurant,setRestaurant] = useState(null);
 
@@ -33,39 +28,34 @@ export default function RestaurantDetailsPage() {
 
   const [loading,setLoading] = useState(true);
 
+  const [flyAnimation,setFlyAnimation] = useState(false);
 
+  const [flyImage,setFlyImage] = useState("");
 
+  const [flyStart,setFlyStart] = useState({
+    x:0,
+    y:0
+  });
 
   useEffect(()=>{
 
-
     const loadData = async()=>{
 
-
       try{
-
 
         const restaurantResponse =
           await restaurantService.getRestaurantById(id);
 
-
-
         const foodResponse =
           await restaurantService.getFoodsByRestaurantId(id);
-
-
 
         setRestaurant(
           restaurantResponse.restaurant
         );
 
-
-
         setFoods(
           foodResponse.foods || []
         );
-
-
 
       }catch(error){
 
@@ -77,62 +67,69 @@ export default function RestaurantDetailsPage() {
 
       }
 
-
     };
-
 
     loadData();
 
-
   },[id]);
 
+  const handleAddToCart = (food,event)=>{
 
+    if(event){
 
+      const rect =
+        event.currentTarget.getBoundingClientRect();
 
+      setFlyImage(food.image || "");
 
+      setFlyStart({
 
-  const handleAddToCart = (food)=>{
+        x:rect.left + rect.width/2,
 
+        y:rect.top + rect.height/2
+
+      });
+
+      setFlyAnimation(true);
+
+      setTimeout(()=>{
+
+        setFlyAnimation(false);
+
+      },1000);
+
+    }
 
     addToCart({
 
-      id: food.id,
+      id:food.id,
 
-      name: food.name,
+      name:food.name,
 
-      price: food.price,
+      price:food.price,
 
-      image: food.image || "",
+      image:food.image || "",
 
-      description: food.description,
+      description:food.description,
 
-      rating: food.rating,
+      rating:food.rating,
 
-      restaurantId: id,
+      restaurantId:id,
 
-      restaurantName: restaurant?.name
+      restaurantName:restaurant?.name
 
     });
-
-
 
     showToast(
       "Added to cart 🛒",
       "success"
     );
 
-
   };
-
-
-
-
-
-
 
   if(loading){
 
-    return (
+    return(
 
       <div className="min-h-screen bg-[#FFF8F3] flex items-center justify-center">
 
@@ -161,20 +158,16 @@ export default function RestaurantDetailsPage() {
 
   }
 
-
-
-
-
-
-
   if(!restaurant){
 
-    return (
+    return(
 
       <div className="min-h-screen bg-[#FFF8F3] flex items-center justify-center">
 
         <p className="text-slate-800">
+
           Restaurant not found
+
         </p>
 
       </div>
@@ -183,15 +176,9 @@ export default function RestaurantDetailsPage() {
 
   }
 
-
-
-
-
-
-  return (
+  return(
 
     <div className="min-h-screen bg-[#FFF8F3] px-5 py-8">
-
 
       <motion.div
 
@@ -213,12 +200,9 @@ export default function RestaurantDetailsPage() {
 
       >
 
-
         <RestaurantHeader
           restaurant={restaurant}
         />
-
-
 
         <h2 className="mt-10 text-2xl font-bold text-slate-800">
 
@@ -226,15 +210,10 @@ export default function RestaurantDetailsPage() {
 
         </h2>
 
-
-
-
         <div className="mt-6 grid gap-6 sm:grid-cols-2">
-
 
           {
             foods.map((food,index)=>(
-
 
               <motion.div
 
@@ -260,24 +239,30 @@ export default function RestaurantDetailsPage() {
 
                   food={food}
 
-                  onAdd={handleAddToCart}
+                  onAdd={(food,event)=>
+                    handleAddToCart(food,event)
+                  }
 
                 />
 
-
               </motion.div>
-
 
             ))
           }
 
-
         </div>
-
-
 
       </motion.div>
 
+      <FlyToCartAnimation
+
+        show={flyAnimation}
+
+        image={flyImage}
+
+        start={flyStart}
+
+      />
 
     </div>
 
