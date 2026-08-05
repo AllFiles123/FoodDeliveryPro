@@ -11,44 +11,18 @@ import {
   CheckCircle,
   Store,
   Bike,
-  ClipboardCheck,
-  BadgeCheck,
-  ChefHat,
-  Truck,
-  PackageCheck,
-  CircleCheckBig,
-  Utensils,
-  Receipt,
 } from "lucide-react";
 
 import orderService from "../../services/orderService";
 
 
 const trackingSteps = [
-  {
-    name: "Order Placed",
-    icon: ClipboardCheck,
-  },
-  {
-    name: "Confirmed",
-    icon: BadgeCheck,
-  },
-  {
-    name: "Preparing Food",
-    icon: ChefHat,
-  },
-  {
-    name: "Rider Assigned",
-    icon: Bike,
-  },
-  {
-    name: "Out for Delivery",
-    icon: Truck,
-  },
-  {
-    name: "Delivered",
-    icon: PackageCheck,
-  },
+  "Order Placed",
+  "Confirmed",
+  "Preparing Food",
+  "Rider Assigned",
+  "Out for Delivery",
+  "Delivered",
 ];
 
 
@@ -194,7 +168,7 @@ export default function OrdersPage(){
           const activeStep =
             currentStatus === "Cancelled"
             ? -1
-            : trackingSteps.findIndex(step => step.name === currentStatus);
+            : trackingSteps.indexOf(currentStatus);
 
 
           let trackingHistory=[];
@@ -348,7 +322,7 @@ export default function OrdersPage(){
               <div className="mt-5 rounded-2xl bg-orange-50 p-4">
 
                 <h4 className="font-bold text-orange-600 mb-3">
-                  Item Details
+                  🍔 Item Details
                 </h4>
 
 
@@ -375,8 +349,8 @@ export default function OrdersPage(){
 
                         :
 
-                        <div className="h-16 w-16 rounded-xl bg-white flex items-center justify-center text-orange-500">
-                          <Utensils size={28}/>
+                        <div className="h-16 w-16 rounded-xl bg-white flex items-center justify-center text-2xl">
+                          🍔
                         </div>
 
                       }
@@ -423,7 +397,7 @@ export default function OrdersPage(){
               <div className="rounded-2xl bg-white border p-4">
 
                 <h4 className="font-bold text-slate-800 mb-3">
-                  Customer Details
+                  👤 Customer Details
                 </h4>
 
 
@@ -459,7 +433,7 @@ export default function OrdersPage(){
 
 
                 <h4 className="font-bold text-slate-800 mb-3">
-                  Payment Details
+                  💳 Payment Details
                 </h4>
 
 
@@ -489,7 +463,7 @@ export default function OrdersPage(){
 
 
                 <h4 className="font-bold text-orange-600 mb-3">
-                  Bill Summary
+                  💰 Bill Summary
                 </h4>
 
 
@@ -563,7 +537,7 @@ export default function OrdersPage(){
 
                   >
 
-                    <Bike size={34}/>
+                    🛵
 
                   </motion.div>
 
@@ -607,14 +581,12 @@ export default function OrdersPage(){
 
 
                   {
-                    trackingSteps.map((step,index)=>{
-
-                      const StepIcon = step.icon;
+                    trackingSteps.map((step,index)=>(
 
 
                       <motion.div
 
-                        key={step.name}
+                        key={step}
 
                         initial={{
                           opacity:0,
@@ -663,15 +635,9 @@ export default function OrdersPage(){
                         >
 
                           {
-                            index < activeStep
-                            ?
+                            index < activeStep &&
                             <CheckCircle
                               size={16}
-                              className="text-white"
-                            />
-                            :
-                            <StepIcon
-                              size={15}
                               className="text-white"
                             />
                           }
@@ -690,7 +656,7 @@ export default function OrdersPage(){
                             "text-gray-400"
                           }>
 
-                            {step.name}
+                            {step}
 
                           </p>
 
@@ -725,7 +691,7 @@ export default function OrdersPage(){
                           {
                             trackingHistory.find(
                               history =>
-                              history.status === step.name
+                              history.status === step
                             ) &&
 
                             <p className="text-xs text-gray-400">
@@ -734,7 +700,7 @@ export default function OrdersPage(){
                                 new Date(
                                   trackingHistory.find(
                                     history =>
-                                    history.status === step.name
+                                    history.status === step
                                   ).time
                                 ).toLocaleString()
                               }
@@ -746,7 +712,7 @@ export default function OrdersPage(){
 
 
                           {
-                            step.name==="Out for Delivery" &&
+                            step==="Out for Delivery" &&
                             index===activeStep &&
 
                             <motion.div
@@ -760,11 +726,11 @@ export default function OrdersPage(){
                                 duration:2
                               }}
 
-                              className="text-orange-500"
+                              className="text-xl"
 
                             >
 
-                              <Bike size={24}/>
+                              🛵
 
                             </motion.div>
 
