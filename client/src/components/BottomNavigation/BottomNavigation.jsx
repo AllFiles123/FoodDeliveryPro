@@ -1,173 +1,153 @@
 import { NavLink } from "react-router-dom";
-import { motion, useAnimation } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 import {
   House,
-  Search,
-  ShoppingCart,
-  ClipboardList,
+  Package,
+  Ticket,
+  Receipt,
   User,
 } from "lucide-react";
-
-import { useCart } from "../../context/CartContext";
 
 
 const menus = [
   {
-    name: "Home",
-    path: "/home",
-    icon: House,
+    name:"Home",
+    path:"/home",
+    icon:House,
   },
   {
-    name: "Search",
-    path: "/search",
-    icon: Search,
+    name:"Orders",
+    path:"/orders",
+    icon:Package,
   },
   {
-    name: "Cart",
-    path: "/cart",
-    icon: ShoppingCart,
+    name:"Offers",
+    path:"/offers",
+    icon:Ticket,
   },
   {
-    name: "Orders",
-    path: "/orders",
-    icon: ClipboardList,
+    name:"History",
+    path:"/history",
+    icon:Receipt,
   },
   {
-    name: "Profile",
-    path: "/profile",
-    icon: User,
+    name:"Profile",
+    path:"/profile",
+    icon:User,
   },
 ];
 
 
-
-export default function BottomNavigation() {
-
-
-  const {
-    totalItems
-  } = useCart();
-
-  const controls = useAnimation();
-  const [previousItems, setPreviousItems] = useState(totalItems);
-
-  useEffect(() => {
-    if (totalItems > previousItems) {
-      controls.start({
-        scale:[1,1.35,1],
-        rotate:[0,-12,12,0],
-        transition:{duration:0.55}
-      });
-    }
-    setPreviousItems(totalItems);
-  }, [totalItems, previousItems, controls]);
-
-
-
+export default function BottomNavigation(){
 
   return (
 
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-orange-100 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+    <div className="fixed bottom-5 left-0 right-0 z-50 flex justify-center px-4">
 
-
-      <div className="mx-auto flex max-w-md items-center justify-around py-3">
-
+      <nav
+        className="
+          flex items-center gap-1
+          rounded-full
+          bg-[#E5E7EB]
+          p-2
+          shadow-xl
+        "
+      >
 
         {
           menus.map((item)=>{
 
-
-            const Icon = item.icon;
-
+            const Icon=item.icon;
 
 
-            return (
+            return(
 
               <NavLink
-
                 key={item.path}
-
                 to={item.path}
-
               >
 
                 {
                   ({isActive})=>(
 
-
                     <motion.div
 
-                      whileTap={{
-                        scale:0.85
+                      layout
+
+                      transition={{
+                        type:"spring",
+                        stiffness:400,
+                        damping:30
                       }}
 
-                      className={`relative flex flex-col items-center text-xs transition ${
-                        isActive
-                        ? "text-orange-500"
-                        : "text-gray-500"
-                      }`}
-
+                      className={`
+                        flex items-center gap-2
+                        rounded-full
+                        px-3 py-2
+                        transition-all
+                        ${
+                          isActive
+                          ?
+                          "bg-[#D32F2F] text-white"
+                          :
+                          "text-gray-700"
+                        }
+                      `}
                     >
 
 
-                      <div className="relative">
+                      <div
+                        className={`
+                          flex items-center justify-center
+                          rounded-full
+                          h-9 w-9
+                          ${
+                            isActive
+                            ?
+                            "bg-white text-[#D32F2F]"
+                            :
+                            ""
+                          }
+                        `}
+                      >
 
-
-                        <motion.div
-                          animate={item.name==="Cart" ? controls : {}}
-                        >
-                          <Icon size={23}/>
-                        </motion.div>
-
-
-
-
-                        {
-                          item.name === "Cart" &&
-                          totalItems > 0 && (
-
-                            <motion.span
-
-                              initial={{
-                                scale:0
-                              }}
-
-                              animate={{
-                                scale:[0,1.3,1]
-                              }}
-                              transition={{
-                                type:"spring",
-                                stiffness:300
-                              }}
-
-                              className="absolute -right-3 -top-3 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white"
-
-                            >
-
-                              {totalItems}
-
-                            </motion.span>
-
-                          )
-                        }
-
+                        <Icon size={21}/>
 
                       </div>
 
 
 
+                      {
+                        isActive &&
 
-                      <span className="mt-1">
+                        <motion.span
 
-                        {item.name}
+                          initial={{
+                            opacity:0,
+                            width:0
+                          }}
 
-                      </span>
+                          animate={{
+                            opacity:1,
+                            width:"auto"
+                          }}
+
+                          className="
+                            text-sm
+                            font-bold
+                            whitespace-nowrap
+                          "
+                        >
+
+                          {item.name}
+
+                        </motion.span>
+
+                      }
 
 
                     </motion.div>
-
 
                   )
                 }
@@ -175,18 +155,14 @@ export default function BottomNavigation() {
 
               </NavLink>
 
-
             );
-
 
           })
         }
 
+      </nav>
 
-      </div>
-
-
-    </nav>
+    </div>
 
   );
 
