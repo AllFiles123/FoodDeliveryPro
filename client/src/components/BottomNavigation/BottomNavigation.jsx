@@ -1,13 +1,16 @@
 import { NavLink } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
+import { useEffect, useState } from "react";
 
 import {
   House,
-  Package,
-  Ticket,
-  Receipt,
+  Search,
+  ShoppingCart,
+  ClipboardList,
   User,
 } from "lucide-react";
+
+import { useCart } from "../../context/CartContext";
 
 
 const menus = [
@@ -17,19 +20,19 @@ const menus = [
     icon:House,
   },
   {
+    name:"Search",
+    path:"/search",
+    icon:Search,
+  },
+  {
+    name:"Cart",
+    path:"/cart",
+    icon:ShoppingCart,
+  },
+  {
     name:"Orders",
     path:"/orders",
-    icon:Package,
-  },
-  {
-    name:"Offers",
-    path:"/offers",
-    icon:Ticket,
-  },
-  {
-    name:"History",
-    path:"/history",
-    icon:Receipt,
+    icon:ClipboardList,
   },
   {
     name:"Profile",
@@ -41,13 +44,58 @@ const menus = [
 
 export default function BottomNavigation(){
 
+  const { totalItems } = useCart();
+
+  const controls = useAnimation();
+
+  const [previousItems,setPreviousItems] =
+    useState(totalItems);
+
+
+  useEffect(()=>{
+
+    if(totalItems > previousItems){
+
+      controls.start({
+        scale:[1,1.35,1],
+        rotate:[0,-12,12,0],
+        transition:{
+          duration:0.55
+        }
+      });
+
+    }
+
+    setPreviousItems(totalItems);
+
+  },[
+    totalItems,
+    previousItems,
+    controls
+  ]);
+
+
+
   return (
 
-    <div className="fixed bottom-5 left-0 right-0 z-50 flex justify-center px-4">
+    <div
+      className="
+        fixed
+        bottom-2
+        left-0
+        right-0
+        z-50
+        flex
+        justify-center
+        px-3
+      "
+    >
 
       <nav
         className="
-          flex items-center gap-1
+          flex
+          items-center
+          gap-1
           rounded-full
           bg-[#E5E7EB]
           p-2
@@ -75,6 +123,10 @@ export default function BottomNavigation(){
 
                       layout
 
+                      whileTap={{
+                        scale:0.9
+                      }}
+
                       transition={{
                         type:"spring",
                         stiffness:400,
@@ -82,10 +134,12 @@ export default function BottomNavigation(){
                       }}
 
                       className={`
-                        flex items-center gap-2
+                        flex
+                        items-center
+                        gap-2
                         rounded-full
-                        px-3 py-2
-                        transition-all
+                        px-3
+                        py-2
                         ${
                           isActive
                           ?
@@ -99,9 +153,13 @@ export default function BottomNavigation(){
 
                       <div
                         className={`
-                          flex items-center justify-center
+                          relative
+                          flex
+                          h-9
+                          w-9
+                          items-center
+                          justify-center
                           rounded-full
-                          h-9 w-9
                           ${
                             isActive
                             ?
@@ -112,7 +170,49 @@ export default function BottomNavigation(){
                         `}
                       >
 
-                        <Icon size={21}/>
+                        <motion.div
+                          animate={
+                            item.name==="Cart"
+                            ?
+                            controls
+                            :
+                            {}
+                          }
+                        >
+
+                          <Icon size={21}/>
+
+                        </motion.div>
+
+
+                        {
+                          item.name==="Cart" &&
+                          totalItems>0 &&
+
+                          <span
+                            className="
+                              absolute
+                              -right-2
+                              -top-2
+                              flex
+                              h-5
+                              w-5
+                              items-center
+                              justify-center
+                              rounded-full
+                              bg-[#D32F2F]
+                              text-[10px]
+                              font-bold
+                              text-white
+                            "
+                          >
+
+                            {totalItems}
+
+                          </span>
+
+                        }
+
 
                       </div>
 
@@ -160,7 +260,9 @@ export default function BottomNavigation(){
           })
         }
 
+
       </nav>
+
 
     </div>
 
