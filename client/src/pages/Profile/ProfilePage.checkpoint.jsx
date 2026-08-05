@@ -9,11 +9,7 @@ import {
   Wallet,
   Building2,
   ChevronRight,
-  Upload,
-  CheckCircle,
-  MapPin,
-  Phone,
-  Mail
+  Upload
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -41,9 +37,7 @@ export default function ProfilePage(){
   const [loading,setLoading] = useState(false);
 
   const [profileImage,setProfileImage] = useState(
-    localStorage.getItem("profileImage") ||
-    user?.profileImage ||
-    ""
+    user?.profileImage || ""
   );
 
 
@@ -141,13 +135,8 @@ export default function ProfilePage(){
     if(!file)return;
 
 
-    const imageURL = URL.createObjectURL(file);
-
-    setProfileImage(imageURL);
-
-    localStorage.setItem(
-      "profileImage",
-      imageURL
+    setProfileImage(
+      URL.createObjectURL(file)
     );
 
   };
@@ -200,75 +189,63 @@ export default function ProfilePage(){
   const paymentItems = [
 
     {
+      title:"Credit/Debit Card",
+      icon:CreditCard
+    },
+
+    {
       title:"bKash",
-      subtitle:"Mobile payment",
       icon:Smartphone
     },
 
     {
       title:"Nagad",
-      subtitle:"Mobile payment",
       icon:Smartphone
     },
 
     {
       title:"Rocket",
-      subtitle:"Dutch Bangla Mobile Banking",
       icon:Wallet
     },
 
     {
       title:"Upay",
-      subtitle:"United Commercial Bank",
       icon:Wallet
     },
 
     {
       title:"Bank Account",
-      subtitle:"Add your bank account",
       icon:Building2
     },
 
     {
-      title:"Credit/Debit Card",
-      subtitle:"Visa or Mastercard",
-      icon:CreditCard
-    },
-
-    {
       title:"Google Pay",
-      subtitle:"Fast payment",
       icon:Smartphone
     },
 
     {
-      title:"PhonePe",
-      subtitle:"UPI payment",
+      title:"PhonePay",
       icon:Smartphone
     },
 
     {
       title:"Paytm",
-      subtitle:"Wallet payment",
       icon:Wallet
     },
 
     {
       title:"Living Menu Wallet",
-      subtitle:"Available balance",
-      balance:"৳52.09",
-      icon:Wallet
+      icon:Wallet,
+      balance:"৳52.09"
     },
 
     {
-      title:"Redeem Gift Card",
-      subtitle:"Use your gift card",
+      title:"Redeem gift card",
       icon:CreditCard
     },
 
     {
-      title:"Invite Friends",
-      subtitle:"Earn credits",
+      title:"Invite friends to earn credits",
       icon:User
     }
 
@@ -420,11 +397,7 @@ gap-3
 
 <User size={20}/>
 
-<span className="
-font-semibold
-">
 Profile Details
-</span>
 
 </div>
 
@@ -532,22 +505,9 @@ shadow-lg
 <div className="
 relative
 mx-auto
-h-36
-w-36
+h-32
+w-32
 ">
-
-<div className="
-absolute
-right-1
-top-1
-z-10
-rounded-full
-bg-orange-500
-p-1
-text-white
-">
-<CheckCircle size={16}/>
-</div>
 
 
 <img
@@ -622,10 +582,6 @@ space-y-4
 ">
 
 
-<label className="text-sm font-semibold text-gray-700">
-Name
-</label>
-
 <input
 
 name="fullName"
@@ -640,13 +596,8 @@ className="
 w-full
 rounded-2xl
 border
-border-gray-200
-bg-gray-50
 p-4
 outline-none
-focus:border-black
-focus:bg-white
-transition
 "
 
 />
@@ -659,10 +610,6 @@ grid-cols-2
 gap-3
 ">
 
-
-<label className="text-sm font-semibold text-gray-700">
-Email
-</label>
 
 <input
 
@@ -677,21 +624,12 @@ placeholder="Email"
 className="
 rounded-2xl
 border
-border-gray-200
-bg-gray-50
 p-4
 outline-none
-focus:border-black
-focus:bg-white
-transition
 "
 
 />
 
-
-<label className="text-sm font-semibold text-gray-700">
-Phone Number
-</label>
 
 <input
 
@@ -706,13 +644,8 @@ placeholder="Phone"
 className="
 rounded-2xl
 border
-border-gray-200
-bg-gray-50
 p-4
 outline-none
-focus:border-black
-focus:bg-white
-transition
 "
 
 />
@@ -721,10 +654,6 @@ transition
 </div>
 
 
-
-<label className="text-sm font-semibold text-gray-700">
-Delivery Address
-</label>
 
 <textarea
 
@@ -741,22 +670,13 @@ h-28
 w-full
 rounded-2xl
 border
-border-gray-200
-bg-gray-50
 p-4
 outline-none
-focus:border-black
-focus:bg-white
-transition
 "
 
 />
 
 
-
-<label className="text-sm font-semibold text-gray-700">
-About Me
-</label>
 
 <textarea
 
@@ -773,13 +693,8 @@ h-32
 w-full
 rounded-2xl
 border
-border-gray-200
-bg-gray-50
 p-4
 outline-none
-focus:border-black
-focus:bg-white
-transition
 "
 
 />
@@ -872,12 +787,9 @@ Payment
 
 <div className="
 rounded-3xl
-bg-white/90
-backdrop-blur
-p-6
-shadow-xl
-border
-border-white
+bg-white
+p-5
+shadow-lg
 ">
 
 
@@ -947,27 +859,13 @@ bg-gray-100
 
 
 
-<div>
-
-<p className="
-font-semibold
-text-gray-900
+<span className="
+font-medium
 ">
 
 {item.title}
 
-</p>
-
-<p className="
-text-xs
-text-gray-500
-">
-
-{item.subtitle}
-
-</p>
-
-</div>
+</span>
 
 
 </div>
