@@ -1,97 +1,37 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
 import {
   X,
-  Trash2,
+  RotateCcw,
   Pizza,
-  Grape,
+  Store,
   Pill,
   CupSoda,
   Star,
-  DollarSign,
-  MapPin
+  DollarSign
 } from "lucide-react";
-import { useState } from "react";
+import { motion } from "framer-motion";
 
 
 export default function FilterBottomSheet({
   open,
   onClose,
-  filters,
-  setFilters,
   onApply
 }) {
 
-  const [min,setMin] = useState(filters?.minPrice || 0);
-  const [max,setMax] = useState(filters?.maxPrice || 1000);
-  const [nearMe,setNearMe] = useState(false);
-  const [delivery,setDelivery] = useState("");
+  const [min,setMin] = useState(20);
+  const [max,setMax] = useState(80);
+
+
+  const bars = [
+    22,35,15,45,30,50,28,40,18,48,
+    32,20,55,38,25,45,30,15,50,35,
+    28,42,18,52,33,45,25,40,20,55,
+    30,48,22,35,50,28,18,45,32,55,
+    25,40,20,35,48,30,18,50,38,28
+  ];
 
 
   if(!open) return null;
-
-
-  const categories = [
-    {
-      name:"Meals",
-      icon:<Pizza size={28}/>
-    },
-    {
-      name:"Shops",
-      icon:<Grape size={28}/>
-    },
-    {
-      name:"Drugs",
-      icon:<Pill size={28}/>
-    },
-    {
-      name:"Drinks",
-      icon:<CupSoda size={28}/>
-    }
-  ];
-
-
-  const ratings=[5,4,3,2];
-
-
-  const bars=[
-    35,60,45,85,55,95,70,40,75,50,90,65
-  ];
-
-
-  const priceChange=(value,type)=>{
-
-    if(type==="min"){
-      setMin(value);
-    }
-
-    if(type==="max"){
-      setMax(value);
-    }
-
-    setFilters({
-      ...filters,
-      minPrice:type==="min"?value:min,
-      maxPrice:type==="max"?value:max
-    });
-
-  };
-
-
-
-  const applyFilter=()=>{
-
-    setFilters({
-      ...filters,
-      minPrice:min,
-      maxPrice:max,
-      deliveryTime:delivery,
-      nearMe
-    });
-
-    onApply();
-
-  };
-
 
 
   return (
@@ -108,29 +48,18 @@ export default function FilterBottomSheet({
 
       <motion.div
 
-      initial={{
-        y:"100%"
-      }}
-
-      animate={{
-        y:0
-      }}
-
-      transition={{
-        type:"spring",
-        damping:25
-      }}
+      initial={{y:"100%"}}
+      animate={{y:0}}
 
       className="
-      w-full
       bg-white
+      w-full
       rounded-t-[32px]
       px-6
       pt-4
-      pb-8
+      pb-32
       max-h-[90vh]
       overflow-y-auto
-      space-y-6
       "
 
       >
@@ -142,22 +71,21 @@ export default function FilterBottomSheet({
         bg-gray-300
         rounded-full
         mx-auto
+        mb-6
         "/>
-
 
 
         <div className="
         flex
-        items-center
         justify-between
+        items-center
         ">
-
 
           <button
           onClick={onClose}
           className="
-          h-11
           w-11
+          h-11
           rounded-full
           bg-gray-100
           flex
@@ -165,11 +93,8 @@ export default function FilterBottomSheet({
           justify-center
           "
           >
-
             <X/>
-
           </button>
-
 
 
           <h2 className="
@@ -180,28 +105,18 @@ export default function FilterBottomSheet({
           </h2>
 
 
-
           <button
-
-          onClick={()=>{
-            setMin(0);
-            setMax(1000);
-          }}
-
           className="
-          h-11
           w-11
+          h-11
           rounded-full
           bg-gray-100
           flex
           items-center
           justify-center
           "
-
           >
-
-            <Trash2/>
-
+            <RotateCcw/>
           </button>
 
 
@@ -209,15 +124,16 @@ export default function FilterBottomSheet({
 
 
 
+        {/* Categories */}
 
-
-        <section className="space-y-3">
+        <section className="mt-8">
 
           <h3 className="
-          text-lg
           font-bold
+          text-lg
+          mb-4
           ">
-            Categories
+          Categories
           </h3>
 
 
@@ -227,61 +143,40 @@ export default function FilterBottomSheet({
           gap-3
           ">
 
-
           {
-            categories.map((item,index)=>(
+            [
+              [Pizza,"Meals"],
+              [Store,"Shops"],
+              [Pill,"Drugs"],
+              [CupSoda,"Drinks"]
+            ].map(([Icon,name])=>(
 
-              <button
-
-              key={index}
-
-              className="
-              rounded-2xl
-              bg-gray-50
-              p-3
-              flex
-              flex-col
-              items-center
-              gap-2
-              "
-
-              >
+              <div key={name}
+              className="text-center">
 
                 <div className="
-                h-12
-                w-12
-                rounded-xl
-                bg-gray-200
+                bg-gray-100
+                rounded-2xl
+                h-16
                 flex
                 items-center
                 justify-center
-                text-orange-500
                 ">
 
-                  {item.icon}
+                  <Icon size={26}/>
 
                 </div>
 
+                <p className="text-sm mt-2">
+                  {name}
+                </p>
 
-                <span className="
-                text-xs
-                font-semibold
-                ">
-
-                {item.name}
-
-                </span>
-
-
-              </button>
-
+              </div>
 
             ))
           }
 
-
           </div>
-
 
         </section>
 
@@ -289,182 +184,190 @@ export default function FilterBottomSheet({
 
 
 
+        {/* Price */}
 
-
-        <section className="space-y-4">
-
-
-          <h3 className="
-          text-lg
-          font-bold
-          ">
-            Price Range
-          </h3>
-
-
-
-          <div className="
-          flex
-          items-end
-          gap-2
-          h-28
-          ">
-
-          {
-            bars.map((b,i)=>(
-
-              <div
-              key={i}
-              className="
-              flex-1
-              bg-orange-500
-              rounded-t-lg
-              "
-              style={{
-                height:`${Math.max(20,b*(max-min)/1000)}%`
-              }}
-              />
-
-            ))
-          }
-
-          </div>
-
-
-
-
-          <input
-
-          type="range"
-
-          min="0"
-
-          max="1000"
-
-          value={min}
-
-          onChange={(e)=>priceChange(Number(e.target.value),"min")}
-
-          className="
-          w-full
-          accent-orange-500
-          "
-
-          />
-
-
-
-          <input
-
-          type="range"
-
-          min="0"
-
-          max="1000"
-
-          value={max}
-
-          onChange={(e)=>priceChange(Number(e.target.value),"max")}
-
-          className="
-          w-full
-          accent-orange-500
-          "
-
-          />
-
-
-
-
-          <div className="
-          flex
-          gap-3
-          ">
-
-
-            <div className="
-            flex-1
-            bg-gray-100
-            rounded-xl
-            px-4
-            py-3
-            flex
-            items-center
-            gap-2
-            ">
-
-              <DollarSign size={18}/>
-
-              <input
-              value={min}
-              placeholder="Min"
-              className="bg-transparent outline-none w-full"
-              />
-
-            </div>
-
-
-
-            <div className="
-            flex-1
-            bg-gray-100
-            rounded-xl
-            px-4
-            py-3
-            flex
-            items-center
-            gap-2
-            ">
-
-              <DollarSign size={18}/>
-
-              <input
-              value={max}
-              placeholder="Max"
-              className="bg-transparent outline-none w-full"
-              />
-
-            </div>
-
-
-          </div>
-
-
-        </section>
-
-
-
-
-
-
-
-        <section className="space-y-3">
-
+        <section className="mt-8">
 
         <h3 className="
-        text-lg
         font-bold
+        text-lg
+        mb-4
+        ">
+        Price Range
+        </h3>
+
+
+
+        <div className="
+        h-16
+        flex
+        items-end
+        gap-[2px]
+        ">
+
+
+        {
+          bars.map((height,index)=>(
+
+            <div
+
+            key={index}
+
+            style={{
+              height:`${height}px`,
+              backgroundColor:
+              index >= min/2 &&
+              index <= max/2
+              ?
+              "#FF5C00"
+              :
+              "#E5E7EB"
+            }}
+
+            className="
+            w-[3px]
+            rounded-full
+            transition-all
+            duration-300
+            "
+
+            />
+
+          ))
+        }
+
+
+        </div>
+
+
+
+        <div className="
+        mt-5
+        relative
+        h-8
+        ">
+
+
+          <input
+          type="range"
+          min="0"
+          max="100"
+          value={min}
+          onChange={(e)=>
+          setMin(Number(e.target.value))
+          }
+          className="
+          absolute
+          w-full
+          accent-[#FF5C00]
+          "
+          />
+
+
+          <input
+          type="range"
+          min="0"
+          max="100"
+          value={max}
+          onChange={(e)=>
+          setMax(Number(e.target.value))
+          }
+          className="
+          absolute
+          w-full
+          accent-[#FF5C00]
+          "
+          />
+
+
+        </div>
+
+
+
+        <div className="
+        flex
+        gap-4
+        mt-4
+        ">
+
+
+          <div className="
+          flex-1
+          bg-gray-100
+          rounded-xl
+          px-4
+          py-3
+          flex
+          gap-2
+          items-center
+          ">
+
+            <DollarSign size={18}/>
+
+            <input
+            placeholder="Min"
+            className="bg-transparent outline-none w-full"
+            />
+
+          </div>
+
+
+          <div className="
+          flex-1
+          bg-gray-100
+          rounded-xl
+          px-4
+          py-3
+          flex
+          gap-2
+          items-center
+          ">
+
+            <DollarSign size={18}/>
+
+            <input
+            placeholder="Max"
+            className="bg-transparent outline-none w-full"
+            />
+
+          </div>
+
+
+        </div>
+
+
+        </section>
+
+
+
+
+
+
+        {/* Rating */}
+
+        <section className="mt-8">
+
+        <h3 className="
+        font-bold
+        text-lg
+        mb-4
         ">
         Rating
         </h3>
 
 
-        <div className="
-        flex
-        gap-3
-        ">
-
+        <div className="flex gap-3">
 
         {
-          ratings.map(r=>(
+          ["5.0","4.0","3.0","2.0"].map(rate=>(
 
             <button
-            key={r}
+            key={rate}
             className="
+            rounded-full
+            border
             px-4
             py-2
-            rounded-full
-            bg-gray-100
             flex
             items-center
             gap-1
@@ -473,191 +376,46 @@ export default function FilterBottomSheet({
 
               <Star
               size={16}
-              fill="gold"
+              fill="yellow"
               className="text-yellow-400"
               />
 
-              {r}.0
-
+              {rate}
 
             </button>
 
           ))
         }
 
-
         </div>
 
-
         </section>
-
-
-
-
-
-
-
-
-        <section className="space-y-3">
-
-
-        <h3 className="
-        text-lg
-        font-bold
-        ">
-        Delivery Time
-        </h3>
-
-
-        <div className="
-        flex
-        gap-3
-        overflow-x-auto
-        ">
-
-
-        {
-          ["Under 15 min","Under 30 min","Under 45 min"]
-          .map(item=>(
-
-            <button
-
-            onClick={()=>setDelivery(item)}
-
-            key={item}
-
-            className={`
-            px-5
-            py-3
-            rounded-full
-            whitespace-nowrap
-            ${
-              delivery===item
-              ?
-              "bg-orange-500 text-white"
-              :
-              "bg-gray-100"
-            }
-            `}
-
-            >
-
-            {item}
-
-            </button>
-
-
-          ))
-        }
-
-
-        </div>
-
-
-        </section>
-
-
-
-
-
-
-
-
-        <section>
-
-        <div className="
-        flex
-        items-center
-        justify-between
-        ">
-
-          <div className="
-          flex
-          items-center
-          gap-2
-          font-bold
-          ">
-
-            <MapPin size={20}/>
-
-            Near Me
-
-          </div>
-
-
-
-          <button
-
-          onClick={()=>setNearMe(!nearMe)}
-
-          className={`
-          w-14
-          h-7
-          rounded-full
-          p-1
-          ${
-            nearMe
-            ?
-            "bg-orange-500"
-            :
-            "bg-gray-300"
-          }
-          `}
-
-          >
-
-            <div className={`
-            h-5
-            w-5
-            bg-white
-            rounded-full
-            transition
-            ${
-              nearMe
-              ?
-              "translate-x-7"
-              :
-              ""
-            }
-            `}/>
-
-
-          </button>
-
-
-        </div>
-
-
-        </section>
-
-
-
-
-
-
-        <button
-
-        onClick={applyFilter}
-
-        className="
-        w-full
-        bg-orange-500
-        text-white
-        py-4
-        rounded-full
-        font-bold
-        text-lg
-        "
-
-        >
-
-        Show 2,500+ Items
-
-        </button>
-
 
 
       </motion.div>
+
+
+
+      <button
+
+      onClick={onApply}
+
+      className="
+      fixed
+      bottom-6
+      left-6
+      right-6
+      bg-[#FF5C00]
+      text-white
+      font-bold
+      py-4
+      rounded-full
+      "
+
+      >
+        Show 2,500+ Items
+      </button>
+
 
 
     </div>
