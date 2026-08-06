@@ -10,17 +10,20 @@ export default function Ghost({
   const mouseY = useMotionValue(0);
 
   useEffect(() => {
-    const move = (e) => {
+    const handleMouseMove = (e) => {
       mouseX.set(
-        Math.max(-6, Math.min(6, (e.clientX - window.innerWidth / 2) / 42))
+        Math.max(-5, Math.min(5, (e.clientX - window.innerWidth / 2) / 40))
       );
+
       mouseY.set(
-        Math.max(-6, Math.min(6, (e.clientY - window.innerHeight / 2) / 42))
+        Math.max(-5, Math.min(5, (e.clientY - window.innerHeight / 2) / 40))
       );
     };
 
-    window.addEventListener("mousemove", move);
-    return () => window.removeEventListener("mousemove", move);
+    window.addEventListener("mousemove", handleMouseMove);
+
+    return () =>
+      window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   const eyeX = useTransform(mouseX, (v) => v);
@@ -28,11 +31,11 @@ export default function Ghost({
 
   return (
     <motion.div
-      className="relative mx-auto h-[290px] w-[255px]"
+      className="relative mx-auto h-[300px] w-[250px]"
       animate={{
-        y: success ? [-10, -34, -10] : [-8, 8, -8],
+        y: success ? [-10, -30, -10] : [-8, 8, -8],
         rotate: sad ? [-2, 2, -2] : [0, 1, 0, -1, 0],
-        scale: success ? [1, 1.05, 1] : 1,
+        scale: success ? [1, 1.04, 1] : 1,
       }}
       transition={{
         duration: success ? 0.9 : 3,
@@ -41,9 +44,9 @@ export default function Ghost({
       }}
     >
       <motion.div
-        className="absolute bottom-2 left-1/2 h-5 w-28 -translate-x-1/2 rounded-full bg-black/20 blur-md"
+        className="absolute bottom-1 left-1/2 h-5 w-28 -translate-x-1/2 rounded-full bg-black/20 blur-md"
         animate={{
-          scale: success ? [1, 0.55, 1] : [1, 0.82, 1],
+          scale: [1, 0.82, 1],
           opacity: [0.22, 0.08, 0.22],
         }}
         transition={{
@@ -62,39 +65,45 @@ export default function Ghost({
             <stop offset="100%" stopColor="#eef2ff" />
           </linearGradient>
 
-          <filter id="ghostShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <filter id="ghostShadow">
             <feDropShadow
               dx="0"
-              dy="5"
-              stdDeviation="5"
-              floodOpacity="0.12"
+              dy="6"
+              stdDeviation="6"
+              floodOpacity="0.15"
             />
           </filter>
         </defs>
-
         <path
           filter="url(#ghostShadow)"
           fill="url(#ghostFill)"
-          stroke="#d1d5db"
+          stroke="#dbe3eb"
           strokeWidth="2"
           d="
-            M120 18
-            C58 18 28 66 28 126
-            V198
-            C40 184 54 184 66 198
-            C78 212 90 184 102 198
-            C114 212 126 184 138 198
-            C150 212 162 184 174 198
-            C186 212 198 184 212 198
+            M120 20
+            C62 20 28 66 28 126
+            V196
+            C42 182 56 182 70 196
+            C82 210 94 182 106 196
+            C118 210 130 182 142 196
+            C154 210 166 182 178 196
+            C190 210 202 182 212 196
             V126
-            C212 66 182 18 120 18
+            C212 66 178 20 120 20
             Z
           "
         />
 
-        <motion.g
-          animate={coverEyes ? { opacity: 0 } : { opacity: 1}}
-        >
+        <ellipse
+          cx="120"
+          cy="72"
+          rx="46"
+          ry="24"
+          fill="#ffffff"
+          opacity="0.35"
+        />
+
+        <motion.g animate={{ opacity: coverEyes ? 0 : 1 }}>
           <motion.circle
             cx="92"
             cy="108"
@@ -123,8 +132,8 @@ export default function Ghost({
             }}
           />
 
-          <circle cx="96" cy="104" r="3" fill="#ffffff" />
-          <circle cx="152" cy="104" r="3" fill="#ffffff" />
+          <circle cx="96" cy="104" r="3" fill="#fff" />
+          <circle cx="152" cy="104" r="3" fill="#fff" />
         </motion.g>
         <motion.path
           d={
@@ -138,12 +147,13 @@ export default function Ghost({
           stroke="#111827"
           strokeWidth="5"
           strokeLinecap="round"
+          transition={{ duration: 0.25 }}
         />
 
         <motion.g
           animate={
             coverEyes
-              ? { y: -36, rotate: 6 }
+              ? { y: -34, rotate: 6 }
               : { y: 0, rotate: 0 }
           }
           transition={{ duration: 0.35 }}
@@ -188,21 +198,22 @@ export default function Ghost({
             />
           </>
         )}
+
         {success && (
-          <motion.circle
-            cx="120"
-            cy="78"
-            r="8"
-            fill="#fde68a"
+          <motion.g
             animate={{
-              r: [8, 14, 8],
-              opacity: [0.4, 1, 0.4],
+              scale: [1, 1.15, 1],
+              opacity: [0.5, 1, 0.5],
             }}
             transition={{
               duration: 1.2,
               repeat: Infinity,
             }}
-          />
+          >
+            <circle cx="120" cy="76" r="8" fill="#fde68a" />
+            <circle cx="104" cy="90" r="3" fill="#facc15" />
+            <circle cx="136" cy="90" r="3" fill="#facc15" />
+          </motion.g>
         )}
       </svg>
     </motion.div>
