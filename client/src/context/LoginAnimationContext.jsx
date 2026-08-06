@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 
 const LoginAnimationContext = createContext(null);
 
@@ -13,23 +13,34 @@ export function LoginAnimationProvider({ children }) {
     setSuccess(false);
   };
 
+  const value = useMemo(
+    () => ({
+      coverEyes,
+      setCoverEyes,
+      sad,
+      setSad,
+      success,
+      setSuccess,
+      reset,
+    }),
+    [coverEyes, sad, success]
+  );
+
   return (
-    <LoginAnimationContext.Provider
-      value={{
-        coverEyes,
-        setCoverEyes,
-        sad,
-        setSad,
-        success,
-        setSuccess,
-        reset,
-      }}
-    >
+    <LoginAnimationContext.Provider value={value}>
       {children}
     </LoginAnimationContext.Provider>
   );
 }
 
 export function useLoginAnimation() {
-  return useContext(LoginAnimationContext);
+  const context = useContext(LoginAnimationContext);
+
+  if (!context) {
+    throw new Error(
+      "useLoginAnimation must be used inside LoginAnimationProvider"
+    );
+  }
+
+  return context;
 }
