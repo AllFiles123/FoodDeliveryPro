@@ -1,21 +1,17 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+
 import {
   ArrowLeft,
-  Pencil,
   User,
   CreditCard,
-  Smartphone,
   Wallet,
   Building2,
-  ChevronRight,
+  Smartphone,
   Upload,
-  CheckCircle,
-  MapPin,
-  Phone,
-  Mail
+  ChevronRight,
+  CheckCircle
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 import profileService from "../../services/profileService";
 import { useAuth } from "../../context/AuthContext";
@@ -24,296 +20,217 @@ import { useToast } from "../../context/ToastContext";
 
 export default function ProfilePage(){
 
-  const navigate = useNavigate();
+const {
+ user,
+ login
+}=useAuth();
 
-  const {
-    user,
-    login
-  } = useAuth();
 
-  const {
-    showToast
-  } = useToast();
+const {
+ showToast
+}=useToast();
 
 
-  const [screen,setScreen] = useState("profile");
 
-  const [loading,setLoading] = useState(false);
+const [screen,setScreen]=useState("profile");
 
-  const [profileImage,setProfileImage] = useState(
-    localStorage.getItem("profileImage") ||
-    user?.profileImage ||
-    ""
-  );
 
+const [profileImage,setProfileImage]=useState(
+ localStorage.getItem("profileImage") ||
+ user?.profileImage ||
+ ""
+);
 
-  const [formData,setFormData] = useState({
+const handleImageUpload=(e)=>{
 
-    fullName:user?.fullName || "Sophia Williams",
+ const file=e.target.files[0];
 
-    email:user?.email || "sophia@gmail.com",
+ if(!file) return;
 
-    phone:user?.phone || "+8801XXXXXXXXX",
 
-    address:"",
+ const imageURL=URL.createObjectURL(file);
 
-    about:""
 
-  });
+ setProfileImage(imageURL);
 
 
+ localStorage.setItem(
+  "profileImage",
+  imageURL
+ );
 
-  useEffect(()=>{
 
-    const load = async()=>{
+ showToast("Profile photo updated");
 
-      try{
+};
 
-        const response =
-        await profileService.getProfile();
 
 
-        if(response.user){
+const [formData,setFormData]=useState({
 
-          login(
-            response.user,
-            localStorage.getItem("token")
-          );
+fullName:user?.fullName || "Sophia Williams",
 
+email:user?.email || "sophia@gmail.com",
 
-          setFormData(prev=>({
+phone:user?.phone || "+8801XXXXXXXXX",
 
-            ...prev,
+address:"",
 
-            fullName:
-            response.user.fullName || prev.fullName,
+about:""
 
-            email:
-            response.user.email || prev.email,
+});
 
-            phone:
-            response.user.phone || prev.phone,
 
-          }));
 
+useEffect(()=>{
 
-          setProfileImage(
-            response.user.profileImage || ""
-          );
+ const savedImage =
+ localStorage.getItem("profileImage");
 
-        }
 
+ if(savedImage){
 
-      }catch(error){
+  setProfileImage(savedImage);
 
-        console.log(error);
+ }
 
-      }
+},[]);
 
-    };
 
+const handleChange=(e)=>{
 
-    load();
+setFormData({
 
+...formData,
 
-  },[]);
+[e.target.name]:e.target.value
 
+});
 
+};
 
-  const handleChange=(e)=>{
 
-    setFormData({
 
-      ...formData,
 
-      [e.target.name]:e.target.value
 
-    });
 
-  };
 
+const paymentMethods=[
 
-
-  const handleImage=(e)=>{
-
-    const file=e.target.files[0];
-
-    if(!file)return;
-
-
-    const imageURL = URL.createObjectURL(file);
-
-    setProfileImage(imageURL);
-
-    localStorage.setItem(
-      "profileImage",
-      imageURL
-    );
-
-  };
-
-
-
-  const saveProfile=async()=>{
-
-    setLoading(true);
-
-    try{
-
-      const response =
-      await profileService.updateProfile({
-
-        ...formData,
-
-        profileImage
-
-      });
-
-
-      login(
-        response.user,
-        localStorage.getItem("token")
-      );
-
-
-      showToast(
-        "Profile updated successfully",
-        "success"
-      );
-
-
-    }catch(error){
-
-      showToast(
-        "Update failed",
-        "error"
-      );
-
-    }
-    finally{
-
-      setLoading(false);
-
-    }
-
-  };
-  const paymentItems = [
-
-    {
-      title:"bKash",
-      subtitle:"Mobile payment",
-      icon:Smartphone
-    },
-
-    {
-      title:"Nagad",
-      subtitle:"Mobile payment",
-      icon:Smartphone
-    },
-
-    {
-      title:"Rocket",
-      subtitle:"Dutch Bangla Mobile Banking",
-      icon:Wallet
-    },
-
-    {
-      title:"Upay",
-      subtitle:"United Commercial Bank",
-      icon:Wallet
-    },
-
-    {
-      title:"Bank Account",
-      subtitle:"Add your bank account",
-      icon:Building2
-    },
-
-    {
-      title:"Credit/Debit Card",
-      subtitle:"Visa or Mastercard",
-      icon:CreditCard
-    },
-
-    {
-      title:"Google Pay",
-      subtitle:"Fast payment",
-      icon:Smartphone
-    },
-
-    {
-      title:"PhonePe",
-      subtitle:"UPI payment",
-      icon:Smartphone
-    },
-
-    {
-      title:"Paytm",
-      subtitle:"Wallet payment",
-      icon:Wallet
-    },
-
-    {
-      title:"Living Menu Wallet",
-      subtitle:"Available balance",
-      balance:"৳52.09",
-      icon:Wallet
-    },
-
-    {
-      title:"Redeem Gift Card",
-      subtitle:"Use your gift card",
-      icon:CreditCard
-    },
-
-    {
-      title:"Invite Friends",
-      subtitle:"Earn credits",
-      icon:User
-    }
-
-  ];
-
-
-
-  return (
-
-    <div className="
-      min-h-screen
-      bg-gradient-to-br
-      from-[#FDE7E7]
-      via-[#FFF3E0]
-      to-[#E7F5E9]
-      font-sans
-      pb-28
-    ">
-
-
-    <motion.div
-
-      initial={{
-        opacity:0,
-        y:20
-      }}
-
-      animate={{
-        opacity:1,
-        y:0
-      }}
-
-      className="
-        mx-auto
-        max-w-md
-        px-5
-        pt-6
-      "
-
-    >
-
+{
+title:"bKash",
+subtitle:"Mobile banking",
+icon:Wallet
+},
+
+{
+title:"Nagad",
+subtitle:"Digital payment",
+icon:Wallet
+},
+
+{
+title:"Rocket",
+subtitle:"DBBL Mobile Banking",
+icon:Wallet
+},
+
+{
+title:"Upay",
+subtitle:"United Commercial Bank",
+icon:Wallet
+},
+
+{
+title:"Bank Account",
+subtitle:"Add your bank account",
+icon:Building2
+},
+
+{
+title:"Credit/Debit Card",
+subtitle:"Visa or Mastercard",
+icon:CreditCard
+},
+
+{
+title:"UPI",
+subtitle:"Unified Payment Interface",
+icon:Smartphone
+},
+
+{
+title:"Google Pay",
+subtitle:"Fast payment",
+icon:Smartphone
+},
+
+{
+title:"PhonePe",
+subtitle:"UPI payment",
+icon:Smartphone
+},
+
+{
+title:"Paytm",
+subtitle:"Wallet payment",
+icon:Wallet
+},
+
+{
+title:"Living Menu Wallet",
+subtitle:"Available balance",
+balance:"৳52.09",
+icon:Wallet
+},
+
+{
+title:"Redeem Gift Card",
+subtitle:"Use your gift card",
+icon:CreditCard
+},
+
+{
+title:"Invite Friends",
+subtitle:"Earn credits",
+icon:User
+}
+
+];
+return (
+
+<div
+className="
+min-h-screen
+bg-fixed
+bg-gradient-to-br
+from-[#FDE7E7]
+via-[#FFF3E0]
+to-[#E7F5E9]
+font-sans
+"
+>
+
+
+<motion.div
+
+initial={{opacity:0,y:20}}
+
+animate={{opacity:1,y:0}}
+
+className="
+mx-auto
+max-w-md
+px-5
+pt-6
+pb-10
+"
+
+>
 
 
 {
-screen==="profile" && (
+screen==="profile" &&
 
 <>
 
@@ -321,7 +238,7 @@ screen==="profile" && (
 <h1 className="
 text-3xl
 font-bold
-text-gray-900
+mb-6
 ">
 
 Profile
@@ -331,11 +248,10 @@ Profile
 
 
 <div className="
-mt-8
 rounded-3xl
-bg-white
+bg-white/90
 p-6
-shadow-lg
+shadow-xl
 ">
 
 
@@ -358,12 +274,11 @@ h-24
 w-24
 rounded-full
 object-cover
-border-4
-border-white
 shadow
 "
 
 />
+
 
 
 <div>
@@ -394,14 +309,19 @@ text-gray-500
 
 
 
+
+
 <button
 
-onClick={()=>setScreen("details")}
+onClick={()=>{
+ setScreen("details");
+ window.history.pushState({}, "", "/profile/details");
+}}
 
 className="
 mt-6
-flex
 w-full
+flex
 items-center
 justify-between
 rounded-2xl
@@ -412,6 +332,7 @@ font-semibold
 
 >
 
+
 <div className="
 flex
 items-center
@@ -420,11 +341,7 @@ gap-3
 
 <User size={20}/>
 
-<span className="
-font-semibold
-">
 Profile Details
-</span>
 
 </div>
 
@@ -436,14 +353,18 @@ Profile Details
 
 
 
+
 <button
 
-onClick={()=>setScreen("payment")}
+onClick={()=>{
+ setScreen("payment");
+ window.history.pushState({}, "", "/profile/payment");
+}}
 
 className="
 mt-3
-flex
 w-full
+flex
 items-center
 justify-between
 rounded-2xl
@@ -453,6 +374,7 @@ font-semibold
 "
 
 >
+
 
 <div className="
 flex
@@ -472,20 +394,20 @@ Payment Methods
 </button>
 
 
+
 </div>
 
 
 </>
-
-)
 
 }
 
 
 
 
+
 {
-screen==="details" && (
+screen==="details" &&
 
 <>
 
@@ -497,9 +419,11 @@ gap-3
 mb-6
 ">
 
-
 <button
-onClick={()=>setScreen("profile")}
+onClick={()=>{
+ setScreen("profile");
+ window.history.pushState({}, "", "/profile");
+}}
 >
 
 <ArrowLeft/>
@@ -521,33 +445,30 @@ Personal Information
 
 
 
+
+
 <div className="
 rounded-3xl
 bg-white
 p-6
-shadow-lg
+shadow-xl
 ">
 
 
+
 <div className="
+flex
+flex-col
+items-center
+mb-6
+">
+
+
+<div
+className="
 relative
-mx-auto
-h-36
-w-36
-">
-
-<div className="
-absolute
-right-1
-top-1
-z-10
-rounded-full
-bg-orange-500
-p-1
-text-white
-">
-<CheckCircle size={16}/>
-</div>
+"
+>
 
 
 <img
@@ -558,8 +479,8 @@ profileImage ||
 }
 
 className="
-h-full
-w-full
+h-32
+w-32
 rounded-full
 object-cover
 "
@@ -567,34 +488,56 @@ object-cover
 />
 
 
-<label className="
+
+<span
+className="
 absolute
-bottom-0
-right-0
-flex
-h-10
-w-10
-items-center
-justify-center
+bottom-1
+right-1
 rounded-full
 bg-orange-500
+p-1
 text-white
+"
+>
+
+<CheckCircle size={18}/>
+
+</span>
+
+
+</div>
+
+
+
+
+
+<label
+className="
+mt-3
+text-orange-600
+font-semibold
 cursor-pointer
-">
+"
+>
 
+<Upload
+size={18}
+className="inline mr-2"
+/>
 
-<Upload size={18}/>
+Change your photo
 
 
 <input
 
 type="file"
 
+hidden
+
 accept="image/*"
 
-onChange={handleImage}
-
-className="hidden"
+onChange={handleImageUpload}
 
 />
 
@@ -606,25 +549,22 @@ className="hidden"
 
 
 
-<p className="
-mt-3
-text-center
-font-semibold
-text-orange-600
-">
 
-Change your photo
 
-</p>
 <div className="
-mt-6
 space-y-4
 ">
 
 
-<label className="text-sm font-semibold text-gray-700">
+
+<div>
+
+<label className="text-sm text-gray-500">
+
 Name
+
 </label>
+
 
 <input
 
@@ -634,22 +574,26 @@ value={formData.fullName}
 
 onChange={handleChange}
 
-placeholder="Name"
-
 className="
 w-full
 rounded-2xl
+bg-white
+shadow-sm
 border
-border-gray-200
-bg-gray-50
+border-gray-100
 p-4
 outline-none
-focus:border-black
-focus:bg-white
-transition
+focus:ring-2
+focus:ring-orange-300
+mt-1
+outline-none
 "
 
 />
+
+
+</div>
+
 
 
 
@@ -660,9 +604,14 @@ gap-3
 ">
 
 
-<label className="text-sm font-semibold text-gray-700">
+<div>
+
+<label className="text-sm text-gray-500">
+
 Email
+
 </label>
+
 
 <input
 
@@ -672,47 +621,19 @@ value={formData.email}
 
 onChange={handleChange}
 
-placeholder="Email"
-
 className="
+w-full
 rounded-2xl
+bg-white
+shadow-sm
 border
-border-gray-200
-bg-gray-50
+border-gray-100
 p-4
 outline-none
-focus:border-black
-focus:bg-white
-transition
-"
-
-/>
-
-
-<label className="text-sm font-semibold text-gray-700">
-Phone Number
-</label>
-
-<input
-
-name="phone"
-
-value={formData.phone}
-
-onChange={handleChange}
-
-placeholder="Phone"
-
-className="
-rounded-2xl
-border
-border-gray-200
-bg-gray-50
-p-4
-outline-none
-focus:border-black
-focus:bg-white
-transition
+focus:ring-2
+focus:ring-orange-300
+mt-1
+text-sm
 "
 
 />
@@ -722,9 +643,51 @@ transition
 
 
 
-<label className="text-sm font-semibold text-gray-700">
-Delivery Address
+
+<div>
+
+<label className="text-sm text-gray-500">
+
+Phone
+
 </label>
+
+
+<input
+
+name="phone"
+
+value={formData.phone}
+
+onChange={handleChange}
+
+className="
+w-full
+rounded-2xl
+bg-white
+shadow-sm
+border
+border-gray-100
+p-4
+outline-none
+focus:ring-2
+focus:ring-orange-300
+mt-1
+text-sm
+"
+
+/>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
 
 <textarea
 
@@ -737,26 +700,24 @@ onChange={handleChange}
 placeholder="Type your address here"
 
 className="
-h-28
 w-full
+h-28
 rounded-2xl
+bg-white
+shadow-sm
 border
-border-gray-200
-bg-gray-50
+border-gray-100
 p-4
 outline-none
-focus:border-black
-focus:bg-white
-transition
+focus:ring-2
+focus:ring-orange-300
 "
 
 />
 
 
 
-<label className="text-sm font-semibold text-gray-700">
-About Me
-</label>
+
 
 <textarea
 
@@ -769,70 +730,57 @@ onChange={handleChange}
 placeholder="Write something about yourself"
 
 className="
-h-32
 w-full
+h-32
 rounded-2xl
+bg-white
+shadow-sm
 border
-border-gray-200
-bg-gray-50
+border-gray-100
 p-4
 outline-none
-focus:border-black
-focus:bg-white
-transition
+focus:ring-2
+focus:ring-orange-300
 "
 
 />
 
 
 
+
+
 <button
 
-onClick={saveProfile}
-
-disabled={loading}
+onClick={()=>showToast("Profile Saved")}
 
 className="
-mt-3
 w-full
 rounded-2xl
 bg-black
-p-4
-font-bold
 text-white
+py-4
+font-bold
 "
 
 >
 
-{
-loading
-?
-"Saving..."
-:
-"Save Changes"
-}
+Save Changes
 
 </button>
 
 
-</div>
 
+
+</div>
 
 </div>
 
 
 </>
 
-)
-
 }
-
-
-
-
-
 {
-screen==="payment" && (
+screen==="payment" &&
 
 <>
 
@@ -847,7 +795,10 @@ mb-6
 
 <button
 
-onClick={()=>setScreen("profile")}
+onClick={()=>{
+ setScreen("profile");
+ window.history.pushState({}, "", "/profile");
+}}
 
 >
 
@@ -870,27 +821,27 @@ Payment
 
 
 
+
+
 <div className="
 rounded-3xl
-bg-white/90
-backdrop-blur
-p-6
+bg-white
+p-5
 shadow-xl
-border
-border-white
 ">
 
 
-<p className="
-mb-4
+<h2 className="
 text-sm
 font-bold
 text-gray-500
+mb-4
 ">
 
 Add Payment Method
 
-</p>
+</h2>
+
 
 
 
@@ -900,13 +851,14 @@ divide-y
 
 
 {
-paymentItems.map((item,index)=>{
+
+paymentMethods.map((item,index)=>{
 
 
 const Icon=item.icon;
 
 
-return(
+return (
 
 <div
 
@@ -930,18 +882,16 @@ gap-4
 
 
 <div className="
-flex
-h-10
-w-10
-items-center
-justify-center
+h-11
+w-11
 rounded-full
 bg-gray-100
+flex
+items-center
+justify-center
 ">
 
-
-<Icon size={20}/>
-
+<Icon size={21}/>
 
 </div>
 
@@ -949,17 +899,17 @@ bg-gray-100
 
 <div>
 
-<p className="
+<h3 className="
 font-semibold
-text-gray-900
 ">
 
 {item.title}
 
-</p>
+</h3>
+
 
 <p className="
-text-xs
+text-sm
 text-gray-500
 ">
 
@@ -967,10 +917,12 @@ text-gray-500
 
 </p>
 
+
 </div>
 
 
 </div>
+
 
 
 
@@ -982,10 +934,11 @@ gap-3
 
 
 {
+
 item.balance &&
 
 <span className="
-font-semibold
+font-bold
 text-green-600
 ">
 
@@ -996,7 +949,8 @@ text-green-600
 }
 
 
-<ChevronRight size={18}/>
+
+<ChevronRight size={20}/>
 
 
 </div>
@@ -1011,6 +965,7 @@ text-green-600
 
 })
 
+
 }
 
 
@@ -1022,19 +977,13 @@ text-green-600
 
 </>
 
-)
-
 }
-
 
 
 </motion.div>
 
-
 </div>
 
-
 );
-
 
 }

@@ -39,6 +39,14 @@ const [profileImage,setProfileImage]=useState(
  user?.profileImage || ""
 );
 
+const handleImageUpload=(e)=>{
+ const file=e.target.files[0];
+ if(!file) return;
+
+ const imageURL=URL.createObjectURL(file);
+ setProfileImage(imageURL);
+};
+
 
 
 const [formData,setFormData]=useState({
@@ -71,20 +79,7 @@ setFormData({
 
 
 
-const handleImageUpload=(e)=>{
 
-const file=e.target.files[0];
-
-if(!file)return;
-
-
-const url=URL.createObjectURL(file);
-
-
-setProfileImage(url);
-
-
-};
 
 
 
@@ -92,19 +87,19 @@ const paymentMethods=[
 
 {
 title:"bKash",
-subtitle:"Mobile payment",
+subtitle:"Mobile banking",
 icon:Wallet
 },
 
 {
 title:"Nagad",
-subtitle:"Mobile payment",
+subtitle:"Digital payment",
 icon:Wallet
 },
 
 {
 title:"Rocket",
-subtitle:"Dutch Bangla Mobile Banking",
+subtitle:"DBBL Mobile Banking",
 icon:Wallet
 },
 
@@ -124,6 +119,12 @@ icon:Building2
 title:"Credit/Debit Card",
 subtitle:"Visa or Mastercard",
 icon:CreditCard
+},
+
+{
+title:"UPI",
+subtitle:"Unified Payment Interface",
+icon:Smartphone
 },
 
 {
@@ -153,7 +154,7 @@ icon:Wallet
 
 {
 title:"Redeem Gift Card",
-subtitle:"Use gift card",
+subtitle:"Use your gift card",
 icon:CreditCard
 },
 
@@ -535,9 +536,14 @@ onChange={handleChange}
 className="
 w-full
 rounded-2xl
+bg-white
+shadow-sm
 border
-bg-gray-50
+border-gray-100
 p-4
+outline-none
+focus:ring-2
+focus:ring-orange-300
 mt-1
 outline-none
 "
@@ -577,9 +583,14 @@ onChange={handleChange}
 className="
 w-full
 rounded-2xl
+bg-white
+shadow-sm
 border
-bg-gray-50
+border-gray-100
 p-4
+outline-none
+focus:ring-2
+focus:ring-orange-300
 mt-1
 text-sm
 "
@@ -612,9 +623,14 @@ onChange={handleChange}
 className="
 w-full
 rounded-2xl
+bg-white
+shadow-sm
 border
-bg-gray-50
+border-gray-100
 p-4
+outline-none
+focus:ring-2
+focus:ring-orange-300
 mt-1
 text-sm
 "
@@ -646,9 +662,14 @@ className="
 w-full
 h-28
 rounded-2xl
+bg-white
+shadow-sm
 border
-bg-gray-50
+border-gray-100
 p-4
+outline-none
+focus:ring-2
+focus:ring-orange-300
 "
 
 />
@@ -671,9 +692,14 @@ className="
 w-full
 h-32
 rounded-2xl
+bg-white
+shadow-sm
 border
-bg-gray-50
+border-gray-100
 p-4
+outline-none
+focus:ring-2
+focus:ring-orange-300
 "
 
 />
