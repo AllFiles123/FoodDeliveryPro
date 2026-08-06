@@ -7,6 +7,7 @@ import App from "./App";
 import { ToastProvider } from "./context/ToastContext";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
+import { LoginAnimationProvider } from "./context/LoginAnimationContext";
 
 import "./index.css";
 import "./styles/globals.css";
@@ -16,9 +17,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
+          <LoginAnimationProvider>
           <ToastProvider>
             <App />
           </ToastProvider>
+        </LoginAnimationProvider>
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>

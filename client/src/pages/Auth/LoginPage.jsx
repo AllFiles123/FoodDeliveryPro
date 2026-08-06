@@ -9,6 +9,7 @@ import PrimaryButton from "../../components/buttons/PrimaryButton";
 import authService from "../../services/authService";
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
+import LoginAnimation from "../../components/LoginAnimation/LoginAnimation";
 
 
 export default function LoginPage() {
@@ -17,6 +18,12 @@ export default function LoginPage() {
 
   const { showToast } = useToast();
   const { login } = useAuth();
+  const {
+    setCoverEyes,
+    setSad,
+    setSuccess,
+    reset,
+  } = useLoginAnimation();
 
 
   const [formData, setFormData] = useState({
@@ -140,6 +147,9 @@ export default function LoginPage() {
 
 
 
+      setCoverEyes(false);
+      setSad(false);
+
       showToast(
         "Login Successful",
         "success"
@@ -155,6 +165,11 @@ export default function LoginPage() {
 
     }
     catch(error){
+      setCoverEyes(false);
+      setSuccess(false);
+      setSad(true);
+
+
 
 
       showToast(
@@ -172,6 +187,10 @@ export default function LoginPage() {
 
     }
     finally{
+      setTimeout(() => {
+        reset();
+      }, 1200);
+
 
       setLoading(false);
 
@@ -208,6 +227,8 @@ export default function LoginPage() {
       >
 
 
+        <LoginAnimation />
+
         <h1 className="text-center text-3xl font-bold text-white">
           Welcome Back 👋
         </h1>
@@ -231,6 +252,13 @@ export default function LoginPage() {
             placeholder="Email Address"
             value={formData.email}
             onChange={handleChange}
+            onFocus={() => {
+              reset();
+              setCoverEyes(true);
+            }}
+            onBlur={() => {
+              setCoverEyes(false);
+            }}
           />
 
 
@@ -247,6 +275,13 @@ export default function LoginPage() {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
+            onFocus={() => {
+              reset();
+              setCoverEyes(true);
+            }}
+            onBlur={() => {
+              setCoverEyes(false);
+            }}
           />
 
 
