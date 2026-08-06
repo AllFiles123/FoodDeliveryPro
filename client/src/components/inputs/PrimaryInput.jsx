@@ -3,6 +3,8 @@ export default function PrimaryInput({
   name,
   value,
   onChange,
+  onFocus,
+  onBlur,
   placeholder,
   autoComplete = "off",
   className = "",
@@ -13,6 +15,8 @@ export default function PrimaryInput({
       name={name}
       value={value}
       onChange={onChange}
+      onFocus={onFocus}
+      onBlur={onBlur}
       placeholder={placeholder}
       autoComplete={autoComplete}
       className={`w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-4 text-white placeholder:text-white/50 outline-none transition-all duration-300 focus:border-primary focus:ring-2 focus:ring-primary/30 ${className}`}
