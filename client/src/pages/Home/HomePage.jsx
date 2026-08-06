@@ -16,10 +16,10 @@ export default function HomePage() {
   
 const categories = [
   { name:"Pizza", icon:Pizza },
-  { name:"Burger", icon:Beef },
-  { name:"Chicken", icon:Beef },
-  { name:"Dessert", icon:IceCreamCone },
-  { name:"Drinks", icon:Coffee },
+  { name:"Burger", icon:Hamburger },
+  { name:"Chicken", icon:Hamburger },
+  { name:"Dessert", icon:IceCreamBowl },
+  { name:"Drinks", icon:CupSoda },
 ];
 
 
