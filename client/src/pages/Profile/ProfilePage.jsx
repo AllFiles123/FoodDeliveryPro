@@ -1,17 +1,28 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-
 import {
   ArrowLeft,
+  Pencil,
   User,
   CreditCard,
+  Smartphone,
   Wallet,
   Building2,
-  Smartphone,
-  Upload,
   ChevronRight,
-  CheckCircle
+  Upload,
+  Heart,
+  Bell,
+  MapPin,
+  ShoppingBag,
+  Gift,
+  Globe,
+  Settings,
+  Shield,
+  Star,
+  LogOut,
+  HelpCircle
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import profileService from "../../services/profileService";
 import { useAuth } from "../../context/AuthContext";
@@ -20,217 +31,303 @@ import { useToast } from "../../context/ToastContext";
 
 export default function ProfilePage(){
 
-const {
- user,
- login
-}=useAuth();
+  const navigate = useNavigate();
+
+  const {
+    user,
+    login
+  } = useAuth();
+
+  const {
+    showToast
+  } = useToast();
 
 
-const {
- showToast
-}=useToast();
+  const [screen,setScreen] = useState("profile");
 
+  const [loading,setLoading] = useState(false);
 
-
-const [screen,setScreen]=useState("profile");
-
-
-const [profileImage,setProfileImage]=useState(
- localStorage.getItem("profileImage") ||
- user?.profileImage ||
- ""
+  const [profileImage,setProfileImage] = useState(
+    localStorage.getItem("profileImage") ||
+    user?.profileImage ||
+    ""
 );
 
-const handleImageUpload=(e)=>{
 
- const file=e.target.files[0];
+  const [formData,setFormData] = useState({
 
- if(!file) return;
+    fullName:user?.fullName || "Sophia Williams",
 
+    email:user?.email || "sophia@gmail.com",
 
- const imageURL=URL.createObjectURL(file);
+    phone:user?.phone || "+8801XXXXXXXXX",
 
+    address:"",
 
- setProfileImage(imageURL);
+    about:""
 
-
- localStorage.setItem(
-  "profileImage",
-  imageURL
- );
-
-
- showToast("Profile photo updated");
-
-};
+  });
 
 
 
-const [formData,setFormData]=useState({
+  useEffect(()=>{
 
-fullName:user?.fullName || "Sophia Williams",
+    const load = async()=>{
 
-email:user?.email || "sophia@gmail.com",
+      try{
 
-phone:user?.phone || "+8801XXXXXXXXX",
-
-address:"",
-
-about:""
-
-});
+        const response =
+        await profileService.getProfile();
 
 
+        if(response.user){
 
-useEffect(()=>{
-
- const savedImage =
- localStorage.getItem("profileImage");
-
-
- if(savedImage){
-
-  setProfileImage(savedImage);
-
- }
-
-},[]);
+          login(
+            response.user,
+            localStorage.getItem("token")
+          );
 
 
-const handleChange=(e)=>{
+          setFormData(prev=>({
 
-setFormData({
+            ...prev,
 
-...formData,
+            fullName:
+            response.user.fullName || prev.fullName,
 
-[e.target.name]:e.target.value
+            email:
+            response.user.email || prev.email,
 
-});
+            phone:
+            response.user.phone || prev.phone,
 
-};
-
-
-
-
-
+          }));
 
 
-const paymentMethods=[
+          const savedImage=
+          localStorage.getItem("profileImage");
 
-{
-title:"bKash",
-subtitle:"Mobile banking",
-icon:Wallet
-},
+          setProfileImage(
+            savedImage ||
+            response.user.profileImage ||
+            ""
+          );
 
-{
-title:"Nagad",
-subtitle:"Digital payment",
-icon:Wallet
-},
+        }
 
-{
-title:"Rocket",
-subtitle:"DBBL Mobile Banking",
-icon:Wallet
-},
 
-{
-title:"Upay",
-subtitle:"United Commercial Bank",
-icon:Wallet
-},
+      }catch(error){
 
-{
-title:"Bank Account",
-subtitle:"Add your bank account",
-icon:Building2
-},
+        console.log(error);
 
-{
-title:"Credit/Debit Card",
-subtitle:"Visa or Mastercard",
-icon:CreditCard
-},
+      }
 
-{
-title:"UPI",
-subtitle:"Unified Payment Interface",
-icon:Smartphone
-},
+    };
 
-{
-title:"Google Pay",
-subtitle:"Fast payment",
-icon:Smartphone
-},
 
-{
-title:"PhonePe",
-subtitle:"UPI payment",
-icon:Smartphone
-},
+    load();
 
-{
-title:"Paytm",
-subtitle:"Wallet payment",
-icon:Wallet
-},
 
-{
-title:"Living Menu Wallet",
-subtitle:"Available balance",
-balance:"৳52.09",
-icon:Wallet
-},
+  },[]);
 
-{
-title:"Redeem Gift Card",
-subtitle:"Use your gift card",
-icon:CreditCard
-},
 
-{
-title:"Invite Friends",
-subtitle:"Earn credits",
-icon:User
-}
+
+  const handleChange=(e)=>{
+
+    setFormData({
+
+      ...formData,
+
+      [e.target.name]:e.target.value
+
+    });
+
+  };
+
+
+
+  const handleImage=(e)=>{
+
+    const file=e.target.files[0];
+
+    if(!file)return;
+
+
+    setProfileImage(
+      URL.createObjectURL(file)
+    );
+
+  };
+
+
+
+  const saveProfile=async()=>{
+
+    setLoading(true);
+
+    try{
+
+      const response =
+      await profileService.updateProfile({
+
+        ...formData,
+
+        profileImage
+
+      });
+
+
+      login(
+        response.user,
+        localStorage.getItem("token")
+      );
+
+
+      showToast(
+        "Profile updated successfully",
+        "success"
+      );
+
+
+    }catch(error){
+
+      showToast(
+        "Update failed",
+        "error"
+      );
+
+    }
+    finally{
+
+      setLoading(false);
+
+    }
+
+  };
+  const paymentItems = [
+
+    {
+      title:"Credit/Debit Card",
+      icon:CreditCard
+    },
+
+    {
+      title:"bKash",
+      icon:Smartphone
+    },
+
+    {
+      title:"Nagad",
+      icon:Smartphone
+    },
+
+    {
+      title:"Rocket",
+      icon:Wallet
+    },
+
+    {
+      title:"Upay",
+      icon:Wallet
+    },
+
+    {
+      title:"Bank Account",
+      icon:Building2
+    },
+
+    {
+      title:"Google Pay",
+      icon:Smartphone
+    },
+
+    {
+      title:"PhonePay",
+      icon:Smartphone
+    },
+
+    {
+      title:"Paytm",
+      icon:Wallet
+    },
+
+    {
+      title:"Living Menu Wallet",
+      icon:Wallet,
+      balance:"৳52.09"
+    },
+
+    {
+      title:"Redeem gift card",
+      icon:CreditCard
+    },
+
+    {
+      title:"Invite friends to earn credits",
+      icon:User
+    }
+
+  ];
+
+
+
+  
+
+const profileMenus=[
+
+{title:"My Orders",icon:ShoppingBag},
+{title:"Favorites",icon:Heart},
+{title:"Saved Addresses",icon:MapPin},
+{title:"Notifications",icon:Bell},
+{title:"Offers & Coupons",icon:Gift},
+{title:"Language",icon:Globe},
+{title:"Help & Support",icon:HelpCircle},
+{title:"Settings",icon:Settings},
+{title:"Privacy Policy",icon:Shield},
+{title:"Rate App",icon:Star},
+{title:"Logout",icon:LogOut,danger:true}
 
 ];
+
+
 return (
 
-<div
-className="
-min-h-screen
-bg-fixed
-bg-gradient-to-br
-from-[#FDE7E7]
-via-[#FFF3E0]
-to-[#E7F5E9]
-font-sans
-"
->
+    <div className="
+      min-h-screen
+      bg-gradient-to-br
+      from-[#FDE7E7]
+      via-[#FFF3E0]
+      to-[#E7F5E9]
+      font-sans
+      pb-28
+    ">
 
 
-<motion.div
+    <motion.div
 
-initial={{opacity:0,y:20}}
+      initial={{
+        opacity:0,
+        y:20
+      }}
 
-animate={{opacity:1,y:0}}
+      animate={{
+        opacity:1,
+        y:0
+      }}
 
-className="
-mx-auto
-max-w-md
-px-5
-pt-6
-pb-10
-"
+      className="
+        mx-auto
+        max-w-md
+        px-5
+        pt-6
+      "
 
->
+    >
+
 
 
 {
-screen==="profile" &&
+screen==="profile" && (
 
 <>
 
@@ -238,7 +335,7 @@ screen==="profile" &&
 <h1 className="
 text-3xl
 font-bold
-mb-6
+text-gray-900
 ">
 
 Profile
@@ -248,10 +345,11 @@ Profile
 
 
 <div className="
+mt-8
 rounded-3xl
-bg-white/90
+bg-white
 p-6
-shadow-xl
+shadow-lg
 ">
 
 
@@ -274,11 +372,12 @@ h-24
 w-24
 rounded-full
 object-cover
+border-4
+border-white
 shadow
 "
 
 />
-
 
 
 <div>
@@ -309,19 +408,17 @@ text-gray-500
 
 
 
-
-
 <button
 
 onClick={()=>{
- setScreen("details");
- window.history.pushState({}, "", "/profile/details");
+setScreen("details");
+window.history.replaceState({},"","/profile/details");
 }}
 
 className="
 mt-6
-w-full
 flex
+w-full
 items-center
 justify-between
 rounded-2xl
@@ -331,7 +428,6 @@ font-semibold
 "
 
 >
-
 
 <div className="
 flex
@@ -353,18 +449,17 @@ Profile Details
 
 
 
-
 <button
 
 onClick={()=>{
- setScreen("payment");
- window.history.pushState({}, "", "/profile/payment");
+setScreen("payment");
+window.history.replaceState({},"","/profile/payment");
 }}
 
 className="
 mt-3
-w-full
 flex
+w-full
 items-center
 justify-between
 rounded-2xl
@@ -374,7 +469,6 @@ font-semibold
 "
 
 >
-
 
 <div className="
 flex
@@ -394,20 +488,121 @@ Payment Methods
 </button>
 
 
+<div className="
+mt-5
+rounded-3xl
+bg-white
+shadow-xl
+overflow-hidden
+">
+
+{
+
+profileMenus.map((item,index)=>{
+
+const Icon=item.icon;
+
+return(
+
+<button
+
+key={index}
+
+className="
+w-full
+flex
+items-center
+justify-between
+px-5
+py-4
+border-b
+last:border-b-0
+hover:bg-gray-50
+transition
+"
+
+>
+
+<div className="
+flex
+items-center
+gap-4
+">
+
+<div className="
+h-10
+w-10
+rounded-full
+bg-gray-100
+flex
+items-center
+justify-center
+">
+
+<Icon
+
+size={20}
+
+className={
+item.danger
+?
+"text-red-500"
+:
+"text-gray-700"
+}
+
+/>
+
+</div>
+
+<span
+
+className={
+item.danger
+?
+"font-semibold text-red-500"
+:
+"font-semibold text-gray-800"
+}
+
+>
+
+{item.title}
+
+</span>
+
+</div>
+
+<ChevronRight
+size={18}
+className="text-gray-400"
+/>
+
+</button>
+
+);
+
+})
+
+}
+
+</div>
+
 
 </div>
 
 
 </>
 
+)
+
 }
 
 
 
 
-
 {
-screen==="details" &&
+screen==="details" && (
 
 <>
 
@@ -419,10 +614,11 @@ gap-3
 mb-6
 ">
 
+
 <button
 onClick={()=>{
- setScreen("profile");
- window.history.pushState({}, "", "/profile");
+setScreen("profile");
+window.history.replaceState({},"","/profile");
 }}
 >
 
@@ -445,30 +641,20 @@ Personal Information
 
 
 
-
-
 <div className="
 rounded-3xl
 bg-white
 p-6
-shadow-xl
+shadow-lg
 ">
-
 
 
 <div className="
-flex
-flex-col
-items-center
-mb-6
-">
-
-
-<div
-className="
 relative
-"
->
+mx-auto
+h-32
+w-32
+">
 
 
 <img
@@ -479,8 +665,8 @@ profileImage ||
 }
 
 className="
-h-32
-w-32
+h-full
+w-full
 rounded-full
 object-cover
 "
@@ -488,56 +674,34 @@ object-cover
 />
 
 
-
-<span
-className="
+<label className="
 absolute
-bottom-1
-right-1
+bottom-0
+right-0
+flex
+h-10
+w-10
+items-center
+justify-center
 rounded-full
 bg-orange-500
-p-1
 text-white
-"
->
-
-<CheckCircle size={18}/>
-
-</span>
-
-
-</div>
-
-
-
-
-
-<label
-className="
-mt-3
-text-orange-600
-font-semibold
 cursor-pointer
-"
->
+">
 
-<Upload
-size={18}
-className="inline mr-2"
-/>
 
-Change your photo
+<Upload size={18}/>
 
 
 <input
 
 type="file"
 
-hidden
-
 accept="image/*"
 
-onChange={handleImageUpload}
+onChange={handleImage}
+
+className="hidden"
 
 />
 
@@ -549,21 +713,20 @@ onChange={handleImageUpload}
 
 
 
-
-
-<div className="
-space-y-4
+<p className="
+mt-3
+text-center
+font-semibold
+text-orange-600
 ">
 
+Change your photo
 
-
-<div>
-
-<label className="text-sm text-gray-500">
-
-Name
-
-</label>
+</p>
+<div className="
+mt-6
+space-y-4
+">
 
 
 <input
@@ -574,26 +737,17 @@ value={formData.fullName}
 
 onChange={handleChange}
 
+placeholder="Name"
+
 className="
 w-full
 rounded-2xl
-bg-white
-shadow-sm
 border
-border-gray-100
 p-4
-outline-none
-focus:ring-2
-focus:ring-orange-300
-mt-1
 outline-none
 "
 
 />
-
-
-</div>
-
 
 
 
@@ -604,15 +758,6 @@ gap-3
 ">
 
 
-<div>
-
-<label className="text-sm text-gray-500">
-
-Email
-
-</label>
-
-
 <input
 
 name="email"
@@ -621,36 +766,16 @@ value={formData.email}
 
 onChange={handleChange}
 
+placeholder="Email"
+
 className="
-w-full
 rounded-2xl
-bg-white
-shadow-sm
 border
-border-gray-100
 p-4
 outline-none
-focus:ring-2
-focus:ring-orange-300
-mt-1
-text-sm
 "
 
 />
-
-
-</div>
-
-
-
-
-<div>
-
-<label className="text-sm text-gray-500">
-
-Phone
-
-</label>
 
 
 <input
@@ -661,31 +786,19 @@ value={formData.phone}
 
 onChange={handleChange}
 
+placeholder="Phone"
+
 className="
-w-full
 rounded-2xl
-bg-white
-shadow-sm
 border
-border-gray-100
 p-4
 outline-none
-focus:ring-2
-focus:ring-orange-300
-mt-1
-text-sm
 "
 
 />
 
 
 </div>
-
-
-
-</div>
-
-
 
 
 
@@ -700,22 +813,15 @@ onChange={handleChange}
 placeholder="Type your address here"
 
 className="
-w-full
 h-28
+w-full
 rounded-2xl
-bg-white
-shadow-sm
 border
-border-gray-100
 p-4
 outline-none
-focus:ring-2
-focus:ring-orange-300
 "
 
 />
-
-
 
 
 
@@ -730,57 +836,65 @@ onChange={handleChange}
 placeholder="Write something about yourself"
 
 className="
-w-full
 h-32
+w-full
 rounded-2xl
-bg-white
-shadow-sm
 border
-border-gray-100
 p-4
 outline-none
-focus:ring-2
-focus:ring-orange-300
 "
 
 />
 
 
 
-
-
 <button
 
-onClick={()=>showToast("Profile Saved")}
+onClick={saveProfile}
+
+disabled={loading}
 
 className="
+mt-3
 w-full
 rounded-2xl
 bg-black
-text-white
-py-4
+p-4
 font-bold
+text-white
 "
 
 >
 
-Save Changes
+{
+loading
+?
+"Saving..."
+:
+"Save Changes"
+}
 
 </button>
 
 
-
-
 </div>
+
 
 </div>
 
 
 </>
 
+)
+
 }
+
+
+
+
+
 {
-screen==="payment" &&
+screen==="payment" && (
 
 <>
 
@@ -796,8 +910,8 @@ mb-6
 <button
 
 onClick={()=>{
- setScreen("profile");
- window.history.pushState({}, "", "/profile");
+setScreen("profile");
+window.history.replaceState({},"","/profile");
 }}
 
 >
@@ -821,27 +935,24 @@ Payment
 
 
 
-
-
 <div className="
 rounded-3xl
 bg-white
 p-5
-shadow-xl
+shadow-lg
 ">
 
 
-<h2 className="
+<p className="
+mb-4
 text-sm
 font-bold
 text-gray-500
-mb-4
 ">
 
 Add Payment Method
 
-</h2>
-
+</p>
 
 
 
@@ -851,14 +962,13 @@ divide-y
 
 
 {
-
-paymentMethods.map((item,index)=>{
+paymentItems.map((item,index)=>{
 
 
 const Icon=item.icon;
 
 
-return (
+return(
 
 <div
 
@@ -882,47 +992,33 @@ gap-4
 
 
 <div className="
-h-11
-w-11
-rounded-full
-bg-gray-100
 flex
+h-10
+w-10
 items-center
 justify-center
+rounded-full
+bg-gray-100
 ">
 
-<Icon size={21}/>
+
+<Icon size={20}/>
+
 
 </div>
 
 
 
-<div>
-
-<h3 className="
-font-semibold
+<span className="
+font-medium
 ">
 
 {item.title}
 
-</h3>
-
-
-<p className="
-text-sm
-text-gray-500
-">
-
-{item.subtitle}
-
-</p>
+</span>
 
 
 </div>
-
-
-</div>
-
 
 
 
@@ -934,11 +1030,10 @@ gap-3
 
 
 {
-
 item.balance &&
 
 <span className="
-font-bold
+font-semibold
 text-green-600
 ">
 
@@ -949,8 +1044,7 @@ text-green-600
 }
 
 
-
-<ChevronRight size={20}/>
+<ChevronRight size={18}/>
 
 
 </div>
@@ -965,7 +1059,6 @@ text-green-600
 
 })
 
-
 }
 
 
@@ -977,13 +1070,19 @@ text-green-600
 
 </>
 
+)
+
 }
+
 
 
 </motion.div>
 
+
 </div>
 
+
 );
+
 
 }

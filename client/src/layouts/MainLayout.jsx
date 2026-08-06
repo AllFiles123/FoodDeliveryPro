@@ -7,8 +7,8 @@ export default function MainLayout(){
 
 
   const hideBottomNavigation =
-    location.pathname.includes("/profile/details") ||
-    location.pathname.includes("/profile/payment");
+    location.pathname === "/profile/details" ||
+    location.pathname === "/profile/payment";
 
 
   return (
