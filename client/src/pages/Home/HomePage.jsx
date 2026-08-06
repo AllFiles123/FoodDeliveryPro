@@ -416,6 +416,16 @@ export default function HomePage() {
 
 
 
+
+      <FilterBottomSheet
+        open={showFilter}
+        onClose={()=>setShowFilter(false)}
+        filters={filters}
+        setFilters={setFilters}
+        onApply={()=>setShowFilter(false)}
+      />
+
+
     </div>
 
 
