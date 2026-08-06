@@ -1,480 +1,988 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, MapPin, Star, SlidersHorizontal, Pizza, Hamburger, Drumstick, IceCreamBowl, CupSoda } from "lucide-react";
-import FilterBottomSheet from "../../components/FilterBottomSheet/FilterBottomSheet";
+import {
+  Search,
+  MapPin,
+  Star,
+  Heart,
+  Plus,
+  SlidersHorizontal,
+  Clock3,
+  ChevronRight
+} from "lucide-react";
+
 import { useNavigate } from "react-router-dom";
-
+import FilterBottomSheet from "../../components/FilterBottomSheet/FilterBottomSheet";
 import restaurantService from "../../services/restaurantService";
-
 
 export default function HomePage() {
 
+const navigate = useNavigate();
 
-  const navigate = useNavigate();
+const [activeCategory,setActiveCategory]=useState(0);
 
+const [restaurants,setRestaurants]=useState([]);
 
-  
-const categories = [
-  { name:"Pizza", icon:Pizza },
-  { name:"Burger", icon:Hamburger },
-  { name:"Chicken", icon:Hamburger },
-  { name:"Dessert", icon:IceCreamBowl },
-  { name:"Drinks", icon:CupSoda },
+const [showFilter,setShowFilter]=useState(false);
+
+const [filters,setFilters]=useState({
+category:"",
+rating:0,
+minPrice:"",
+maxPrice:"",
+deliveryTime:""
+});
+
+const categories=[
+
+{
+id:1,
+name:"Fruits",
+image:"https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=300"
+},
+
+{
+id:2,
+name:"Drinks",
+image:"https://images.unsplash.com/photo-1544145945-f90425340c7e?w=300"
+},
+
+{
+id:3,
+name:"Snack",
+image:"https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=300"
+},
+
+{
+id:4,
+name:"Food",
+image:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=300"
+},
+
+{
+id:5,
+name:"Coffee",
+image:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300"
+},
+
+{
+id:6,
+name:"Dessert",
+image:"https://images.unsplash.com/photo-1551024601-bec78aea704b?w=300"
+}
+
 ];
 
+const featuredItems=[
+
+{
+id:1,
+title:"Premium Chicken Burger",
+rating:"4.8",
+time:"20 min",
+image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=900",
+tags:["CHICKEN","BURGER"]
+},
+
+{
+id:2,
+title:"Italian Pizza",
+rating:"4.7",
+time:"25 min",
+image:"https://images.unsplash.com/photo-1513104890138-7c749659a591?w=900",
+tags:["PIZZA","CHEESE"]
+},
+
+{
+id:3,
+title:"Cold Coffee",
+rating:"4.9",
+time:"15 min",
+image:"https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900",
+tags:["COFFEE"]
+}
+
+];
+
+const popularDishes=[
+{
+id:1,
+name:"Chicken Steak",
+calorie:"170 Kal",
+price:"$14",
+image:"https://images.unsplash.com/photo-1544025162-d76694265947?w=700"
+},
+
+{
+id:2,
+name:"Beef Burger",
+calorie:"210 Kal",
+price:"$12",
+image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=700"
+},
+{
+id:3,
+name:"Italian Pasta",
+calorie:"180 Kal",
+price:"$15",
+image:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=700"
+},
+
+{
+id:4,
+name:"Healthy Salad",
+calorie:"120 Kal",
+price:"$9",
+image:"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=700"
+},
+
+{
+id:5,
+name:"Grilled Chicken",
+calorie:"190 Kal",
+price:"$16",
+image:"https://images.unsplash.com/photo-1600891964092-4316c288032e?w=700"
+},
+
+{
+id:6,
+name:"French Fries",
+calorie:"150 Kal",
+price:"$7",
+image:"https://images.unsplash.com/photo-1576107232684-1279f390859f?w=700"
+}
+
+];
+
+const peopleLookingFor=[
+
+{
+id:1,
+dish:"Chicken Bowl",
+restaurant:"Food House",
+image:"https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?w=300"
+},
+
+{
+id:2,
+dish:"Cheese Burger",
+restaurant:"Burger Point",
+image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300"
+},
+
+{
+id:3,
+dish:"Italian Pizza",
+restaurant:"Pizza Corner",
+image:"https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300"
+},
 
+{
+id:4,
+dish:"Cold Coffee",
+restaurant:"Coffee Time",
+image:"https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300"
+}
 
+];
 
-  const [restaurants,setRestaurants] = useState([]);
+useEffect(()=>{
 
-  const [showFilter,setShowFilter] = useState(false);
+document.body.style.overflow=
+showFilter ? "hidden":"auto";
 
-  useEffect(()=>{
-    document.body.style.overflow = showFilter ? "hidden" : "auto";
+return()=>{
 
-    if(showFilter){
-      document.body.classList.add("filter-open");
-    }else{
-      document.body.classList.remove("filter-open");
-    }
+document.body.style.overflow="auto";
 
-  },[showFilter]);
+};
 
-  const [filters,setFilters] = useState({
-    category:"",
-    rating:0,
-    minPrice:"",
-    maxPrice:"",
-    deliveryTime:""
-  });
+},[showFilter]);
 
+useEffect(()=>{
 
+const loadRestaurants=async()=>{
 
+try{
 
-  useEffect(()=>{
+const response=
+await restaurantService.getRestaurants();
 
+setRestaurants(
+response.restaurants?.slice(0,6)||[]
+);
 
-    const loadRestaurants = async()=>{
+}catch(err){
 
-
-      try{
-
-
-        const response =
-          await restaurantService.getRestaurants();
-
-
-        setRestaurants(
-          response.restaurants?.slice(0,3) || []
-        );
-
-
-      }catch(error){
-
-
-        console.error(error);
-
-
-      }
-
-
-    };
-
-
-    loadRestaurants();
-
-
-  },[]);
-
-
-
-
-
-
-
-  const filteredRestaurants = restaurants.filter((item)=>{
-
-    if(filters.rating && Number(item.rating) < Number(filters.rating))
-      return false;
-
-    if(filters.category && item.category !== filters.category)
-      return false;
-
-    if(filters.minPrice && Number(item.price || 0) < Number(filters.minPrice))
-      return false;
-
-    if(filters.maxPrice && Number(item.price || 0) > Number(filters.maxPrice))
-      return false;
-
-    return true;
-
-  });
-
-
-  return (
-
-    <div className="min-h-screen bg-gray-50 px-5 py-6">
-
-
-
-      <motion.div
-
-        initial={{
-          opacity:0,
-          y:-20
-        }}
-
-        animate={{
-          opacity:1,
-          y:0
-        }}
-
-        className="flex items-center justify-between"
-
-      >
-
-        <div>
-
-          <p className="text-sm text-gray-500">
-            Deliver to
-          </p>
-
-
-          <div className="flex items-center gap-1">
-
-            <MapPin
-              size={18}
-              className="text-primary"
-            />
-
-            <h2 className="font-bold">
-              Your Location
-            </h2>
-
-          </div>
-
-        </div>
-
-
-
-        <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
-
-          👤
-
-        </div>
-
-
-      </motion.div>
-
-
-
-
-
-
-      <motion.div
-
-        initial={{
-          opacity:0,
-          scale:0.9
-        }}
-
-        animate={{
-          opacity:1,
-          scale:1
-        }}
-
-        className="mt-8 rounded-3xl bg-primary p-6 text-white"
-
-      >
-
-        <h1 className="text-3xl font-bold">
-
-          Delicious Food
-          <br/>
-          Delivered Fast
-
-        </h1>
-
-
-        <button
-
-          onClick={()=>navigate("/restaurants")}
-
-          className="mt-5 rounded-full bg-gray-50 px-6 py-3 font-semibold text-primary"
-
-        >
-
-          Order Now
-
-        </button>
-
-
-      </motion.div>
-
-
-
-
-
-
-
-      <div className="mt-6 flex items-center gap-3">
-
-        <div className="flex-1 flex items-center gap-3 rounded-2xl bg-gray-100 px-4 py-3">
-
-          <Search size={22} className="text-gray-500"/>
-
-          <input
-            placeholder="Search food or restaurant..."
-            className="w-full bg-transparent outline-none"
-          />
-
-        </div>
-
-
-        <button
-          onClick={()=>setShowFilter(true)}
-          className="
-          h-12
-          w-12
-          rounded-2xl
-          bg-primary
-          text-white
-          flex
-          items-center
-          justify-center
-          shadow-md
-          "
-        >
-          <SlidersHorizontal size={22}/>
-        </button>
-
-      </div>
-
-
-
-
-
-
-
-      <section className="mt-8">
-
-
-        <h2 className="text-xl font-bold">
-
-          Categories
-
-        </h2>
-
-
-
-        <div className="mt-4 flex gap-4 overflow-x-auto">
-
-
-        {
-          categories.map((item,index)=>(
-
-
-            <motion.button
-
-              key={index}
-
-              whileTap={{scale:.95}}
-
-              className="
-              min-w-[92px]
-              rounded-3xl
-              bg-gray-50
-              border
-              border-gray-200
-              shadow-soft
-              p-4
-              flex
-              flex-col
-              items-center
-              justify-center
-              "
-
-            >
-
-              <div
-                className="
-                flex
-                h-12
-                w-12
-                items-center
-                justify-center
-                rounded-2xl
-                bg-gray-100
-                "
-              >
-
-                <item.icon
-                  size={24}
-                  className="text-primary"
-                  strokeWidth={2}
-                />
-
-              </div>
-
-              <p
-                className="
-                mt-3
-                text-sm
-                font-semibold
-                text-gray-900
-                "
-              >
-
-                {item.name}
-
-              </p>
-
-            </motion.button>
-
-
-          ))
-        }
-
-
-        </div>
-
-
-      </section>
-
-
-
-
-
-
-
-
-
-      <section className="mt-8">
-
-
-        <div className="flex justify-between">
-
-
-          <h2 className="text-xl font-bold">
-
-            Popular Restaurants
-
-          </h2>
-
-
-          <button
-
-            onClick={()=>navigate("/restaurants")}
-
-            className="text-primary font-semibold"
-
-          >
-
-            See All
-
-          </button>
-
-
-        </div>
-
-
-
-
-
-        <div className="mt-5 space-y-5">
-
-
-        {
-          restaurants.map((restaurant)=>(
-
-
-            <motion.div
-
-              key={restaurant.id}
-
-              whileTap={{
-                scale:0.97
-              }}
-
-              onClick={()=>navigate(`/restaurants/${restaurant.id}`)}
-
-              className="cursor-pointer overflow-hidden rounded-3xl border border-gray-200 shadow-lg"
-
-            >
-
-
-              <div className="h-48 bg-gradient-to-br from-primary to-primary flex items-center justify-center text-7xl">
-
-                🍽️
-
-              </div>
-
-
-
-
-              <div className="p-4">
-
-
-                <h3 className="text-lg font-bold">
-
-                  {restaurant.name}
-
-                </h3>
-
-
-                <div className="mt-2 flex gap-4 text-sm">
-
-
-                  <span className="flex items-center gap-1">
-
-                    <Star size={16} className="fill-primary text-primary"/>
-
-                    {restaurant.rating}
-
-                  </span>
-
-
-                  <span>
-                    🚴 {restaurant.deliveryTime}
-                  </span>
-
-
-                </div>
-
-
-              </div>
-
-
-            </motion.div>
-
-
-          ))
-        }
-
-
-        </div>
-
-
-      </section>
-
-
-
-
-
-      <FilterBottomSheet
-        open={showFilter}
-        onClose={()=>setShowFilter(false)}
-        filters={filters}
-        setFilters={setFilters}
-        onApply={()=>setShowFilter(false)}
-      />
-
-
-    </div>
-
-
-    
-
-  );
+console.error(err);
 
 }
+
+};
+
+loadRestaurants();
+
+},[]);
+return(
+
+<div className="min-h-screen bg-[#F6F7FB]">
+
+<div className="mx-auto max-w-7xl px-5 py-6">
+
+<motion.div
+initial={{opacity:0,y:-20}}
+animate={{opacity:1,y:0}}
+className="flex items-center justify-between"
+>
+
+<div>
+
+<p className="text-sm text-gray-500">
+
+Deliver To
+
+</p>
+
+<div className="mt-1 flex items-center gap-2">
+
+<MapPin
+size={18}
+className="text-primary"
+/>
+
+<h2 className="text-lg font-bold">
+
+Your Location
+
+</h2>
+
+</div>
+
+</div>
+
+<div
+className="
+h-12
+w-12
+rounded-full
+bg-white
+shadow-md
+flex
+items-center
+justify-center
+"
+>
+
+<img
+src="https://i.pravatar.cc/100"
+alt=""
+className="h-full w-full rounded-full object-cover"
+/>
+
+</div>
+
+</motion.div>
+
+<div className="mt-7 flex gap-3">
+
+<div
+className="
+flex-1
+flex
+items-center
+gap-3
+rounded-[24px]
+bg-white
+px-5
+py-4
+shadow-sm
+"
+>
+
+<Search
+size={20}
+className="text-gray-400"
+/>
+
+<input
+type="text"
+placeholder="Search food or restaurant..."
+className="
+w-full
+bg-transparent
+outline-none
+"
+/>
+
+</div>
+
+<button
+
+onClick={()=>setShowFilter(true)}
+
+className="
+flex
+h-14
+w-14
+items-center
+justify-center
+rounded-[22px]
+bg-primary
+text-white
+shadow-lg
+"
+
+>
+
+<SlidersHorizontal size={22}/>
+
+</button>
+
+</div>
+
+<section className="mt-9">
+
+<div className="flex items-center justify-between">
+
+<h2 className="text-xl font-bold">
+
+Categories
+
+</h2>
+
+</div>
+
+<div
+className="
+mt-5
+flex
+gap-6
+overflow-x-auto
+pb-3
+"
+>
+
+{categories.map((item,index)=>(
+
+<motion.button
+
+key={item.id}
+
+whileTap={{scale:.95}}
+
+onClick={()=>setActiveCategory(index)}
+
+className="
+min-w-[78px]
+text-center
+"
+
+>
+
+<div
+className={`
+mx-auto
+h-16
+w-16
+overflow-hidden
+rounded-full
+border-2
+bg-white
+shadow-md
+${activeCategory===index
+?
+"border-primary"
+:
+"border-transparent"
+}
+`}
+>
+
+<img
+src={item.image}
+alt={item.name}
+className="
+h-full
+w-full
+object-cover
+"
+/>
+
+</div>
+
+<p
+className="
+mt-3
+text-sm
+font-semibold
+"
+>
+
+{item.name}
+
+</p>
+
+<div
+className={`
+mx-auto
+mt-2
+h-1
+rounded-full
+transition-all
+duration-300
+${activeCategory===index
+?
+"w-8 bg-primary"
+:
+"w-0"
+}
+`}
+/>
+
+</motion.button>
+
+))}
+
+</div>
+
+</section>
+<section className="mt-10">
+
+<div className="mb-5 flex items-center justify-between">
+
+<h2 className="text-xl font-bold">
+
+Featured Items
+
+</h2>
+
+<button className="flex items-center gap-1 text-sm font-semibold text-primary">
+
+See All
+
+<ChevronRight size={16}/>
+
+</button>
+
+</div>
+
+<div
+className="
+flex
+gap-5
+overflow-x-auto
+pb-3
+"
+>
+
+{featuredItems.map((item)=>(
+
+<motion.div
+
+key={item.id}
+
+whileHover={{y:-4}}
+
+whileTap={{scale:.98}}
+
+className="
+min-w-[330px]
+overflow-hidden
+rounded-[24px]
+bg-white
+shadow-lg
+"
+
+>
+
+<img
+
+src={item.image}
+
+alt={item.title}
+
+className="
+h-48
+w-full
+object-cover
+"
+
+/>
+
+<div className="p-5">
+
+<div className="flex items-center justify-between">
+
+<h3 className="text-lg font-bold">
+
+{item.title}
+
+</h3>
+
+<div className="flex items-center gap-1">
+
+<Star
+size={16}
+className="fill-yellow-400 text-yellow-400"
+/>
+
+<span className="font-semibold">
+
+{item.rating}
+
+</span>
+
+</div>
+
+</div>
+
+<div className="mt-3 flex items-center gap-3 text-sm text-gray-500">
+
+<Clock3 size={16}/>
+
+<span>
+
+{item.time}
+
+</span>
+
+</div>
+
+<div className="mt-4 flex gap-2">
+
+{item.tags.map((tag)=>(
+
+<span
+
+key={tag}
+
+className="
+rounded-full
+bg-gray-100
+px-3
+py-1
+text-xs
+font-semibold
+tracking-wide
+"
+
+>
+
+{tag}
+
+</span>
+
+))}
+
+</div>
+
+</div>
+
+</motion.div>
+
+))}
+
+</div>
+
+</section>
+<section className="mt-10">
+
+<div className="mb-5 flex items-center justify-between">
+
+<h2 className="text-xl font-bold">
+
+Popular Dishes
+
+</h2>
+
+<button className="flex items-center gap-1 text-sm font-semibold text-primary">
+
+See All
+
+<ChevronRight size={16}/>
+
+</button>
+
+</div>
+
+<div className="grid grid-cols-2 gap-5">
+
+{popularDishes.map((item)=>(
+
+<motion.div
+
+key={item.id}
+
+whileHover={{y:-4}}
+
+whileTap={{scale:.98}}
+
+className="
+overflow-hidden
+rounded-[24px]
+bg-white
+shadow-lg
+"
+
+>
+
+<div className="relative">
+
+<img
+
+src={item.image}
+
+alt={item.name}
+
+className="
+h-44
+w-full
+object-cover
+"
+
+/>
+
+<button
+
+className="
+absolute
+right-3
+top-3
+flex
+h-10
+w-10
+items-center
+justify-center
+rounded-full
+bg-white
+shadow-md
+"
+
+>
+
+<Heart size={18}/>
+
+</button>
+
+</div>
+
+<div className="p-4">
+
+<h3 className="text-base font-bold">
+
+{item.name}
+
+</h3>
+
+<p className="mt-2 text-sm text-gray-500">
+
+{item.calorie}
+
+</p>
+
+<div className="mt-4 flex items-center justify-between">
+
+<span className="text-lg font-bold text-primary">
+
+{item.price}
+
+</span>
+
+<button
+
+className="
+flex
+h-10
+w-10
+items-center
+justify-center
+rounded-xl
+bg-primary
+text-white
+"
+
+>
+
+<Plus size={18}/>
+
+</button>
+
+</div>
+
+</div>
+
+</motion.div>
+
+))}
+
+</div>
+
+</section>
+<section className="mt-10">
+
+<div className="mb-5 flex items-center justify-between">
+
+<h2 className="text-xl font-bold">
+
+People Looking For
+
+</h2>
+
+<button className="flex items-center gap-1 text-sm font-semibold text-primary">
+
+See All
+
+<ChevronRight size={16}/>
+
+</button>
+
+</div>
+
+<div className="space-y-4">
+
+{peopleLookingFor.map((item)=>(
+
+<motion.div
+
+key={item.id}
+
+whileHover={{x:4}}
+
+className="
+flex
+items-center
+justify-between
+rounded-[24px]
+bg-white
+p-4
+shadow-md
+"
+
+>
+
+<div className="flex items-center gap-4">
+
+<img
+
+src={item.image}
+
+alt={item.dish}
+
+className="
+h-16
+w-16
+rounded-2xl
+object-cover
+"
+
+/>
+
+<div>
+
+<h3 className="font-bold">
+
+{item.dish}
+
+</h3>
+
+<p className="mt-1 text-sm text-gray-500">
+
+{item.restaurant}
+
+</p>
+
+</div>
+
+</div>
+
+<button
+
+className="
+flex
+h-12
+w-12
+items-center
+justify-center
+rounded-2xl
+bg-primary
+text-white
+shadow
+"
+
+>
+
+<Plus size={20}/>
+
+</button>
+
+</motion.div>
+
+))}
+
+</div>
+
+</section>
+<section className="mt-10">
+
+<div className="mb-5 flex items-center justify-between">
+
+<h2 className="text-xl font-bold">
+
+Nearby Restaurants
+
+</h2>
+
+<button
+onClick={()=>navigate("/restaurants")}
+className="flex items-center gap-1 text-sm font-semibold text-primary"
+>
+
+See All
+
+<ChevronRight size={16}/>
+
+</button>
+
+</div>
+
+<div className="space-y-6">
+
+{restaurants.map((restaurant)=>(
+
+<motion.div
+
+key={restaurant.id}
+
+whileHover={{y:-4}}
+
+whileTap={{scale:.98}}
+
+onClick={()=>navigate(`/restaurants/${restaurant.id}`)}
+
+className="
+cursor-pointer
+overflow-hidden
+rounded-[26px]
+bg-white
+shadow-lg
+"
+
+>
+
+<div className="relative">
+
+<img
+
+src={
+restaurant.image ||
+"https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200"
+}
+
+alt={restaurant.name}
+
+className="
+h-56
+w-full
+object-cover
+"
+
+/>
+
+<div
+className="
+absolute
+left-4
+top-4
+rounded-full
+bg-white/90
+px-3
+py-2
+backdrop-blur
+"
+>
+
+<div className="flex items-center gap-1">
+
+<Star
+size={15}
+className="fill-yellow-400 text-yellow-400"
+/>
+
+<span className="text-sm font-semibold">
+
+{restaurant.rating}
+
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+<div className="p-5">
+
+<div className="flex items-start justify-between">
+
+<div>
+
+<h3 className="text-lg font-bold">
+
+{restaurant.name}
+
+</h3>
+
+<p className="mt-2 text-sm text-gray-500">
+
+{restaurant.category || "Restaurant"}
+
+</p>
+
+</div>
+
+<div className="flex items-center gap-2 text-sm text-gray-500">
+
+<Clock3 size={16}/>
+
+<span>
+
+{restaurant.deliveryTime}
+
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+</motion.div>
+
+))}
+
+</div>
+
+</section>
+
+<FilterBottomSheet
+
+open={showFilter}
+
+onClose={()=>setShowFilter(false)}
+
+filters={filters}
+
+setFilters={setFilters}
+
+onApply={()=>setShowFilter(false)}
+
+/>
+
+</div>
+
+</div>
+
+);
+
+}
+
