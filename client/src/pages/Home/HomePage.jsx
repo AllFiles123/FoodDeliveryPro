@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, MapPin, Star } from "lucide-react";
+import { Search, MapPin, Star, SlidersHorizontal } from "lucide-react";
+import FilterBottomSheet from "../../components/FilterBottomSheet/FilterBottomSheet";
 import { useNavigate } from "react-router-dom";
 
 import restaurantService from "../../services/restaurantService";
@@ -23,6 +24,16 @@ export default function HomePage() {
 
 
   const [restaurants,setRestaurants] = useState([]);
+
+  const [showFilter,setShowFilter] = useState(false);
+
+  const [filters,setFilters] = useState({
+    category:"",
+    rating:0,
+    minPrice:"",
+    maxPrice:"",
+    deliveryTime:""
+  });
 
 
 
@@ -66,6 +77,25 @@ export default function HomePage() {
 
 
 
+
+
+  const filteredRestaurants = restaurants.filter((item)=>{
+
+    if(filters.rating && Number(item.rating) < Number(filters.rating))
+      return false;
+
+    if(filters.category && item.category !== filters.category)
+      return false;
+
+    if(filters.minPrice && Number(item.price || 0) < Number(filters.minPrice))
+      return false;
+
+    if(filters.maxPrice && Number(item.price || 0) > Number(filters.maxPrice))
+      return false;
+
+    return true;
+
+  });
 
 
   return (
@@ -176,7 +206,24 @@ export default function HomePage() {
 
       <div className="mt-6 flex items-center gap-3 rounded-2xl bg-gray-100 px-4 py-3">
 
-        <Search size={22}/>
+        <button
+onClick={()=>setShowFilter(true)}
+className="
+h-12
+w-12
+rounded-full
+bg-orange-100
+text-orange-500
+flex
+items-center
+justify-center
+"
+>
+<SlidersHorizontal size={22}/>
+</button>
+
+
+<Search size={22}/>
 
         <input
 
@@ -368,6 +415,9 @@ export default function HomePage() {
 
 
     </div>
+
+
+    
 
   );
 

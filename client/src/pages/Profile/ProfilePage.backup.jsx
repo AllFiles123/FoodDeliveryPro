@@ -1,271 +1,145 @@
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-
-import {
+import { 
   ArrowLeft,
+  Settings,
+  Pencil,
   User,
+  Package,
+  MapPin,
   CreditCard,
-  Wallet,
-  Building2,
-  Smartphone,
-  Upload,
-  ChevronRight,
-  CheckCircle
+  Bell,
+  Moon,
+  HelpCircle,
+  LogOut,
+  ChevronRight
 } from "lucide-react";
-
-import profileService from "../../services/profileService";
-import { useAuth } from "../../context/AuthContext";
-import { useToast } from "../../context/ToastContext";
 
 
 export default function ProfilePage(){
 
-const {
- user,
- login
-}=useAuth();
-
-
-const {
- showToast
-}=useToast();
-
-
-
-const [screen,setScreen]=useState("profile");
-
-
-const [profileImage,setProfileImage]=useState(
- user?.profileImage || ""
-);
-
-
-
-const [formData,setFormData]=useState({
-
-fullName:user?.fullName || "Sophia Williams",
-
-email:user?.email || "sophia@gmail.com",
-
-phone:user?.phone || "+8801XXXXXXXXX",
-
-address:"",
-
-about:""
-
-});
-
-
-
-const handleChange=(e)=>{
-
-setFormData({
-
-...formData,
-
-[e.target.name]:e.target.value
-
-});
-
-};
-
-
-
-const handleImageUpload=(e)=>{
-
-const file=e.target.files[0];
-
-if(!file)return;
-
-
-const url=URL.createObjectURL(file);
-
-
-setProfileImage(url);
-
-
-};
-
-
-
-const paymentMethods=[
-
-{
-title:"bKash",
-subtitle:"Mobile payment",
-icon:Wallet
-},
-
-{
-title:"Nagad",
-subtitle:"Mobile payment",
-icon:Wallet
-},
-
-{
-title:"Rocket",
-subtitle:"Dutch Bangla Mobile Banking",
-icon:Wallet
-},
-
-{
-title:"Upay",
-subtitle:"United Commercial Bank",
-icon:Wallet
-},
-
-{
-title:"Bank Account",
-subtitle:"Add your bank account",
-icon:Building2
-},
-
-{
-title:"Credit/Debit Card",
-subtitle:"Visa or Mastercard",
-icon:CreditCard
-},
-
-{
-title:"Google Pay",
-subtitle:"Fast payment",
-icon:Smartphone
-},
-
-{
-title:"PhonePe",
-subtitle:"UPI payment",
-icon:Smartphone
-},
-
-{
-title:"Paytm",
-subtitle:"Wallet payment",
-icon:Wallet
-},
-
-{
-title:"Living Menu Wallet",
-subtitle:"Available balance",
-balance:"৳52.09",
-icon:Wallet
-},
-
-{
-title:"Redeem Gift Card",
-subtitle:"Use gift card",
-icon:CreditCard
-},
-
-{
-title:"Invite Friends",
-subtitle:"Earn credits",
-icon:User
-}
-
-];
 return (
 
 <div
 className="
 min-h-screen
-bg-fixed
 bg-gradient-to-br
-from-[#FDE7E7]
-via-[#FFF3E0]
-to-[#E7F5E9]
+from-pink-100
+via-orange-100
+to-green-100
+p-5
 font-sans
 "
 >
 
 
-<motion.div
+{/* Header */}
 
-initial={{opacity:0,y:20}}
-
-animate={{opacity:1,y:0}}
-
+<div
 className="
-mx-auto
-max-w-md
-px-5
-pt-6
-pb-10
+flex
+items-center
+justify-between
+mb-6
 "
-
 >
 
+<button>
+<ArrowLeft
+size={24}
+/>
+</button>
 
-{
-screen==="profile" &&
 
-<>
-
-
-<h1 className="
-text-3xl
+<h1
+className="
+text-xl
 font-bold
-mb-6
-">
-
+"
+>
 Profile
-
 </h1>
 
 
+<button>
+<Settings
+size={24}
+/>
+</button>
 
-<div className="
+
+</div>
+
+
+
+{/* User Card */}
+
+<div
+className="
 rounded-3xl
-bg-white/90
-p-6
-shadow-xl
-">
-
-
-<div className="
+bg-white/70
+backdrop-blur-xl
+border
+border-white/50
+shadow-lg
+p-5
 flex
 items-center
-gap-5
-">
+justify-between
+"
+>
+
+
+<div
+className="
+flex
+items-center
+gap-4
+"
+>
 
 
 <img
 
-src={
-profileImage ||
-"/default-avatar.png"
-}
+src="/default-avatar.png"
 
 className="
-h-24
-w-24
+h-20
+w-20
 rounded-full
 object-cover
+border-4
+border-white
 shadow
 "
 
 />
 
 
+<div
+className="
+min-w-0
+"
+>
 
-<div>
-
-<h2 className="
-text-xl
+<h2
+className="
 font-bold
-">
-
-{formData.fullName}
-
+text-lg
+truncate
+"
+>
+David Warner
 </h2>
 
 
-<p className="
+<p
+className="
 text-gray-500
-">
-
-{formData.email}
-
+text-sm
+truncate
+max-w-[180px]
+"
+>
+davidwarner@gmail.com
 </p>
 
 
@@ -275,532 +149,78 @@ text-gray-500
 </div>
 
 
+<button>
+
+<Pencil
+size={20}
+/>
+
+</button>
 
 
+</div>
 
-<button
 
-onClick={()=>setScreen("details")}
+{/* Menu Sections */}
 
-className="
+
+<div className="
 mt-6
-w-full
-flex
-items-center
-justify-between
-rounded-2xl
-bg-gray-100
-p-4
-font-semibold
-"
-
->
-
-
-<div className="
-flex
-items-center
-gap-3
+space-y-5
 ">
 
-<User size={20}/>
 
-Profile Details
-
-</div>
-
-
-<ChevronRight/>
-
-</button>
-
-
-
-
-
-<button
-
-onClick={()=>setScreen("payment")}
-
-className="
-mt-3
-w-full
-flex
-items-center
-justify-between
-rounded-2xl
-bg-gray-100
-p-4
-font-semibold
-"
-
->
-
-
-<div className="
-flex
-items-center
-gap-3
-">
-
-<CreditCard size={20}/>
-
-Payment Methods
-
-</div>
-
-
-<ChevronRight/>
-
-</button>
-
-
-
-</div>
-
-
-</>
-
-}
-
-
-
-
-
-{
-screen==="details" &&
-
-<>
-
-
-<div className="
-flex
-items-center
-gap-3
-mb-6
-">
-
-<button
-onClick={()=>setScreen("profile")}
->
-
-<ArrowLeft/>
-
-</button>
-
-
-<h1 className="
-text-2xl
-font-bold
-">
-
-Personal Information
-
-</h1>
-
-
-</div>
-
-
-
-
+{/* Main Menu */}
 
 <div className="
 rounded-3xl
-bg-white
-p-6
-shadow-xl
+bg-white/70
+backdrop-blur-xl
+border
+border-white/50
+shadow-lg
+p-4
 ">
 
 
-
-<div className="
-flex
-flex-col
-items-center
-mb-6
-">
-
-
-<div
-className="
-relative
-"
->
-
-
-<img
-
-src={
-profileImage ||
-"/default-avatar.png"
+{[
+{
+title:"Profile Details",
+icon:User
+},
+{
+title:"My Orders",
+icon:Package
+},
+{
+title:"My Addresses",
+icon:MapPin
+},
+{
+title:"Payment Methods",
+icon:CreditCard
+},
+{
+title:"Saved Cards",
+icon:CreditCard
 }
 
-className="
-h-32
-w-32
-rounded-full
-object-cover
-"
-
-/>
-
-
-
-<span
-className="
-absolute
-bottom-1
-right-1
-rounded-full
-bg-orange-500
-p-1
-text-white
-"
->
-
-<CheckCircle size={18}/>
-
-</span>
-
-
-</div>
-
-
-
-
-
-<label
-className="
-mt-3
-text-orange-600
-font-semibold
-cursor-pointer
-"
->
-
-<Upload
-size={18}
-className="inline mr-2"
-/>
-
-Change your photo
-
-
-<input
-
-type="file"
-
-hidden
-
-accept="image/*"
-
-onChange={handleImageUpload}
-
-/>
-
-
-</label>
-
-
-</div>
-
-
-
-
-
-<div className="
-space-y-4
-">
-
-
-
-<div>
-
-<label className="text-sm text-gray-500">
-
-Name
-
-</label>
-
-
-<input
-
-name="fullName"
-
-value={formData.fullName}
-
-onChange={handleChange}
-
-className="
-w-full
-rounded-2xl
-border
-bg-gray-50
-p-4
-mt-1
-outline-none
-"
-
-/>
-
-
-</div>
-
-
-
-
-<div className="
-grid
-grid-cols-2
-gap-3
-">
-
-
-<div>
-
-<label className="text-sm text-gray-500">
-
-Email
-
-</label>
-
-
-<input
-
-name="email"
-
-value={formData.email}
-
-onChange={handleChange}
-
-className="
-w-full
-rounded-2xl
-border
-bg-gray-50
-p-4
-mt-1
-text-sm
-"
-
-/>
-
-
-</div>
-
-
-
-
-<div>
-
-<label className="text-sm text-gray-500">
-
-Phone
-
-</label>
-
-
-<input
-
-name="phone"
-
-value={formData.phone}
-
-onChange={handleChange}
-
-className="
-w-full
-rounded-2xl
-border
-bg-gray-50
-p-4
-mt-1
-text-sm
-"
-
-/>
-
-
-</div>
-
-
-
-</div>
-
-
-
-
-
-<textarea
-
-name="address"
-
-value={formData.address}
-
-onChange={handleChange}
-
-placeholder="Type your address here"
-
-className="
-w-full
-h-28
-rounded-2xl
-border
-bg-gray-50
-p-4
-"
-
-/>
-
-
-
-
-
-<textarea
-
-name="about"
-
-value={formData.about}
-
-onChange={handleChange}
-
-placeholder="Write something about yourself"
-
-className="
-w-full
-h-32
-rounded-2xl
-border
-bg-gray-50
-p-4
-"
-
-/>
-
-
-
-
-
-<button
-
-onClick={()=>showToast("Profile Saved")}
-
-className="
-w-full
-rounded-2xl
-bg-black
-text-white
-py-4
-font-bold
-"
-
->
-
-Save Changes
-
-</button>
-
-
-
-
-</div>
-
-</div>
-
-
-</>
-
-}
-{
-screen==="payment" &&
-
-<>
-
-
-<div className="
-flex
-items-center
-gap-3
-mb-6
-">
-
-
-<button
-
-onClick={()=>setScreen("profile")}
-
->
-
-<ArrowLeft/>
-
-</button>
-
-
-<h1 className="
-text-2xl
-font-bold
-">
-
-Payment
-
-</h1>
-
-
-</div>
-
-
-
-
-
-<div className="
-rounded-3xl
-bg-white
-p-5
-shadow-xl
-">
-
-
-<h2 className="
-text-sm
-font-bold
-text-gray-500
-mb-4
-">
-
-Add Payment Method
-
-</h2>
-
-
-
-
-<div className="
-divide-y
-">
-
-
-{
-
-paymentMethods.map((item,index)=>{
-
+].map((item,index)=>{
 
 const Icon=item.icon;
-
 
 return (
 
 <div
-
 key={index}
-
 className="
 flex
 items-center
 justify-between
 py-4
+border-b
+last:border-none
 "
-
 >
 
 
@@ -810,94 +230,172 @@ items-center
 gap-4
 ">
 
-
-<div className="
-h-11
-w-11
-rounded-full
-bg-gray-100
-flex
-items-center
-justify-center
-">
-
-<Icon size={21}/>
-
-</div>
-
-
-
-<div>
-
-<h3 className="
-font-semibold
-">
-
-{item.title}
-
-</h3>
-
-
-<p className="
-text-sm
-text-gray-500
-">
-
-{item.subtitle}
-
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-
-<div className="
-flex
-items-center
-gap-3
-">
-
-
-{
-
-item.balance &&
+<Icon
+size={22}
+/>
 
 <span className="
-font-bold
-text-green-600
-">
-
-{item.balance}
-
+font-medium
+"
+>
+{item.title}
 </span>
 
-}
-
-
-
-<ChevronRight size={20}/>
-
-
 </div>
 
 
+<ChevronRight
+size={20}
+className="text-gray-400"
+/>
+
 
 </div>
-
 
 )
 
+})}
 
-})
+
+</div>
 
 
+
+
+{/* Settings */}
+
+<div className="
+rounded-3xl
+bg-white/70
+backdrop-blur-xl
+border
+border-white/50
+shadow-lg
+p-4
+">
+
+
+{[
+{
+title:"Notifications",
+icon:Bell
+},
+{
+title:"Dark Mode",
+icon:Moon
+},
+{
+title:"Help & Support",
+icon:HelpCircle
 }
 
+].map((item,index)=>{
+
+const Icon=item.icon;
+
+
+return (
+
+<div
+key={index}
+className="
+flex
+items-center
+justify-between
+py-4
+border-b
+last:border-none
+"
+>
+
+
+<div className="
+flex
+items-center
+gap-4
+">
+
+<Icon
+size={22}
+/>
+
+<span className="
+font-medium
+">
+{item.title}
+</span>
+
+
+</div>
+
+
+<ChevronRight
+size={20}
+className="text-gray-400"
+/>
+
+
+</div>
+
+)
+
+})}
+
+
+</div>
+
+
+
+
+
+{/* Logout */}
+
+<div className="
+rounded-3xl
+bg-white/70
+backdrop-blur-xl
+border
+border-white/50
+shadow-lg
+p-4
+">
+
+
+<div className="
+flex
+items-center
+justify-between
+py-4
+"
+>
+
+
+<div className="
+flex
+items-center
+gap-4
+text-red-500
+">
+
+<LogOut
+size={22}
+/>
+
+<span className="
+font-medium
+">
+Logout
+</span>
+
+
+</div>
+
+
+<ChevronRight
+size={20}
+className="text-gray-400"
+/>
+
 
 </div>
 
@@ -905,14 +403,7 @@ text-green-600
 </div>
 
 
-</>
-
-}
-
-
-</motion.div>
-
-</div>
+</div></div>
 
 );
 
