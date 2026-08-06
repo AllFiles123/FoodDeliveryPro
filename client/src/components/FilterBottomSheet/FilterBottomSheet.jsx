@@ -1,14 +1,16 @@
+import { motion } from "framer-motion";
 import {
 X,
 Trash2,
-Utensils,
-Store,
+Pizza,
+Grape,
 Pill,
-CupSoda,
+Milk,
 Star,
-DollarSign
+DollarSign,
+MapPin
 } from "lucide-react";
-
+import { useState } from "react";
 
 export default function FilterBottomSheet({
 open,
@@ -18,335 +20,324 @@ setFilters,
 onApply
 }){
 
+const [min,setMin]=useState(filters?.minPrice || 0);
+const [max,setMax]=useState(filters?.maxPrice || 1000);
+const [rating,setRating]=useState(0);
+const [delivery,setDelivery]=useState("");
+const [near,setNear]=useState(false);
 
 if(!open) return null;
 
 
-const categories=[
-["Meals",Utensils],
-["Shops",Store],
-["Drugs",Pill],
-["Drinks",CupSoda]
-];
+const bars=[20,40,70,35,90,55,80,45,65,30];
 
 
-const ratings=[
-5,
-4,
-3,
-2
-];
+return (
+
+<div className="fixed inset-0 z-50 bg-black/40 flex items-end">
 
 
-return(
+<motion.div
 
-<div className="
-fixed
-inset-0
-bg-black/30
-z-50
-flex
-items-end
-">
+initial={{y:"100%"}}
+animate={{y:0}}
 
-
-<div className="
+className="
 w-full
 bg-white
 rounded-t-[32px]
 px-6
-pt-4
-pb-8
+py-5
+space-y-6
 max-h-[90vh]
 overflow-y-auto
-">
+"
+
+>
 
 
-<div className="
-flex
-justify-center
-mb-4
-">
-
-<div className="
-h-1.5
-w-14
-rounded-full
-bg-gray-300
-"/>
-
+<div className="flex justify-center">
+<div className="h-1.5 w-14 bg-gray-300 rounded-full"/>
 </div>
 
 
-<div className="
-flex
-items-center
-justify-between
-mb-6
-">
 
+<div className="flex justify-between items-center">
 
 <button
 onClick={onClose}
-className="
-h-10
-w-10
-rounded-full
-bg-gray-100
-flex
-items-center
-justify-center
-"
->
-
-<X size={20}/>
-
+className="h-11 w-11 rounded-full bg-gray-100 flex items-center justify-center">
+<X/>
 </button>
 
 
-<h2 className="
-font-bold
-text-xl
-">
-
+<h2 className="text-xl font-bold">
 Filters
-
 </h2>
 
 
 <button
-className="
-h-10
-w-10
-rounded-full
-bg-gray-100
-flex
-items-center
-justify-center
-"
->
-
-<Trash2 size={20}/>
-
+className="h-11 w-11 rounded-full bg-gray-100 flex items-center justify-center">
+<Trash2/>
 </button>
 
 
 </div>
 
 
-<h3 className="
-font-bold
-mb-3
-">
 
+
+<div className="space-y-3">
+
+<h3 className="text-lg font-bold">
 Categories
-
 </h3>
 
 
-<div className="
-grid
-grid-cols-4
-gap-3
-mb-6
-">
+<div className="grid grid-cols-4 gap-3">
 
-{
-categories.map(([name,Icon])=>(
+{[
+[Pizza,"Meals"],
+[Grape,"Shops"],
+[Pill,"Drugs"],
+[Milk,"Drinks"]
+].map(([Icon,name])=>(
 
-<button
+<div
 key={name}
-className="
-rounded-2xl
-bg-gray-50
-p-3
-text-center
-"
->
+className="bg-gray-100 rounded-2xl p-3 text-center">
 
-<Icon
-size={24}
-className="mx-auto mb-2 text-orange-500"
-/>
+<div className="
+h-12 w-12 mx-auto
+bg-gray-200
+rounded-xl
+flex items-center justify-center">
 
-<p className="text-xs">
+<Icon/>
+
+</div>
+
+<p className="text-sm mt-2">
 {name}
 </p>
 
+</div>
 
-</button>
+))}
 
-))
-}
+</div>
 
 </div>
 
 
-<h3 className="
-font-bold
-mb-3
-">
 
+
+<div className="space-y-4">
+
+<h3 className="text-lg font-bold">
 Price Range
-
 </h3>
 
 
 <div className="
-h-20
+h-28
 flex
 items-end
-gap-1
-mb-3
-">
+gap-2">
 
-{
-[20,35,55,70,45,80,60].map((h,i)=>(
+{bars.map((b,i)=>(
 
 <div
 key={i}
-style={{height:`${h}%`}}
-className="
-flex-1
-bg-orange-500
-rounded-t
-"
+className="flex-1 bg-[#FF5C00] rounded-t-lg"
+style={{
+height:`${Math.max(10,b*(max/1000))}%`
+}}
 />
 
-))
-}
+))}
 
 </div>
 
 
 <input
+
 type="range"
+min="0"
+max="1000"
+value={max}
+onChange={(e)=>setMax(e.target.value)}
+
 className="
 w-full
-accent-orange-500
-mb-4
+accent-[#FF5C00]
 "
+
 />
 
 
-<div className="
-grid
-grid-cols-2
-gap-3
-mb-6
-">
+
+<div className="grid grid-cols-2 gap-3">
+
 
 <div className="
-border
+bg-gray-100
 rounded-xl
 p-3
 flex
-items-center
-gap-2
-">
+gap-2">
 
-<DollarSign size={16}/>
+<DollarSign size={18}/>
 
 <input
+value={min}
+onChange={(e)=>setMin(e.target.value)}
 placeholder="Min"
-className="outline-none w-full"
+className="bg-transparent outline-none w-full"
 />
 
 </div>
+
 
 
 <div className="
-border
+bg-gray-100
 rounded-xl
 p-3
 flex
-items-center
-gap-2
-">
+gap-2">
 
-<DollarSign size={16}/>
+<DollarSign size={18}/>
 
 <input
+value={max}
+onChange={(e)=>setMax(e.target.value)}
 placeholder="Max"
-className="outline-none w-full"
+className="bg-transparent outline-none w-full"
 />
 
 </div>
 
+
+</div>
+
 </div>
 
 
-<h3 className="
-font-bold
-mb-3
-">
 
+
+
+<div>
+
+<h3 className="text-lg font-bold mb-3">
 Rating
-
 </h3>
 
 
-<div className="
-flex
-gap-3
-mb-6
-">
+<div className="flex gap-3">
 
-{
-ratings.map(r=>(
+{[5,4,3,2].map(r=>(
 
 <button
 key={r}
+onClick={()=>setRating(r)}
 className="
 px-4
 py-2
 rounded-full
-border
+bg-gray-100
 flex
 items-center
-gap-1
-"
->
+gap-1">
 
 <Star
 size={16}
-className="text-yellow-400 fill-yellow-400"
+fill="#FFC107"
 />
 
 {r}.0
 
 </button>
 
-))
-}
+))}
+
+</div>
 
 </div>
 
 
 
-<h3 className="
-font-bold
-mb-3
-">
 
+
+<div>
+
+<h3 className="text-lg font-bold mb-3">
 Delivery Time
-
 </h3>
 
 
-<button
-onClick={onApply}
-className="
-w-full
-rounded-full
-bg-orange-500
-text-white
-py-4
-font-bold
-"
->
+<div className="flex gap-3 overflow-x-auto">
 
-Show 2,500+ Items
+
+{[
+"Under 15 min",
+"Under 30 min",
+"Under 45 min"
+].map(t=>(
+
+<button
+key={t}
+onClick={()=>setDelivery(t)}
+className="
+px-5 py-2
+rounded-full
+bg-gray-100
+whitespace-nowrap">
+
+{t}
+
+</button>
+
+))}
+
+
+</div>
+
+</div>
+
+
+
+
+
+<div className="
+flex
+justify-between
+items-center">
+
+
+<div className="flex gap-2 items-center">
+
+<MapPin/>
+
+<span className="font-bold">
+Near Me
+</span>
+
+</div>
+
+
+
+<button
+onClick={()=>setNear(!near)}
+className={`
+w-12 h-7 rounded-full
+${near?"bg-[#FF5C00]":"bg-gray-300"}
+`}>
+
+<div className={`
+h-5 w-5 bg-white rounded-full transition
+${near?"translate-x-6":"translate-x-1"}
+`}/>
 
 </button>
 
@@ -354,9 +345,43 @@ Show 2,500+ Items
 </div>
 
 
+
+
+
+<button
+
+onClick={()=>{
+
+setFilters({
+...filters,
+minPrice:min,
+maxPrice:max,
+rating,
+deliveryTime:delivery,
+near
+});
+
+onApply();
+
+}}
+
+className="
+w-full
+bg-[#FF5C00]
+text-white
+font-bold
+py-4
+rounded-full">
+
+Show 2,500+ Items
+
+</button>
+
+
+</motion.div>
+
 </div>
 
 )
 
 }
-
