@@ -1,387 +1,667 @@
 import { motion } from "framer-motion";
 import {
-X,
-Trash2,
-Pizza,
-Grape,
-Pill,
-Milk,
-Star,
-DollarSign,
-MapPin
+  X,
+  Trash2,
+  Pizza,
+  Grape,
+  Pill,
+  CupSoda,
+  Star,
+  DollarSign,
+  MapPin
 } from "lucide-react";
 import { useState } from "react";
 
+
 export default function FilterBottomSheet({
-open,
-onClose,
-filters,
-setFilters,
-onApply
-}){
+  open,
+  onClose,
+  filters,
+  setFilters,
+  onApply
+}) {
 
-const [min,setMin]=useState(filters?.minPrice || 0);
-const [max,setMax]=useState(filters?.maxPrice || 1000);
-const [rating,setRating]=useState(0);
-const [delivery,setDelivery]=useState("");
-const [near,setNear]=useState(false);
+  const [min,setMin] = useState(filters?.minPrice || 0);
+  const [max,setMax] = useState(filters?.maxPrice || 1000);
+  const [nearMe,setNearMe] = useState(false);
+  const [delivery,setDelivery] = useState("");
 
-if(!open) return null;
 
+  if(!open) return null;
 
-const bars=[20,40,70,35,90,55,80,45,65,30];
 
+  const categories = [
+    {
+      name:"Meals",
+      icon:<Pizza size={28}/>
+    },
+    {
+      name:"Shops",
+      icon:<Grape size={28}/>
+    },
+    {
+      name:"Drugs",
+      icon:<Pill size={28}/>
+    },
+    {
+      name:"Drinks",
+      icon:<CupSoda size={28}/>
+    }
+  ];
 
-return (
 
-<div className="fixed inset-0 z-50 bg-black/40 flex items-end">
+  const ratings=[5,4,3,2];
 
 
-<motion.div
+  const bars=[
+    35,60,45,85,55,95,70,40,75,50,90,65
+  ];
 
-initial={{y:"100%"}}
-animate={{y:0}}
 
-className="
-w-full
-bg-white
-rounded-t-[32px]
-px-6
-py-5
-space-y-6
-max-h-[90vh]
-overflow-y-auto
-"
+  const priceChange=(value,type)=>{
 
->
+    if(type==="min"){
+      setMin(value);
+    }
 
+    if(type==="max"){
+      setMax(value);
+    }
 
-<div className="flex justify-center">
-<div className="h-1.5 w-14 bg-gray-300 rounded-full"/>
-</div>
+    setFilters({
+      ...filters,
+      minPrice:type==="min"?value:min,
+      maxPrice:type==="max"?value:max
+    });
 
+  };
 
 
-<div className="flex justify-between items-center">
 
-<button
-onClick={onClose}
-className="h-11 w-11 rounded-full bg-gray-100 flex items-center justify-center">
-<X/>
-</button>
+  const applyFilter=()=>{
 
+    setFilters({
+      ...filters,
+      minPrice:min,
+      maxPrice:max,
+      deliveryTime:delivery,
+      nearMe
+    });
 
-<h2 className="text-xl font-bold">
-Filters
-</h2>
+    onApply();
 
+  };
 
-<button
-className="h-11 w-11 rounded-full bg-gray-100 flex items-center justify-center">
-<Trash2/>
-</button>
 
 
-</div>
+  return (
 
+    <div className="
+    fixed
+    inset-0
+    z-50
+    bg-black/40
+    flex
+    items-end
+    ">
 
 
+      <motion.div
 
-<div className="space-y-3">
+      initial={{
+        y:"100%"
+      }}
 
-<h3 className="text-lg font-bold">
-Categories
-</h3>
+      animate={{
+        y:0
+      }}
 
+      transition={{
+        type:"spring",
+        damping:25
+      }}
 
-<div className="grid grid-cols-4 gap-3">
+      className="
+      w-full
+      bg-white
+      rounded-t-[32px]
+      px-6
+      pt-4
+      pb-8
+      max-h-[90vh]
+      overflow-y-auto
+      space-y-6
+      "
 
-{[
-[Pizza,"Meals"],
-[Grape,"Shops"],
-[Pill,"Drugs"],
-[Milk,"Drinks"]
-].map(([Icon,name])=>(
+      >
 
-<div
-key={name}
-className="bg-gray-100 rounded-2xl p-3 text-center">
 
-<div className="
-h-12 w-12 mx-auto
-bg-gray-200
-rounded-xl
-flex items-center justify-center">
+        <div className="
+        w-12
+        h-1.5
+        bg-gray-300
+        rounded-full
+        mx-auto
+        "/>
 
-<Icon/>
 
-</div>
 
-<p className="text-sm mt-2">
-{name}
-</p>
+        <div className="
+        flex
+        items-center
+        justify-between
+        ">
 
-</div>
 
-))}
+          <button
+          onClick={onClose}
+          className="
+          h-11
+          w-11
+          rounded-full
+          bg-gray-100
+          flex
+          items-center
+          justify-center
+          "
+          >
 
-</div>
+            <X/>
 
-</div>
+          </button>
 
 
 
+          <h2 className="
+          text-xl
+          font-bold
+          ">
+            Filters
+          </h2>
 
-<div className="space-y-4">
 
-<h3 className="text-lg font-bold">
-Price Range
-</h3>
 
+          <button
 
-<div className="
-h-28
-flex
-items-end
-gap-2">
+          onClick={()=>{
+            setMin(0);
+            setMax(1000);
+          }}
 
-{bars.map((b,i)=>(
+          className="
+          h-11
+          w-11
+          rounded-full
+          bg-gray-100
+          flex
+          items-center
+          justify-center
+          "
 
-<div
-key={i}
-className="flex-1 bg-[#FF5C00] rounded-t-lg"
-style={{
-height:`${Math.max(10,b*(max/1000))}%`
-}}
-/>
+          >
 
-))}
+            <Trash2/>
 
-</div>
+          </button>
 
 
-<input
+        </div>
 
-type="range"
-min="0"
-max="1000"
-value={max}
-onChange={(e)=>setMax(e.target.value)}
 
-className="
-w-full
-accent-[#FF5C00]
-"
 
-/>
 
 
+        <section className="space-y-3">
 
-<div className="grid grid-cols-2 gap-3">
+          <h3 className="
+          text-lg
+          font-bold
+          ">
+            Categories
+          </h3>
 
 
-<div className="
-bg-gray-100
-rounded-xl
-p-3
-flex
-gap-2">
+          <div className="
+          grid
+          grid-cols-4
+          gap-3
+          ">
 
-<DollarSign size={18}/>
 
-<input
-value={min}
-onChange={(e)=>setMin(e.target.value)}
-placeholder="Min"
-className="bg-transparent outline-none w-full"
-/>
+          {
+            categories.map((item,index)=>(
 
-</div>
+              <button
 
+              key={index}
 
+              className="
+              rounded-2xl
+              bg-gray-50
+              p-3
+              flex
+              flex-col
+              items-center
+              gap-2
+              "
 
-<div className="
-bg-gray-100
-rounded-xl
-p-3
-flex
-gap-2">
+              >
 
-<DollarSign size={18}/>
+                <div className="
+                h-12
+                w-12
+                rounded-xl
+                bg-gray-200
+                flex
+                items-center
+                justify-center
+                text-orange-500
+                ">
 
-<input
-value={max}
-onChange={(e)=>setMax(e.target.value)}
-placeholder="Max"
-className="bg-transparent outline-none w-full"
-/>
+                  {item.icon}
 
-</div>
+                </div>
 
 
-</div>
+                <span className="
+                text-xs
+                font-semibold
+                ">
 
-</div>
+                {item.name}
 
+                </span>
 
 
+              </button>
 
 
-<div>
+            ))
+          }
 
-<h3 className="text-lg font-bold mb-3">
-Rating
-</h3>
 
+          </div>
 
-<div className="flex gap-3">
 
-{[5,4,3,2].map(r=>(
+        </section>
 
-<button
-key={r}
-onClick={()=>setRating(r)}
-className="
-px-4
-py-2
-rounded-full
-bg-gray-100
-flex
-items-center
-gap-1">
 
-<Star
-size={16}
-fill="#FFC107"
-/>
 
-{r}.0
 
-</button>
 
-))}
 
-</div>
 
-</div>
+        <section className="space-y-4">
 
 
+          <h3 className="
+          text-lg
+          font-bold
+          ">
+            Price Range
+          </h3>
 
 
 
-<div>
+          <div className="
+          flex
+          items-end
+          gap-2
+          h-28
+          ">
 
-<h3 className="text-lg font-bold mb-3">
-Delivery Time
-</h3>
+          {
+            bars.map((b,i)=>(
 
+              <div
+              key={i}
+              className="
+              flex-1
+              bg-orange-500
+              rounded-t-lg
+              "
+              style={{
+                height:`${Math.max(20,b*(max-min)/1000)}%`
+              }}
+              />
 
-<div className="flex gap-3 overflow-x-auto">
+            ))
+          }
 
+          </div>
 
-{[
-"Under 15 min",
-"Under 30 min",
-"Under 45 min"
-].map(t=>(
 
-<button
-key={t}
-onClick={()=>setDelivery(t)}
-className="
-px-5 py-2
-rounded-full
-bg-gray-100
-whitespace-nowrap">
 
-{t}
 
-</button>
+          <input
 
-))}
+          type="range"
 
+          min="0"
 
-</div>
+          max="1000"
 
-</div>
+          value={min}
 
+          onChange={(e)=>priceChange(Number(e.target.value),"min")}
 
+          className="
+          w-full
+          accent-orange-500
+          "
 
+          />
 
 
-<div className="
-flex
-justify-between
-items-center">
 
+          <input
 
-<div className="flex gap-2 items-center">
+          type="range"
 
-<MapPin/>
+          min="0"
 
-<span className="font-bold">
-Near Me
-</span>
+          max="1000"
 
-</div>
+          value={max}
 
+          onChange={(e)=>priceChange(Number(e.target.value),"max")}
 
+          className="
+          w-full
+          accent-orange-500
+          "
 
-<button
-onClick={()=>setNear(!near)}
-className={`
-w-12 h-7 rounded-full
-${near?"bg-[#FF5C00]":"bg-gray-300"}
-`}>
+          />
 
-<div className={`
-h-5 w-5 bg-white rounded-full transition
-${near?"translate-x-6":"translate-x-1"}
-`}/>
 
-</button>
 
 
-</div>
+          <div className="
+          flex
+          gap-3
+          ">
 
 
+            <div className="
+            flex-1
+            bg-gray-100
+            rounded-xl
+            px-4
+            py-3
+            flex
+            items-center
+            gap-2
+            ">
 
+              <DollarSign size={18}/>
 
+              <input
+              value={min}
+              placeholder="Min"
+              className="bg-transparent outline-none w-full"
+              />
 
-<button
+            </div>
 
-onClick={()=>{
 
-setFilters({
-...filters,
-minPrice:min,
-maxPrice:max,
-rating,
-deliveryTime:delivery,
-near
-});
 
-onApply();
+            <div className="
+            flex-1
+            bg-gray-100
+            rounded-xl
+            px-4
+            py-3
+            flex
+            items-center
+            gap-2
+            ">
 
-}}
+              <DollarSign size={18}/>
 
-className="
-w-full
-bg-[#FF5C00]
-text-white
-font-bold
-py-4
-rounded-full">
+              <input
+              value={max}
+              placeholder="Max"
+              className="bg-transparent outline-none w-full"
+              />
 
-Show 2,500+ Items
+            </div>
 
-</button>
 
+          </div>
 
-</motion.div>
 
-</div>
+        </section>
 
-)
+
+
+
+
+
+
+        <section className="space-y-3">
+
+
+        <h3 className="
+        text-lg
+        font-bold
+        ">
+        Rating
+        </h3>
+
+
+        <div className="
+        flex
+        gap-3
+        ">
+
+
+        {
+          ratings.map(r=>(
+
+            <button
+            key={r}
+            className="
+            px-4
+            py-2
+            rounded-full
+            bg-gray-100
+            flex
+            items-center
+            gap-1
+            "
+            >
+
+              <Star
+              size={16}
+              fill="gold"
+              className="text-yellow-400"
+              />
+
+              {r}.0
+
+
+            </button>
+
+          ))
+        }
+
+
+        </div>
+
+
+        </section>
+
+
+
+
+
+
+
+
+        <section className="space-y-3">
+
+
+        <h3 className="
+        text-lg
+        font-bold
+        ">
+        Delivery Time
+        </h3>
+
+
+        <div className="
+        flex
+        gap-3
+        overflow-x-auto
+        ">
+
+
+        {
+          ["Under 15 min","Under 30 min","Under 45 min"]
+          .map(item=>(
+
+            <button
+
+            onClick={()=>setDelivery(item)}
+
+            key={item}
+
+            className={`
+            px-5
+            py-3
+            rounded-full
+            whitespace-nowrap
+            ${
+              delivery===item
+              ?
+              "bg-orange-500 text-white"
+              :
+              "bg-gray-100"
+            }
+            `}
+
+            >
+
+            {item}
+
+            </button>
+
+
+          ))
+        }
+
+
+        </div>
+
+
+        </section>
+
+
+
+
+
+
+
+
+        <section>
+
+        <div className="
+        flex
+        items-center
+        justify-between
+        ">
+
+          <div className="
+          flex
+          items-center
+          gap-2
+          font-bold
+          ">
+
+            <MapPin size={20}/>
+
+            Near Me
+
+          </div>
+
+
+
+          <button
+
+          onClick={()=>setNearMe(!nearMe)}
+
+          className={`
+          w-14
+          h-7
+          rounded-full
+          p-1
+          ${
+            nearMe
+            ?
+            "bg-orange-500"
+            :
+            "bg-gray-300"
+          }
+          `}
+
+          >
+
+            <div className={`
+            h-5
+            w-5
+            bg-white
+            rounded-full
+            transition
+            ${
+              nearMe
+              ?
+              "translate-x-7"
+              :
+              ""
+            }
+            `}/>
+
+
+          </button>
+
+
+        </div>
+
+
+        </section>
+
+
+
+
+
+
+        <button
+
+        onClick={applyFilter}
+
+        className="
+        w-full
+        bg-orange-500
+        text-white
+        py-4
+        rounded-full
+        font-bold
+        text-lg
+        "
+
+        >
+
+        Show 2,500+ Items
+
+        </button>
+
+
+
+      </motion.div>
+
+
+    </div>
+
+  );
 
 }
