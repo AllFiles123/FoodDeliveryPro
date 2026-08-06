@@ -8,12 +8,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#FF6B00",
-        secondary: "#0F172A",
-        accent: "#22C55E",
-        background: "#F8FAFC",
-        dark: "#020617",
-        card: "#FFFFFF",
+        primary: "var(--color-primary)",
+
+        background: "var(--color-background)",
+        surface: "var(--color-surface)",
+        card: "var(--color-surface)",
+
+        text: "var(--color-text)",
+        textSecondary: "var(--color-text-secondary)",
+
+        border: "var(--color-border)",
+
+        success: "#16A34A",
+        danger: "#DC2626",
       },
 
       fontFamily: {

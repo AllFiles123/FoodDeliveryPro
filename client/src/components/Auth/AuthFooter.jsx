@@ -17,7 +17,7 @@ function AuthFooter({
         {text}{" "}
         <Link
           to={linkTo}
-          className="font-semibold text-orange-500 transition-colors duration-300 hover:text-orange-600"
+          className="font-semibold text-primary transition-colors duration-300 hover:text-primary"
         >
           {linkText}
         </Link>

@@ -63,9 +63,9 @@ function OTPInput({ length = 6, value = "", onChange }) {
             backdrop-blur-xl
             transition-all
             duration-300
-            focus:border-orange-500
+            focus:border-primary
             focus:ring-2
-            focus:ring-orange-500/30
+            focus:ring-primary/30
           "
         />
       ))}

@@ -25,7 +25,7 @@ function SignupActions({ loading = false }) {
         Already have an account?{" "}
         <Link
           to="/login"
-          className="font-semibold text-orange-500 transition-colors hover:text-orange-600"
+          className="font-semibold text-primary transition-colors hover:text-primary"
         >
           Login
         </Link>

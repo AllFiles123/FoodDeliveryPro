@@ -23,10 +23,10 @@ export default function FoodCard({ food, onAdd }) {
 
       whileTap={{scale:0.98}}
 
-      className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-lg"
+      className="overflow-hidden rounded-3xl border border-border bg-background shadow-lg"
 
     >
-      <div className="h-40 overflow-hidden bg-orange-100">
+      <div className="h-40 overflow-hidden bg-surface">
 
         {
           food.image ? (
@@ -64,14 +64,14 @@ export default function FoodCard({ food, onAdd }) {
 
           </h3>
 
-          <div className="flex items-center gap-1 rounded-full bg-orange-100 px-2 py-1">
+          <div className="flex items-center gap-1 rounded-full bg-surface px-2 py-1">
 
             <Star
               size={14}
-              className="fill-orange-500 text-orange-500"
+              className="fill-primary text-primary"
             />
 
-            <span className="text-xs font-semibold text-orange-600">
+            <span className="text-xs font-semibold text-primary">
 
               {food.rating}
 
@@ -80,7 +80,7 @@ export default function FoodCard({ food, onAdd }) {
           </div>
 
         </div>
-        <p className="mt-2 line-clamp-2 text-sm text-slate-500">
+        <p className="mt-2 line-clamp-2 text-sm text-textSecondary">
 
           {food.description}
 
@@ -88,7 +88,7 @@ export default function FoodCard({ food, onAdd }) {
 
         <div className="mt-5 flex items-center justify-between">
 
-          <span className="text-xl font-bold text-orange-500">
+          <span className="text-xl font-bold text-primary">
 
             ৳ {food.price}
 
@@ -117,7 +117,7 @@ export default function FoodCard({ food, onAdd }) {
             className={`flex items-center gap-2 rounded-full px-4 py-2 font-semibold text-white shadow-md transition-all duration-300 ${
               (added || isAdded)
               ? "bg-green-500 shadow-green-300"
-              : "bg-orange-500"
+              : "bg-primary"
             }`}
 
           >

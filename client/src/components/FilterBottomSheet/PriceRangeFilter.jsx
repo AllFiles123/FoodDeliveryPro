@@ -37,7 +37,7 @@ export default function PriceRangeFilter({ onApply }) {
                 rounded-t
                 transition-all
                 duration-300
-                ${active ? "bg-[#FF5C00]" : "bg-gray-200"}
+                ${active ? "bg-[var(--color-primary)]" : "bg-border"}
                 `}
                 style={{
                   height:`${h}%`
@@ -56,7 +56,7 @@ export default function PriceRangeFilter({ onApply }) {
         top-3
         w-full
         h-2
-        bg-gray-200
+        bg-border
         rounded-full
         ">
 
@@ -64,7 +64,7 @@ export default function PriceRangeFilter({ onApply }) {
           className="
           absolute
           h-2
-          bg-[#FF5C00]
+          bg-[var(--color-primary)]
           rounded-full
           "
           style={{
@@ -82,7 +82,7 @@ export default function PriceRangeFilter({ onApply }) {
         max="100"
         value={min}
         onChange={(e)=>setMin(Number(e.target.value))}
-        className="absolute w-full accent-[#FF5C00]"
+        className="absolute w-full accent-[var(--color-primary)]"
         />
 
 
@@ -92,7 +92,7 @@ export default function PriceRangeFilter({ onApply }) {
         max="100"
         value={max}
         onChange={(e)=>setMax(Number(e.target.value))}
-        className="absolute w-full accent-[#FF5C00]"
+        className="absolute w-full accent-[var(--color-primary)]"
         />
 
       </div>
@@ -103,7 +103,7 @@ export default function PriceRangeFilter({ onApply }) {
 
         <div className="
         flex-1
-        bg-gray-100
+        bg-surface
         rounded-xl
         px-4
         py-3
@@ -127,7 +127,7 @@ export default function PriceRangeFilter({ onApply }) {
 
         <div className="
         flex-1
-        bg-gray-100
+        bg-surface
         rounded-xl
         px-4
         py-3
@@ -165,7 +165,7 @@ export default function PriceRangeFilter({ onApply }) {
         onClick={onApply}
         className="
         w-full
-        bg-[#FF5C00]
+        bg-[var(--color-primary)]
         text-white
         font-bold
         py-4

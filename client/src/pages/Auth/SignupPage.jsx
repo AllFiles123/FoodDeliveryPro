@@ -287,7 +287,7 @@ export default function SignupPage() {
   return (
 
 
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-orange-600 flex items-center justify-center px-6 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-primary flex items-center justify-center px-6 py-10">
 
 
       <motion.div
@@ -440,7 +440,7 @@ export default function SignupPage() {
 
           {formData.password && (
 
-            <p className="text-xs text-orange-300">
+            <p className="text-xs text-primary">
 
               Password Strength: {getPasswordStrength()}
 
@@ -514,7 +514,7 @@ export default function SignupPage() {
 
               to="/login"
 
-              className="font-semibold text-orange-300 transition hover:text-orange-200"
+              className="font-semibold text-primary transition hover:text-primary"
 
             >
 

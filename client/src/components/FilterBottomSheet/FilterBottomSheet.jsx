@@ -67,14 +67,14 @@ export default function FilterBottomSheet({
           animate={{ y:0 }}
           exit={{ y:"100%" }}
           transition={{ duration:.30 }}
-          className="absolute bottom-0 left-0 right-0 rounded-t-[32px] bg-white px-6 pt-4 pb-40"
+          className="absolute bottom-0 left-0 right-0 max-h-[88vh] overflow-y-auto rounded-t-[32px] bg-white px-6 pt-4 pb-40"
         >
 
           {/* Drag Handle */}
 
           <div className="mb-5 flex justify-center">
 
-            <div className="h-1.5 w-14 rounded-full bg-gray-300"/>
+            <div className="h-1.5 w-14 rounded-full bg-border"/>
 
           </div>
 
@@ -84,7 +84,7 @@ export default function FilterBottomSheet({
 
             <button
               onClick={onClose}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-surface"
             >
               <X size={22}/>
             </button>
@@ -99,7 +99,7 @@ export default function FilterBottomSheet({
                 setRight(100);
                 setNearMe(false);
               }}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-surface"
             >
               <RotateCcw size={20}/>
             </button>
@@ -110,13 +110,18 @@ export default function FilterBottomSheet({
 
           <section className="mt-10">
 
-            <h3 className="mb-6 text-xl font-bold">
+            <h3 className="mb-6 text-[20px] font-bold text-text">
               Categories
             </h3>
 
             <div className="grid grid-cols-4 gap-4">
 
-              {categories.map((item)=>{
+              {[
+                {title:"Meals",icon:Pizza},
+                {title:"Shops",icon:Store},
+                {title:"Drugs",icon:Pill},
+                {title:"Drinks",icon:CupSoda},
+              ].map((item)=>{
 
                 const Icon=item.icon;
 
@@ -124,19 +129,40 @@ export default function FilterBottomSheet({
 
                   <button
                     key={item.title}
-                    className="flex flex-col items-center"
+                    className="group flex flex-col items-center"
                   >
 
-                    <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gray-100">
+                    <div
+                      className="
+                      h-[78px]
+                      w-[78px]
+                      rounded-[22px]
+                      bg-background
+                      flex
+                      items-center
+                      justify-center
+                      transition-all
+                      duration-200
+                      group-active:scale-95
+                      "
+                    >
 
                       <Icon
-                        size={34}
+                        size={30}
                         strokeWidth={1.8}
+                        className="text-text"
                       />
 
                     </div>
 
-                    <span className="mt-3 text-base font-medium">
+                    <span
+                      className="
+                      mt-3
+                      text-[14px]
+                      font-semibold
+                      text-text
+                      "
+                    >
 
                       {item.title}
 
@@ -152,9 +178,7 @@ export default function FilterBottomSheet({
 
           </section>
 
-          {/* Price Range */}
-
-          <section className="mt-10">
+<section className="mt-10">
 
             <h3 className="mb-6 text-xl font-bold">
 
@@ -162,24 +186,28 @@ export default function FilterBottomSheet({
 
             </h3>
 
-            <div className="flex h-16 items-end gap-[2px]">
+            <div className="mt-2 flex h-[58px] items-end justify-between">
 
-              {bars.map((bar,index)=>(
+              {bars.map((bar,index)=>{
 
-                <div
-                  key={bar.id}
-                  className="w-[2px] rounded-full"
-                  style={{
-                    height:bar.height,
-                    background:
-                      index>=Math.round(left/2)&&
-                      index<=Math.round(right/2)
-                      ?"#FF5C00"
-                      :"#E5E7EB",
-                  }}
-                />
+                const active=
+                  index>=Math.round(left/2) &&
+                  index<=Math.round(right/2);
 
-              ))}
+                return(
+
+                  <div
+                    key={bar.id}
+                    className="w-[2px] rounded-full transition-colors duration-200"
+                    style={{
+                      height:bar.height,
+                      backgroundColor:active?"var(--color-primary)":"var(--color-border)"
+                    }}
+                  />
+
+                );
+
+              })}
 
             </div>
             {/* Dual Range Slider */}
@@ -188,12 +216,12 @@ export default function FilterBottomSheet({
 
               {/* Gray Track */}
 
-              <div className="absolute top-4 h-1 w-full rounded-full bg-gray-200"/>
+              <div className="absolute top-[18px] h-[3px] w-full rounded-full bg-border"/>
 
               {/* Orange Track */}
 
               <div
-                className="absolute top-4 h-1 rounded-full bg-[#FF5C00]"
+                className="absolute top-4 h-1 rounded-full bg-[var(--color-primary)] shadow-sm"
                 style={{
                   left:`${left}%`,
                   width:`${right-left}%`,
@@ -226,13 +254,13 @@ export default function FilterBottomSheet({
                 pointer-events-none
                 [&::-webkit-slider-thumb]:pointer-events-auto
                 [&::-webkit-slider-thumb]:appearance-none
-                [&::-webkit-slider-thumb]:h-6
-                [&::-webkit-slider-thumb]:w-6
+                [&::-webkit-slider-thumb]:h-7
+                [&::-webkit-slider-thumb]:w-7
                 [&::-webkit-slider-thumb]:rounded-full
                 [&::-webkit-slider-thumb]:bg-white
-                [&::-webkit-slider-thumb]:border-2
-                [&::-webkit-slider-thumb]:border-[#FF5C00]
-                [&::-webkit-slider-thumb]:shadow-lg
+                [&::-webkit-slider-thumb]:border-[3px]
+                [&::-webkit-slider-thumb]:border-[var(--color-primary)]
+                [&::-webkit-slider-thumb]:shadow-xl
                 "
               />
 
@@ -262,13 +290,13 @@ export default function FilterBottomSheet({
                 pointer-events-none
                 [&::-webkit-slider-thumb]:pointer-events-auto
                 [&::-webkit-slider-thumb]:appearance-none
-                [&::-webkit-slider-thumb]:h-6
-                [&::-webkit-slider-thumb]:w-6
+                [&::-webkit-slider-thumb]:h-7
+                [&::-webkit-slider-thumb]:w-7
                 [&::-webkit-slider-thumb]:rounded-full
                 [&::-webkit-slider-thumb]:bg-white
-                [&::-webkit-slider-thumb]:border-2
-                [&::-webkit-slider-thumb]:border-[#FF5C00]
-                [&::-webkit-slider-thumb]:shadow-lg
+                [&::-webkit-slider-thumb]:border-[3px]
+                [&::-webkit-slider-thumb]:border-[var(--color-primary)]
+                [&::-webkit-slider-thumb]:shadow-xl
                 "
               />
 
@@ -278,9 +306,9 @@ export default function FilterBottomSheet({
 
             <div className="mt-8 grid grid-cols-2 gap-4">
 
-              <div className="flex items-center rounded-xl bg-gray-100 px-4 h-16">
+              <div className="flex items-center rounded-xl bg-surface px-4 h-16">
 
-                <span className="mr-3 font-bold text-gray-500">$</span>
+                <span className="mr-3 font-bold text-textSecondary">$</span>
 
                 <input
                   readOnly
@@ -290,9 +318,9 @@ export default function FilterBottomSheet({
 
               </div>
 
-              <div className="flex items-center rounded-xl bg-gray-100 px-4 h-16">
+              <div className="flex items-center rounded-xl bg-surface px-4 h-16">
 
-                <span className="mr-3 font-bold text-gray-500">$</span>
+                <span className="mr-3 font-bold text-textSecondary">$</span>
 
                 <input
                   readOnly
@@ -313,13 +341,13 @@ export default function FilterBottomSheet({
               Rating
             </h3>
 
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
 
               {[5,4,3,2].map((item)=>(
 
                 <button
                   key={item}
-                  className="flex h-12 items-center gap-2 rounded-full bg-gray-100 px-5 transition active:scale-95"
+                  className="flex h-12 items-center gap-2 rounded-full bg-surface px-5 transition active:scale-95"
                 >
 
                   <Star
@@ -350,7 +378,7 @@ export default function FilterBottomSheet({
               Delivery Time
             </h3>
 
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
 
               {[
                 "Under 15 min",
@@ -364,7 +392,7 @@ export default function FilterBottomSheet({
                   className="
                   whitespace-nowrap
                   rounded-full
-                  bg-gray-100
+                  bg-surface
                   px-5
                   py-3
                   font-medium
@@ -398,7 +426,7 @@ export default function FilterBottomSheet({
 
                 </h3>
 
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-textSecondary">
 
                   Show nearby restaurants
 
@@ -412,9 +440,10 @@ export default function FilterBottomSheet({
                 relative
                 h-8
                 w-14
+                shadow-inner
                 rounded-full
                 transition
-                ${nearMe ? "bg-[#FF5C00]" : "bg-gray-300"}
+                ${nearMe ? "bg-[var(--color-primary)] shadow-sm" : "bg-border"}
                 `}
               >
 
@@ -441,15 +470,16 @@ export default function FilterBottomSheet({
 
           {/* Bottom Button */}
 
-          <div className="fixed bottom-6 left-6 right-6">
+          <div className="fixed bottom-6 left-5 right-5 z-[1000]">
 
             <button
               onClick={onApply}
               className="
-              h-16
+              h-[58px]
               w-full
               rounded-full
-              bg-[#FF5C00]
+              bg-[var(--color-primary)]
+              shadow-2xl
               text-lg
               font-bold
               text-white
@@ -473,4 +503,3 @@ export default function FilterBottomSheet({
   );
 
 }
-

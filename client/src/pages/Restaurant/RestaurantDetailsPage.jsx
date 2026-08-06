@@ -131,7 +131,7 @@ export default function RestaurantDetailsPage() {
 
     return(
 
-      <div className="min-h-screen bg-[#FFF8F3] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
 
         <motion.p
 
@@ -144,7 +144,7 @@ export default function RestaurantDetailsPage() {
             duration:1
           }}
 
-          className="text-orange-500 text-xl font-semibold"
+          className="text-primary text-xl font-semibold"
 
         >
 
@@ -162,7 +162,7 @@ export default function RestaurantDetailsPage() {
 
     return(
 
-      <div className="min-h-screen bg-[#FFF8F3] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
 
         <p className="text-slate-800">
 
@@ -178,7 +178,7 @@ export default function RestaurantDetailsPage() {
 
   return(
 
-    <div className="min-h-screen bg-[#FFF8F3] px-5 py-8">
+    <div className="min-h-screen bg-background px-5 py-8">
 
       <motion.div
 

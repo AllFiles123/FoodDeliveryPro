@@ -117,8 +117,8 @@ export default function OrdersPage(){
   if(loading){
 
     return(
-      <div className="min-h-screen flex items-center justify-center bg-[#FFF8F3]">
-        <p className="font-bold text-orange-500">
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="font-bold text-primary">
           Loading Orders...
         </p>
       </div>
@@ -130,7 +130,7 @@ export default function OrdersPage(){
 
   return(
 
-    <div className="min-h-screen bg-[#FFF8F3] px-5 py-8 pb-32">
+    <div className="min-h-screen bg-background px-5 py-8 pb-32">
 
 
       <h1 className="text-3xl font-bold text-slate-800">
@@ -208,7 +208,7 @@ export default function OrdersPage(){
               y:0
             }}
 
-            className="rounded-3xl bg-white shadow-xl border border-orange-100 overflow-hidden"
+            className="rounded-3xl bg-background shadow-xl border border-border overflow-hidden"
 
           >
 
@@ -222,7 +222,7 @@ export default function OrdersPage(){
               <div className="flex items-center gap-2">
 
                 <Store size={20}
-                  className="text-orange-500"
+                  className="text-primary"
                 />
 
                 <h2 className="font-bold text-xl">
@@ -232,17 +232,17 @@ export default function OrdersPage(){
               </div>
 
 
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-textSecondary mt-1">
                 {order.orderNumber}
               </p>
 
 
-              <p className="font-bold text-orange-500 mt-2">
+              <p className="font-bold text-primary mt-2">
                 ৳ {order.totalAmount}
               </p>
 
 
-              <span className="inline-block mt-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-600">
+              <span className="inline-block mt-2 rounded-full bg-surface px-3 py-1 text-xs font-bold text-primary">
                 {currentStatus}
               </span>
 
@@ -260,7 +260,7 @@ export default function OrdersPage(){
                   : order.id
                 )
               }
-              className="text-orange-500"
+              className="text-primary"
             >
 
               {
@@ -323,10 +323,10 @@ export default function OrdersPage(){
 
               {/* ITEM DETAILS */}
 
-              <div className="mt-5 rounded-2xl bg-orange-50 p-4">
+              <div className="mt-5 rounded-2xl bg-background p-4">
 
-                <h4 className="font-bold text-orange-600 mb-3">
-                  <Utensils size={18} className='inline mr-2 text-orange-500'/> Item Details
+                <h4 className="font-bold text-primary mb-3">
+                  <Utensils size={18} className='inline mr-2 text-primary'/> Item Details
                 </h4>
 
 
@@ -353,8 +353,8 @@ export default function OrdersPage(){
 
                         :
 
-                        <div className="h-16 w-16 rounded-xl bg-white flex items-center justify-center">
-                          <Utensils size={28} className="text-orange-500"/>
+                        <div className="h-16 w-16 rounded-xl bg-background flex items-center justify-center">
+                          <Utensils size={28} className="text-primary"/>
                         </div>
 
                       }
@@ -366,14 +366,14 @@ export default function OrdersPage(){
                           {item.name}
                         </p>
 
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-textSecondary">
                           Quantity: {itemQty}
                         </p>
 
                       </div>
 
 
-                      <p className="font-bold text-orange-600">
+                      <p className="font-bold text-primary">
                         ৳ {Number(item.price || 0) * itemQty}
                       </p>
 
@@ -398,10 +398,10 @@ export default function OrdersPage(){
 
               {/* CUSTOMER DETAILS */}
 
-              <div className="rounded-2xl bg-white border p-4">
+              <div className="rounded-2xl bg-background border p-4">
 
                 <h4 className="font-bold text-slate-800 mb-3">
-                  <UserRound size={18} className='inline mr-2 text-orange-500'/> Customer Details
+                  <UserRound size={18} className='inline mr-2 text-primary'/> Customer Details
                 </h4>
 
 
@@ -433,11 +433,11 @@ export default function OrdersPage(){
 
               {/* PAYMENT DETAILS */}
 
-              <div className="rounded-2xl bg-white border p-4">
+              <div className="rounded-2xl bg-background border p-4">
 
 
                 <h4 className="font-bold text-slate-800 mb-3">
-                  <CreditCard size={18} className='inline mr-2 text-orange-500'/> Payment Details
+                  <CreditCard size={18} className='inline mr-2 text-primary'/> Payment Details
                 </h4>
 
 
@@ -463,11 +463,11 @@ export default function OrdersPage(){
 
               {/* BILL SUMMARY */}
 
-              <div className="rounded-2xl bg-orange-50 p-4">
+              <div className="rounded-2xl bg-background p-4">
 
 
-                <h4 className="font-bold text-orange-600 mb-3">
-                  <Receipt size={18} className='inline mr-2 text-orange-500'/> Bill Summary
+                <h4 className="font-bold text-primary mb-3">
+                  <Receipt size={18} className='inline mr-2 text-primary'/> Bill Summary
                 </h4>
 
 
@@ -506,7 +506,7 @@ export default function OrdersPage(){
                   y:0
                 }}
 
-                className="mt-6 rounded-2xl bg-orange-50 p-4"
+                className="mt-6 rounded-2xl bg-background p-4"
 
               >
 
@@ -514,12 +514,12 @@ export default function OrdersPage(){
 
                   <div>
 
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-textSecondary">
                       Estimated Delivery
                     </p>
 
 
-                    <p className="font-bold text-orange-600">
+                    <p className="font-bold text-primary">
                       {order.estimatedDeliveryTime || "30-45 minutes"}
                     </p>
 
@@ -541,7 +541,7 @@ export default function OrdersPage(){
 
                   >
 
-                    <Bike size={28} className='text-orange-500'/>
+                    <Bike size={28} className='text-primary'/>
 
                   </motion.div>
 
@@ -553,7 +553,7 @@ export default function OrdersPage(){
                 {
                   (order.orderStatus || order.trackingStatus)==="Out for Delivery" &&
 
-                  <p className="mt-3 text-sm font-semibold text-orange-600">
+                  <p className="mt-3 text-sm font-semibold text-primary">
 
                     Your rider is on the way 🚴
 
@@ -581,7 +581,7 @@ export default function OrdersPage(){
                 <div className="relative space-y-6 ml-2">
 
 
-                  <div className="absolute left-2 top-3 bottom-3 w-1 bg-orange-100 rounded-full"></div>
+                  <div className="absolute left-2 top-3 bottom-3 w-1 bg-surface rounded-full"></div>
 
 
                   {
@@ -631,9 +631,9 @@ export default function OrdersPage(){
                           className={`z-10 h-6 w-6 rounded-full flex items-center justify-center ${
                             index<=activeStep
                             ?
-                            "bg-orange-500"
+                            "bg-primary"
                             :
-                            "bg-gray-300"
+                            "bg-border"
                           }`}
 
                         >
@@ -655,9 +655,9 @@ export default function OrdersPage(){
                           <p className={
                             index<=activeStep
                             ?
-                            "font-bold text-orange-600"
+                            "font-bold text-primary"
                             :
-                            "text-gray-400"
+                            "text-textSecondary"
                           }>
 
                             {step}
@@ -680,7 +680,7 @@ export default function OrdersPage(){
                                 duration:1.5
                               }}
 
-                              className="text-xs text-orange-500"
+                              className="text-xs text-primary"
 
                             >
 
@@ -698,7 +698,7 @@ export default function OrdersPage(){
                               history.status === step
                             ) &&
 
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-textSecondary">
 
                               {
                                 new Date(
@@ -734,7 +734,7 @@ export default function OrdersPage(){
 
                             >
 
-                              <Bike size={28} className='text-orange-500'/>
+                              <Bike size={28} className='text-primary'/>
 
                             </motion.div>
 

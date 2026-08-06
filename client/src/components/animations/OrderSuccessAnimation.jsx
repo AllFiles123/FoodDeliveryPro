@@ -31,12 +31,12 @@ export default function OrderSuccessAnimation({ onClose }) {
             repeat: Infinity,
             duration: 2,
           }}
-          className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-600 shadow-xl"
+          className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary shadow-xl"
         >
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white">
             <CheckCircle
               size={52}
-              className="text-orange-500"
+              className="text-primary"
             />
           </div>
         </motion.div>
@@ -50,11 +50,11 @@ export default function OrderSuccessAnimation({ onClose }) {
           Our restaurant has already started preparing it.
         </p>
 
-        <div className="mt-7 rounded-2xl bg-orange-50 p-5 space-y-4">
+        <div className="mt-7 rounded-2xl bg-background p-5 space-y-4">
           <div className="flex items-center gap-3">
             <PackageCheck
               size={22}
-              className="text-orange-500"
+              className="text-primary"
             />
             <span className="text-sm font-medium">
               Restaurant accepted your order
@@ -64,7 +64,7 @@ export default function OrderSuccessAnimation({ onClose }) {
           <div className="flex items-center gap-3">
             <Clock3
               size={22}
-              className="text-orange-500"
+              className="text-primary"
             />
             <span className="text-sm font-medium">
               Estimated delivery 30–40 minutes
@@ -76,7 +76,7 @@ export default function OrderSuccessAnimation({ onClose }) {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={onClose}
-          className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 py-4 font-bold text-white shadow-lg"
+          className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-bold text-white shadow-lg"
         >
           Track My Order
           <ArrowRight size={20} />

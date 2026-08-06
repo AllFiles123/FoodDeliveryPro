@@ -28,13 +28,13 @@ function SignupBanner() {
       className="hidden lg:flex flex-col justify-center"
     >
       <div className="max-w-lg">
-        <div className="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-r from-orange-500 to-amber-400 shadow-2xl shadow-orange-500/30">
+        <div className="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-r from-primary to-amber-400 shadow-2xl shadow-black/20">
           <UtensilsCrossed className="text-white" size={38} />
         </div>
 
         <h1 className="mt-8 text-5xl font-bold leading-tight text-white">
           Welcome to
-          <span className="block bg-gradient-to-r from-orange-400 to-yellow-300 bg-clip-text text-transparent">
+          <span className="block bg-gradient-to-r from-primary to-yellow-300 bg-clip-text text-transparent">
             Food Delivery Pro
           </span>
         </h1>
@@ -50,7 +50,7 @@ function SignupBanner() {
               key={item.title}
               className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl"
             >
-              <div className="rounded-xl bg-orange-500/20 p-3 text-orange-400">
+              <div className="rounded-xl bg-primary/20 p-3 text-primary">
                 {item.icon}
               </div>
 

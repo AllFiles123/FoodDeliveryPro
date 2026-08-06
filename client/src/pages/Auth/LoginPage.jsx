@@ -184,7 +184,7 @@ export default function LoginPage() {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-orange-600 flex items-center justify-center px-6 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-primary flex items-center justify-center px-6 py-10">
 
 
       <motion.div
@@ -275,7 +275,7 @@ export default function LoginPage() {
 
           <Link
             to="/forgot-password"
-            className="block text-center text-sm text-white/80 transition hover:text-orange-300"
+            className="block text-center text-sm text-white/80 transition hover:text-primary"
           >
             Forgot Password?
           </Link>
@@ -288,7 +288,7 @@ export default function LoginPage() {
 
             <Link
               to="/signup"
-              className="font-semibold text-orange-300 transition hover:text-orange-200"
+              className="font-semibold text-primary transition hover:text-primary"
             >
               Sign Up
             </Link>

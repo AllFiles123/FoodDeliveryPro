@@ -19,7 +19,7 @@ function AuthCard({ children, className = "" }) {
         dark:bg-slate-900/30
         backdrop-blur-2xl
         shadow-2xl
-        shadow-orange-500/10
+        shadow-black/10
         p-6
         md:p-8
         ${className}

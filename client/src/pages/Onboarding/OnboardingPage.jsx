@@ -5,7 +5,7 @@ export default function OnboardingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-red-500 to-slate-900 flex flex-col justify-center items-center px-6">
+    <div className="min-h-screen bg-gradient-to-br from-primary via-red-500 to-slate-900 flex flex-col justify-center items-center px-6">
       <motion.div
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}

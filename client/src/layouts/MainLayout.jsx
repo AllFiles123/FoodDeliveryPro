@@ -17,9 +17,9 @@ export default function MainLayout(){
       className="
       min-h-screen
       bg-gradient-to-br
-      from-[#FDE7E7]
-      via-[#FFF3E0]
-      to-[#E7F5E9]
+      from-background
+      via-background
+      to-background
       overflow-hidden
       "
     >

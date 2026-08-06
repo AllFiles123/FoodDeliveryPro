@@ -17,7 +17,7 @@ function TermsCheckbox({
             h-5
             w-5
             rounded
-            accent-orange-500
+            accent-primary
             cursor-pointer
           "
         />
@@ -26,14 +26,14 @@ function TermsCheckbox({
           I agree to the{" "}
           <Link
             to="/terms"
-            className="font-semibold text-orange-500 hover:text-orange-600"
+            className="font-semibold text-primary hover:text-primary"
           >
             Terms & Conditions
           </Link>{" "}
           and{" "}
           <Link
             to="/privacy"
-            className="font-semibold text-orange-500 hover:text-orange-600"
+            className="font-semibold text-primary hover:text-primary"
           >
             Privacy Policy
           </Link>

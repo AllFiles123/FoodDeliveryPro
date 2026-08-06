@@ -359,7 +359,7 @@ export default function CheckoutPage() {
       />
     )}
 
-    <div className="min-h-screen bg-[#FFF8F3] px-5 py-8 pb-32">
+    <div className="min-h-screen bg-background px-5 py-8 pb-32">
 
 
       <motion.div
@@ -384,19 +384,19 @@ export default function CheckoutPage() {
         </h1>
 
 
-        <p className="mt-2 text-slate-500">
+        <p className="mt-2 text-textSecondary">
           Complete your order
         </p>
 
 
 
 
-        <div className="mt-6 rounded-3xl bg-white p-5 shadow-lg border border-orange-100">
+        <div className="mt-6 rounded-3xl bg-background p-5 shadow-lg border border-border">
 
 
           <div className="flex items-center gap-3">
 
-            <User className="text-orange-500"/>
+            <User className="text-primary"/>
 
             <h2 className="font-bold text-lg">
               Customer Information
@@ -425,7 +425,7 @@ export default function CheckoutPage() {
 
             <Phone
               size={18}
-              className="text-orange-500"
+              className="text-primary"
             />
 
 
@@ -446,12 +446,12 @@ export default function CheckoutPage() {
 
 
         </div>
-        <div className="mt-5 rounded-3xl bg-white p-5 shadow-lg border border-orange-100">
+        <div className="mt-5 rounded-3xl bg-background p-5 shadow-lg border border-border">
 
 
           <div className="flex items-center gap-3">
 
-            <MapPin className="text-orange-500"/>
+            <MapPin className="text-primary"/>
 
             <h2 className="font-bold text-lg">
               Delivery Address
@@ -499,9 +499,9 @@ export default function CheckoutPage() {
                     
                     deliveryType===type
 
-                    ? "bg-orange-500 text-white"
+                    ? "bg-primary text-white"
 
-                    : "bg-white text-slate-700"
+                    : "bg-background text-slate-700"
 
                   }`}
 
@@ -577,7 +577,7 @@ export default function CheckoutPage() {
 
                 <ChevronDown
 
-                  className="absolute right-3 top-3 text-gray-400"
+                  className="absolute right-3 top-3 text-textSecondary"
 
                 />
 
@@ -761,12 +761,12 @@ export default function CheckoutPage() {
 
 
         </div>
-        <div className="mt-5 rounded-3xl bg-white p-5 shadow-lg border border-orange-100">
+        <div className="mt-5 rounded-3xl bg-background p-5 shadow-lg border border-border">
 
 
           <div className="flex items-center gap-3">
 
-            <CreditCard className="text-orange-500"/>
+            <CreditCard className="text-primary"/>
 
             <h2 className="font-bold text-lg">
               Payment Method
@@ -803,9 +803,9 @@ export default function CheckoutPage() {
                     
                     paymentMethod===method
 
-                    ? "border-orange-500 bg-orange-50 text-orange-600"
+                    ? "border-primary bg-background text-primary"
 
-                    : "bg-white"
+                    : "bg-background"
 
                   }`}
 
@@ -835,7 +835,7 @@ export default function CheckoutPage() {
 
 
 
-        <div className="mt-5 rounded-3xl bg-white p-5 shadow-lg border border-orange-100">
+        <div className="mt-5 rounded-3xl bg-background p-5 shadow-lg border border-border">
 
 
           <h2 className="font-bold text-lg">
@@ -869,7 +869,7 @@ export default function CheckoutPage() {
                     </p>
 
 
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-textSecondary">
 
                       Qty: {item.qty}
 
@@ -880,7 +880,7 @@ export default function CheckoutPage() {
 
 
 
-                  <p className="font-bold text-orange-500">
+                  <p className="font-bold text-primary">
 
                     ৳ {item.price * item.qty}
 
@@ -979,7 +979,7 @@ export default function CheckoutPage() {
               </span>
 
 
-              <span className="text-orange-500">
+              <span className="text-primary">
 
                 ৳ {grandTotal}
 
@@ -1017,7 +1017,7 @@ export default function CheckoutPage() {
           disabled={loading}
 
 
-          className="mt-6 flex w-full items-center justify-center gap-3 rounded-full bg-orange-500 py-4 font-bold text-white shadow-lg disabled:opacity-60"
+          className="mt-6 flex w-full items-center justify-center gap-3 rounded-full bg-primary py-4 font-bold text-white shadow-lg disabled:opacity-60"
 
 
         >

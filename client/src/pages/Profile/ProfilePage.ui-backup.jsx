@@ -76,7 +76,7 @@ font-medium
 
 <ChevronRight
 size={20}
-className="text-gray-400"
+className="text-textSecondary"
 />
 
 </div>
@@ -170,7 +170,7 @@ David Warner
 
 
 <p className="
-text-gray-500
+text-textSecondary
 text-sm
 truncate
 max-w-[180px]

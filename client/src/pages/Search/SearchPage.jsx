@@ -26,25 +26,25 @@ export default function SearchPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white px-5 py-6 pb-24">
+    <div className="min-h-screen bg-background px-5 py-6 pb-24">
 
       <div className="flex items-center gap-3">
 
         <Link
           to="/home"
-          className="rounded-full bg-orange-100 p-2"
+          className="rounded-full bg-surface p-2"
         >
           <ArrowLeft
             size={20}
-            className="text-orange-500"
+            className="text-primary"
           />
         </Link>
 
-        <div className="flex flex-1 items-center rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3">
+        <div className="flex flex-1 items-center rounded-2xl border border-border bg-background px-4 py-3">
 
           <Search
             size={20}
-            className="text-orange-500"
+            className="text-primary"
           />
 
           <input
@@ -66,7 +66,7 @@ export default function SearchPage() {
         className="mt-8"
       >
 
-        <h2 className="text-xl font-bold text-gray-900">
+        <h2 className="text-xl font-bold text-text">
           Recent Searches
         </h2>
 
@@ -76,15 +76,15 @@ export default function SearchPage() {
 
             <div
               key={item}
-              className="flex items-center gap-3 rounded-2xl bg-orange-50 p-4"
+              className="flex items-center gap-3 rounded-2xl bg-background p-4"
             >
 
               <Clock
                 size={18}
-                className="text-orange-500"
+                className="text-primary"
               />
 
-              <span className="font-medium text-gray-700">
+              <span className="font-medium text-text">
                 {item}
               </span>
 
@@ -93,7 +93,7 @@ export default function SearchPage() {
           ))}
 
         </div>
-        <h2 className="mt-10 text-xl font-bold text-gray-900">
+        <h2 className="mt-10 text-xl font-bold text-text">
           Popular Searches
         </h2>
 
@@ -103,7 +103,7 @@ export default function SearchPage() {
 
             <button
               key={item}
-              className="rounded-full border border-orange-200 bg-white px-5 py-2 font-medium text-orange-600 transition hover:bg-orange-500 hover:text-white"
+              className="rounded-full border border-border bg-background px-5 py-2 font-medium text-primary transition hover:bg-primary hover:text-white"
             >
               {item}
             </button>

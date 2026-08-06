@@ -77,7 +77,7 @@ export default function RestaurantListPage() {
 
     return (
 
-      <div className="min-h-screen bg-[#FFF8F3] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
 
         <motion.p
 
@@ -90,7 +90,7 @@ export default function RestaurantListPage() {
             repeat:Infinity
           }}
 
-          className="text-xl font-bold text-orange-500"
+          className="text-xl font-bold text-primary"
 
         >
 
@@ -113,7 +113,7 @@ export default function RestaurantListPage() {
 
   return (
 
-    <div className="min-h-screen bg-[#FFF8F3] px-5 py-8">
+    <div className="min-h-screen bg-background px-5 py-8">
 
 
       <div className="mx-auto max-w-6xl">
@@ -141,7 +141,7 @@ export default function RestaurantListPage() {
 
 
 
-        <p className="mt-2 text-slate-500">
+        <p className="mt-2 text-textSecondary">
 
           Choose your favourite food
 
@@ -154,7 +154,7 @@ export default function RestaurantListPage() {
         {
           restaurants.length === 0 && (
 
-            <p className="mt-10 text-center text-slate-500">
+            <p className="mt-10 text-center text-textSecondary">
 
               No restaurants available
 
@@ -204,13 +204,13 @@ export default function RestaurantListPage() {
               onClick={()=>navigate(`/restaurants/${restaurant.id}`)}
 
 
-              className="cursor-pointer overflow-hidden rounded-3xl bg-white shadow-xl border border-orange-100"
+              className="cursor-pointer overflow-hidden rounded-3xl bg-background shadow-xl border border-border"
 
             >
 
 
 
-              <div className="h-44 bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-7xl">
+              <div className="h-44 bg-gradient-to-br from-primary to-primary flex items-center justify-center text-7xl">
 
                 🍽️
 
@@ -231,7 +231,7 @@ export default function RestaurantListPage() {
 
 
 
-                <p className="mt-2 line-clamp-2 text-sm text-slate-500">
+                <p className="mt-2 line-clamp-2 text-sm text-textSecondary">
 
                   {restaurant.description}
 
@@ -246,7 +246,7 @@ export default function RestaurantListPage() {
 
                   <div className="flex items-center gap-2">
 
-                    <Star size={16} className="text-orange-500 fill-orange-500"/>
+                    <Star size={16} className="text-primary fill-primary"/>
 
                     {restaurant.rating}
 
@@ -256,7 +256,7 @@ export default function RestaurantListPage() {
 
                   <div className="flex items-center gap-2">
 
-                    <Clock size={16} className="text-orange-500"/>
+                    <Clock size={16} className="text-primary"/>
 
                     {restaurant.deliveryTime}
 
@@ -266,7 +266,7 @@ export default function RestaurantListPage() {
 
                   <div className="flex items-center gap-2">
 
-                    <MapPin size={16} className="text-orange-500"/>
+                    <MapPin size={16} className="text-primary"/>
 
                     {restaurant.location}
 
@@ -281,7 +281,7 @@ export default function RestaurantListPage() {
 
                 <button
 
-                  className="mt-6 w-full rounded-xl bg-orange-500 py-3 font-bold text-white"
+                  className="mt-6 w-full rounded-xl bg-primary py-3 font-bold text-white"
 
                 >
 

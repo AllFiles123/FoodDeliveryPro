@@ -25,13 +25,13 @@ function PrimaryButton({
         font-semibold
         text-white
         bg-gradient-to-r
-        from-orange-500
+        from-primary
         via-amber-500
         to-yellow-500
         shadow-lg
-        shadow-orange-500/30
+        shadow-black/20
         hover:shadow-xl
-        hover:shadow-orange-500/40
+        hover:hover:shadow-black/30
         transition-all
         duration-300
         disabled:cursor-not-allowed

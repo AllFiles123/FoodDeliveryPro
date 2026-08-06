@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, MapPin, Star, SlidersHorizontal } from "lucide-react";
+import { Search, MapPin, Star, SlidersHorizontal, Pizza, Hamburger, Drumstick, IceCreamBowl, CupSoda } from "lucide-react";
 import FilterBottomSheet from "../../components/FilterBottomSheet/FilterBottomSheet";
 import { useNavigate } from "react-router-dom";
 
@@ -13,13 +13,15 @@ export default function HomePage() {
   const navigate = useNavigate();
 
 
-  const categories = [
-    { name:"Pizza", emoji:"🍕" },
-    { name:"Burger", emoji:"🍔" },
-    { name:"Chicken", emoji:"🍗" },
-    { name:"Dessert", emoji:"🍰" },
-    { name:"Drinks", emoji:"🥤" },
-  ];
+  
+const categories = [
+  { name:"Pizza", icon:Pizza },
+  { name:"Burger", icon:Beef },
+  { name:"Chicken", icon:Beef },
+  { name:"Dessert", icon:IceCreamCone },
+  { name:"Drinks", icon:Coffee },
+];
+
 
 
 
@@ -111,7 +113,7 @@ export default function HomePage() {
 
   return (
 
-    <div className="min-h-screen bg-white px-5 py-6">
+    <div className="min-h-screen bg-background px-5 py-6">
 
 
 
@@ -133,7 +135,7 @@ export default function HomePage() {
 
         <div>
 
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-textSecondary">
             Deliver to
           </p>
 
@@ -142,7 +144,7 @@ export default function HomePage() {
 
             <MapPin
               size={18}
-              className="text-orange-500"
+              className="text-primary"
             />
 
             <h2 className="font-bold">
@@ -155,7 +157,7 @@ export default function HomePage() {
 
 
 
-        <div className="h-12 w-12 rounded-full bg-orange-100 flex items-center justify-center">
+        <div className="h-12 w-12 rounded-full bg-surface flex items-center justify-center">
 
           👤
 
@@ -181,7 +183,7 @@ export default function HomePage() {
           scale:1
         }}
 
-        className="mt-8 rounded-3xl bg-orange-500 p-6 text-white"
+        className="mt-8 rounded-3xl bg-primary p-6 text-white"
 
       >
 
@@ -198,7 +200,7 @@ export default function HomePage() {
 
           onClick={()=>navigate("/restaurants")}
 
-          className="mt-5 rounded-full bg-white px-6 py-3 font-semibold text-orange-500"
+          className="mt-5 rounded-full bg-background px-6 py-3 font-semibold text-primary"
 
         >
 
@@ -217,9 +219,9 @@ export default function HomePage() {
 
       <div className="mt-6 flex items-center gap-3">
 
-        <div className="flex-1 flex items-center gap-3 rounded-2xl bg-gray-100 px-4 py-3">
+        <div className="flex-1 flex items-center gap-3 rounded-2xl bg-surface px-4 py-3">
 
-          <Search size={22} className="text-gray-500"/>
+          <Search size={22} className="text-textSecondary"/>
 
           <input
             placeholder="Search food or restaurant..."
@@ -235,7 +237,7 @@ export default function HomePage() {
           h-12
           w-12
           rounded-2xl
-          bg-orange-500
+          bg-primary
           text-white
           flex
           items-center
@@ -272,31 +274,62 @@ export default function HomePage() {
           categories.map((item,index)=>(
 
 
-            <motion.div
+            <motion.button
 
               key={index}
 
-              whileTap={{
-                scale:0.9
-              }}
+              whileTap={{scale:.95}}
 
-              className="min-w-[90px] rounded-2xl bg-orange-50 p-4 text-center"
+              className="
+              min-w-[92px]
+              rounded-3xl
+              bg-background
+              border
+              border-border
+              shadow-soft
+              p-4
+              flex
+              flex-col
+              items-center
+              justify-center
+              "
 
             >
 
-              <div className="text-3xl">
-                {item.emoji}
+              <div
+                className="
+                flex
+                h-12
+                w-12
+                items-center
+                justify-center
+                rounded-2xl
+                bg-surface
+                "
+              >
+
+                <item.icon
+                  size={24}
+                  className="text-primary"
+                  strokeWidth={2}
+                />
+
               </div>
 
-
-              <p className="text-sm font-semibold">
+              <p
+                className="
+                mt-3
+                text-sm
+                font-semibold
+                text-text
+                "
+              >
 
                 {item.name}
 
               </p>
 
-
-            </motion.div>
+            </motion.button>
 
 
           ))
@@ -333,7 +366,7 @@ export default function HomePage() {
 
             onClick={()=>navigate("/restaurants")}
 
-            className="text-orange-500 font-semibold"
+            className="text-primary font-semibold"
 
           >
 
@@ -365,12 +398,12 @@ export default function HomePage() {
 
               onClick={()=>navigate(`/restaurants/${restaurant.id}`)}
 
-              className="cursor-pointer overflow-hidden rounded-3xl border border-gray-100 shadow-lg"
+              className="cursor-pointer overflow-hidden rounded-3xl border border-border shadow-lg"
 
             >
 
 
-              <div className="h-48 bg-gradient-to-br from-orange-300 to-orange-500 flex items-center justify-center text-7xl">
+              <div className="h-48 bg-gradient-to-br from-primary to-primary flex items-center justify-center text-7xl">
 
                 🍽️
 
@@ -394,7 +427,7 @@ export default function HomePage() {
 
                   <span className="flex items-center gap-1">
 
-                    <Star size={16} className="fill-orange-400 text-orange-400"/>
+                    <Star size={16} className="fill-primary text-primary"/>
 
                     {restaurant.rating}
 

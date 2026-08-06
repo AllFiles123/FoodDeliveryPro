@@ -22,7 +22,7 @@ export default function PasswordInput({
         placeholder={placeholder}
         autoComplete={autoComplete}
         disabled={disabled}
-        className={`w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-4 pr-14 text-white placeholder:text-white/50 outline-none transition-all duration-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-500/30 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+        className={`w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-4 pr-14 text-white placeholder:text-white/50 outline-none transition-all duration-300 focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
       />
 
       <motion.button

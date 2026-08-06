@@ -15,7 +15,7 @@ function AuthHeader({
           type: "spring",
           stiffness: 180,
         }}
-        className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-4xl shadow-xl shadow-orange-500/30"
+        className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-primary via-amber-500 to-yellow-500 text-4xl shadow-xl shadow-black/20"
       >
         {emoji}
       </motion.div>

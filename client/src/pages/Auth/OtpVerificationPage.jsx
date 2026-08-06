@@ -113,7 +113,7 @@ export default function OtpVerificationPage() {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-orange-600 flex items-center justify-center px-6 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-primary flex items-center justify-center px-6 py-10">
 
 
       <motion.div
@@ -209,7 +209,7 @@ export default function OtpVerificationPage() {
 
             to="/login"
 
-            className="font-semibold text-orange-300"
+            className="font-semibold text-primary"
 
           >
 

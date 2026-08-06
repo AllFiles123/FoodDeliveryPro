@@ -4,6 +4,16 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary: #000000;
+  --color-background: #FFFFFF;
+  --color-surface: #F9FAFB;
+  --color-border: #E5E7EB;
+  --color-text: #111827;
+  --color-text-secondary: #6B7280;
+}
+
+
 *{
 margin:0;
 padding:0;
@@ -16,9 +26,11 @@ body,
 width:100%;
 min-height:100vh;
 font-family:"Poppins",sans-serif;
-background:#F8FAFC;
+background: var(--color-background);
 }
 
 body{
+color: var(--color-text);
+
 overflow-x:hidden;
 }

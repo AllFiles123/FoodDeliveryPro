@@ -21,7 +21,7 @@ export default function LogoutButton() {
         rounded-2xl
         bg-gradient-to-r
         from-red-500
-        to-orange-500
+        to-primary
         px-6
         py-3
         font-semibold

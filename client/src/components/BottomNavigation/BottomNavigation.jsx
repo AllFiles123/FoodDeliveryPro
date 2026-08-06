@@ -97,7 +97,7 @@ export default function BottomNavigation(){
           items-center
           gap-1
           rounded-full
-          bg-[#E5E7EB]
+          bg-border
           p-2
           shadow-xl
         "
@@ -143,9 +143,9 @@ export default function BottomNavigation(){
                         ${
                           isActive
                           ?
-                          "bg-[#D32F2F] text-white"
+                          "bg-primary text-white"
                           :
-                          "text-gray-700"
+                          "text-text"
                         }
                       `}
                     >
@@ -163,7 +163,7 @@ export default function BottomNavigation(){
                           ${
                             isActive
                             ?
-                            "bg-white text-[#D32F2F]"
+                            "bg-white text-primary"
                             :
                             ""
                           }
@@ -200,7 +200,7 @@ export default function BottomNavigation(){
                               items-center
                               justify-center
                               rounded-full
-                              bg-[#D32F2F]
+                              bg-primary
                               text-[10px]
                               font-bold
                               text-white
