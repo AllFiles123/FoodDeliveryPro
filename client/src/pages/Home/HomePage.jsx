@@ -204,34 +204,36 @@ export default function HomePage() {
 
 
 
-      <div className="mt-6 flex items-center gap-3 rounded-2xl bg-gray-100 px-4 py-3">
+      <div className="mt-6 flex items-center gap-3">
+
+        <div className="flex-1 flex items-center gap-3 rounded-2xl bg-gray-100 px-4 py-3">
+
+          <Search size={22} className="text-gray-500"/>
+
+          <input
+            placeholder="Search food or restaurant..."
+            className="w-full bg-transparent outline-none"
+          />
+
+        </div>
+
 
         <button
-onClick={()=>setShowFilter(true)}
-className="
-h-12
-w-12
-rounded-full
-bg-orange-100
-text-orange-500
-flex
-items-center
-justify-center
-"
->
-<SlidersHorizontal size={22}/>
-</button>
-
-
-<Search size={22}/>
-
-        <input
-
-          placeholder="Search food or restaurant..."
-
-          className="w-full bg-transparent outline-none"
-
-        />
+          onClick={()=>setShowFilter(true)}
+          className="
+          h-12
+          w-12
+          rounded-2xl
+          bg-orange-500
+          text-white
+          flex
+          items-center
+          justify-center
+          shadow-md
+          "
+        >
+          <SlidersHorizontal size={22}/>
+        </button>
 
       </div>
 
