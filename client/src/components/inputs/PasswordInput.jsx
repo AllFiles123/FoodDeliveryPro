@@ -5,6 +5,8 @@ export default function PasswordInput({
   name,
   value,
   onChange,
+  onFocus,
+  onBlur,
   placeholder = "Password",
   autoComplete = "current-password",
   disabled = false,
@@ -19,6 +21,8 @@ export default function PasswordInput({
         name={name}
         value={value}
         onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
         placeholder={placeholder}
         autoComplete={autoComplete}
         disabled={disabled}
@@ -26,14 +30,12 @@ export default function PasswordInput({
       />
 
       <motion.button
-        whileTap={{ scale: 0.85 }}
         type="button"
-        disabled={disabled}
-        onClick={() => setShowPassword((prev) => !prev)}
-        aria-label="Toggle password visibility"
-        className="absolute right-4 top-1/2 -translate-y-1/2 text-xl text-white/70 transition hover:text-white disabled:opacity-50"
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setShowPassword((v) => !v)}
+        className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white"
       >
-        {showPassword ? "🙈" : "👁️"}
+        {showPassword ? "Hide" : "Show"}
       </motion.button>
     </div>
   );
