@@ -23,10 +23,10 @@ export default function FoodCard({ food, onAdd }) {
 
       whileTap={{scale:0.98}}
 
-      className="overflow-hidden rounded-3xl border border-border bg-background shadow-lg"
+      className="overflow-hidden rounded-3xl border border-gray-200 bg-gray-50 shadow-lg"
 
     >
-      <div className="h-40 overflow-hidden bg-surface">
+      <div className="h-40 overflow-hidden bg-gray-100">
 
         {
           food.image ? (
@@ -64,7 +64,7 @@ export default function FoodCard({ food, onAdd }) {
 
           </h3>
 
-          <div className="flex items-center gap-1 rounded-full bg-surface px-2 py-1">
+          <div className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1">
 
             <Star
               size={14}
@@ -80,7 +80,7 @@ export default function FoodCard({ food, onAdd }) {
           </div>
 
         </div>
-        <p className="mt-2 line-clamp-2 text-sm text-textSecondary">
+        <p className="mt-2 line-clamp-2 text-sm text-gray-500">
 
           {food.description}
 

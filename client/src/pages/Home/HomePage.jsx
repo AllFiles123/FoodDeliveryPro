@@ -113,7 +113,7 @@ const categories = [
 
   return (
 
-    <div className="min-h-screen bg-background px-5 py-6">
+    <div className="min-h-screen bg-gray-50 px-5 py-6">
 
 
 
@@ -135,7 +135,7 @@ const categories = [
 
         <div>
 
-          <p className="text-sm text-textSecondary">
+          <p className="text-sm text-gray-500">
             Deliver to
           </p>
 
@@ -157,7 +157,7 @@ const categories = [
 
 
 
-        <div className="h-12 w-12 rounded-full bg-surface flex items-center justify-center">
+        <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
 
           👤
 
@@ -200,7 +200,7 @@ const categories = [
 
           onClick={()=>navigate("/restaurants")}
 
-          className="mt-5 rounded-full bg-background px-6 py-3 font-semibold text-primary"
+          className="mt-5 rounded-full bg-gray-50 px-6 py-3 font-semibold text-primary"
 
         >
 
@@ -219,9 +219,9 @@ const categories = [
 
       <div className="mt-6 flex items-center gap-3">
 
-        <div className="flex-1 flex items-center gap-3 rounded-2xl bg-surface px-4 py-3">
+        <div className="flex-1 flex items-center gap-3 rounded-2xl bg-gray-100 px-4 py-3">
 
-          <Search size={22} className="text-textSecondary"/>
+          <Search size={22} className="text-gray-500"/>
 
           <input
             placeholder="Search food or restaurant..."
@@ -283,9 +283,9 @@ const categories = [
               className="
               min-w-[92px]
               rounded-3xl
-              bg-background
+              bg-gray-50
               border
-              border-border
+              border-gray-200
               shadow-soft
               p-4
               flex
@@ -304,7 +304,7 @@ const categories = [
                 items-center
                 justify-center
                 rounded-2xl
-                bg-surface
+                bg-gray-100
                 "
               >
 
@@ -321,7 +321,7 @@ const categories = [
                 mt-3
                 text-sm
                 font-semibold
-                text-text
+                text-gray-900
                 "
               >
 
@@ -398,7 +398,7 @@ const categories = [
 
               onClick={()=>navigate(`/restaurants/${restaurant.id}`)}
 
-              className="cursor-pointer overflow-hidden rounded-3xl border border-border shadow-lg"
+              className="cursor-pointer overflow-hidden rounded-3xl border border-gray-200 shadow-lg"
 
             >
 

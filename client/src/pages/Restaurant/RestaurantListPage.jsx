@@ -77,7 +77,7 @@ export default function RestaurantListPage() {
 
     return (
 
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
 
         <motion.p
 
@@ -113,7 +113,7 @@ export default function RestaurantListPage() {
 
   return (
 
-    <div className="min-h-screen bg-background px-5 py-8">
+    <div className="min-h-screen bg-gray-50 px-5 py-8">
 
 
       <div className="mx-auto max-w-6xl">
@@ -141,7 +141,7 @@ export default function RestaurantListPage() {
 
 
 
-        <p className="mt-2 text-textSecondary">
+        <p className="mt-2 text-gray-500">
 
           Choose your favourite food
 
@@ -154,7 +154,7 @@ export default function RestaurantListPage() {
         {
           restaurants.length === 0 && (
 
-            <p className="mt-10 text-center text-textSecondary">
+            <p className="mt-10 text-center text-gray-500">
 
               No restaurants available
 
@@ -204,7 +204,7 @@ export default function RestaurantListPage() {
               onClick={()=>navigate(`/restaurants/${restaurant.id}`)}
 
 
-              className="cursor-pointer overflow-hidden rounded-3xl bg-background shadow-xl border border-border"
+              className="cursor-pointer overflow-hidden rounded-3xl bg-gray-50 shadow-xl border border-gray-200"
 
             >
 
@@ -231,7 +231,7 @@ export default function RestaurantListPage() {
 
 
 
-                <p className="mt-2 line-clamp-2 text-sm text-textSecondary">
+                <p className="mt-2 line-clamp-2 text-sm text-gray-500">
 
                   {restaurant.description}
 

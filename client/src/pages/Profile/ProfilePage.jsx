@@ -231,7 +231,7 @@ screen==="profile" &&
 
 <div className="
 rounded-3xl
-bg-background/70
+bg-gray-50/70
 backdrop-blur-xl
 border
 border-white
@@ -283,7 +283,7 @@ truncate
 
 
 <p className="
-text-textSecondary
+text-gray-500
 text-sm
 truncate
 max-w-[180px]
@@ -315,7 +315,7 @@ space-y-5
 
 <div className="
 rounded-3xl
-bg-background/70
+bg-gray-50/70
 backdrop-blur-xl
 shadow-lg
 p-4
@@ -379,7 +379,7 @@ gap-4
 
 <div className="
 rounded-3xl
-bg-background/70
+bg-gray-50/70
 backdrop-blur-xl
 shadow-lg
 p-4
@@ -436,7 +436,7 @@ gap-4
 
 <div className="
 rounded-3xl
-bg-background/70
+bg-gray-50/70
 backdrop-blur-xl
 shadow-lg
 p-4
@@ -502,7 +502,7 @@ Profile Details
 
 <div className="
 rounded-3xl
-bg-background/70
+bg-gray-50/70
 backdrop-blur-xl
 shadow-lg
 p-5
@@ -584,7 +584,7 @@ rounded-2xl
 border
 p-4
 mb-3
-bg-background
+bg-gray-50
 "
 
 />
@@ -604,7 +604,7 @@ rounded-2xl
 border
 p-4
 mb-3
-bg-background
+bg-gray-50
 "
 
 />
@@ -624,7 +624,7 @@ rounded-2xl
 border
 p-4
 mb-3
-bg-background
+bg-gray-50
 "
 
 />
@@ -647,7 +647,7 @@ rounded-2xl
 border
 p-4
 mb-3
-bg-background
+bg-gray-50
 h-28
 "
 
@@ -671,7 +671,7 @@ rounded-2xl
 border
 p-4
 mb-4
-bg-background
+bg-gray-50
 h-28
 "
 
@@ -738,7 +738,7 @@ Payment Methods
 
 <div className="
 rounded-3xl
-bg-background/70
+bg-gray-50/70
 backdrop-blur-xl
 shadow-lg
 p-5
@@ -778,7 +778,7 @@ gap-4
 h-12
 w-12
 rounded-2xl
-bg-surface
+bg-gray-100
 flex
 items-center
 justify-center
@@ -802,7 +802,7 @@ font-semibold
 
 <p className="
 text-sm
-text-textSecondary
+text-gray-500
 ">
 
 {item.subtitle}

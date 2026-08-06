@@ -84,7 +84,7 @@ export default function FilterBottomSheet({
 
             <button
               onClick={onClose}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-surface"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100"
             >
               <X size={22}/>
             </button>
@@ -99,7 +99,7 @@ export default function FilterBottomSheet({
                 setRight(100);
                 setNearMe(false);
               }}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-surface"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100"
             >
               <RotateCcw size={20}/>
             </button>
@@ -110,7 +110,7 @@ export default function FilterBottomSheet({
 
           <section className="mt-10">
 
-            <h3 className="mb-6 text-[20px] font-bold text-text">
+            <h3 className="mb-6 text-[20px] font-bold text-gray-900">
               Categories
             </h3>
 
@@ -137,7 +137,7 @@ export default function FilterBottomSheet({
                       h-[78px]
                       w-[78px]
                       rounded-[22px]
-                      bg-background
+                      bg-gray-50
                       flex
                       items-center
                       justify-center
@@ -150,7 +150,7 @@ export default function FilterBottomSheet({
                       <Icon
                         size={30}
                         strokeWidth={1.8}
-                        className="text-text"
+                        className="text-gray-900"
                       />
 
                     </div>
@@ -160,7 +160,7 @@ export default function FilterBottomSheet({
                       mt-3
                       text-[14px]
                       font-semibold
-                      text-text
+                      text-gray-900
                       "
                     >
 
@@ -306,9 +306,9 @@ export default function FilterBottomSheet({
 
             <div className="mt-8 grid grid-cols-2 gap-4">
 
-              <div className="flex items-center rounded-xl bg-surface px-4 h-16">
+              <div className="flex items-center rounded-xl bg-gray-100 px-4 h-16">
 
-                <span className="mr-3 font-bold text-textSecondary">$</span>
+                <span className="mr-3 font-bold text-gray-500">$</span>
 
                 <input
                   readOnly
@@ -318,9 +318,9 @@ export default function FilterBottomSheet({
 
               </div>
 
-              <div className="flex items-center rounded-xl bg-surface px-4 h-16">
+              <div className="flex items-center rounded-xl bg-gray-100 px-4 h-16">
 
-                <span className="mr-3 font-bold text-textSecondary">$</span>
+                <span className="mr-3 font-bold text-gray-500">$</span>
 
                 <input
                   readOnly
@@ -347,7 +347,7 @@ export default function FilterBottomSheet({
 
                 <button
                   key={item}
-                  className="flex h-12 items-center gap-2 rounded-full bg-surface px-5 transition active:scale-95"
+                  className="flex h-12 items-center gap-2 rounded-full bg-gray-100 px-5 transition active:scale-95"
                 >
 
                   <Star
@@ -392,7 +392,7 @@ export default function FilterBottomSheet({
                   className="
                   whitespace-nowrap
                   rounded-full
-                  bg-surface
+                  bg-gray-100
                   px-5
                   py-3
                   font-medium
@@ -426,7 +426,7 @@ export default function FilterBottomSheet({
 
                 </h3>
 
-                <p className="mt-1 text-sm text-textSecondary">
+                <p className="mt-1 text-sm text-gray-500">
 
                   Show nearby restaurants
 

@@ -26,13 +26,13 @@ export default function SearchPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background px-5 py-6 pb-24">
+    <div className="min-h-screen bg-gray-50 px-5 py-6 pb-24">
 
       <div className="flex items-center gap-3">
 
         <Link
           to="/home"
-          className="rounded-full bg-surface p-2"
+          className="rounded-full bg-gray-100 p-2"
         >
           <ArrowLeft
             size={20}
@@ -40,7 +40,7 @@ export default function SearchPage() {
           />
         </Link>
 
-        <div className="flex flex-1 items-center rounded-2xl border border-border bg-background px-4 py-3">
+        <div className="flex flex-1 items-center rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3">
 
           <Search
             size={20}
@@ -66,7 +66,7 @@ export default function SearchPage() {
         className="mt-8"
       >
 
-        <h2 className="text-xl font-bold text-text">
+        <h2 className="text-xl font-bold text-gray-900">
           Recent Searches
         </h2>
 
@@ -76,7 +76,7 @@ export default function SearchPage() {
 
             <div
               key={item}
-              className="flex items-center gap-3 rounded-2xl bg-background p-4"
+              className="flex items-center gap-3 rounded-2xl bg-gray-50 p-4"
             >
 
               <Clock
@@ -84,7 +84,7 @@ export default function SearchPage() {
                 className="text-primary"
               />
 
-              <span className="font-medium text-text">
+              <span className="font-medium text-gray-900">
                 {item}
               </span>
 
@@ -93,7 +93,7 @@ export default function SearchPage() {
           ))}
 
         </div>
-        <h2 className="mt-10 text-xl font-bold text-text">
+        <h2 className="mt-10 text-xl font-bold text-gray-900">
           Popular Searches
         </h2>
 
@@ -103,7 +103,7 @@ export default function SearchPage() {
 
             <button
               key={item}
-              className="rounded-full border border-border bg-background px-5 py-2 font-medium text-primary transition hover:bg-primary hover:text-white"
+              className="rounded-full border border-gray-200 bg-gray-50 px-5 py-2 font-medium text-primary transition hover:bg-primary hover:text-white"
             >
               {item}
             </button>

@@ -10,24 +10,24 @@ export default function RestaurantHeader({ restaurant }) {
       initial={{ opacity: 0, y: 25 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45 }}
-      className="overflow-hidden rounded-[30px] bg-background shadow-xl border border-border"
+      className="overflow-hidden rounded-[30px] bg-gray-50 shadow-xl border border-gray-200"
     >
 
       <div className="relative h-56 w-full bg-gradient-to-r from-primary to-primary">
 
         <div className="absolute right-4 top-4 flex gap-3">
 
-          <button className="flex h-11 w-11 items-center justify-center rounded-full bg-background shadow-lg">
+          <button className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-50 shadow-lg">
             <Heart size={20} className="text-primary" />
           </button>
 
-          <button className="flex h-11 w-11 items-center justify-center rounded-full bg-background shadow-lg">
+          <button className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-50 shadow-lg">
             <Share2 size={20} className="text-primary" />
           </button>
 
         </div>
 
-        <div className="absolute -bottom-12 left-6 flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-background text-5xl shadow-xl">
+        <div className="absolute -bottom-12 left-6 flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-gray-50 text-5xl shadow-xl">
           🍽️
         </div>
 
@@ -36,19 +36,19 @@ export default function RestaurantHeader({ restaurant }) {
 
       <div className="px-6 pb-6 pt-16">
 
-        <h1 className="text-3xl font-bold text-text">
+        <h1 className="text-3xl font-bold text-gray-900">
           {restaurant.name}
         </h1>
 
 
-        <p className="mt-3 text-textSecondary">
+        <p className="mt-3 text-gray-500">
           {restaurant.description}
         </p>
 
 
         <div className="mt-6 flex flex-wrap gap-3">
 
-          <div className="flex items-center gap-2 rounded-full bg-surface px-4 py-2">
+          <div className="flex items-center gap-2 rounded-full bg-gray-100 px-4 py-2">
             <Star size={18} className="fill-primary text-primary" />
             <span className="font-semibold text-primary">
               {restaurant.rating}
@@ -56,17 +56,17 @@ export default function RestaurantHeader({ restaurant }) {
           </div>
 
 
-          <div className="flex items-center gap-2 rounded-full bg-background px-4 py-2">
+          <div className="flex items-center gap-2 rounded-full bg-gray-50 px-4 py-2">
             <Clock size={18} className="text-primary" />
-            <span className="text-text">
+            <span className="text-gray-900">
               {restaurant.deliveryTime}
             </span>
           </div>
 
 
-          <div className="flex items-center gap-2 rounded-full bg-background px-4 py-2">
+          <div className="flex items-center gap-2 rounded-full bg-gray-50 px-4 py-2">
             <MapPin size={18} className="text-primary" />
-            <span className="text-text">
+            <span className="text-gray-900">
               {restaurant.location}
             </span>
           </div>

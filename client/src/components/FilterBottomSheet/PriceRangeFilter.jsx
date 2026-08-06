@@ -103,7 +103,7 @@ export default function PriceRangeFilter({ onApply }) {
 
         <div className="
         flex-1
-        bg-surface
+        bg-gray-100
         rounded-xl
         px-4
         py-3
@@ -127,7 +127,7 @@ export default function PriceRangeFilter({ onApply }) {
 
         <div className="
         flex-1
-        bg-surface
+        bg-gray-100
         rounded-xl
         px-4
         py-3

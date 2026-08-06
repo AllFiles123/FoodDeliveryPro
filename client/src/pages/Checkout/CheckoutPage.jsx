@@ -359,7 +359,7 @@ export default function CheckoutPage() {
       />
     )}
 
-    <div className="min-h-screen bg-background px-5 py-8 pb-32">
+    <div className="min-h-screen bg-gray-50 px-5 py-8 pb-32">
 
 
       <motion.div
@@ -384,14 +384,14 @@ export default function CheckoutPage() {
         </h1>
 
 
-        <p className="mt-2 text-textSecondary">
+        <p className="mt-2 text-gray-500">
           Complete your order
         </p>
 
 
 
 
-        <div className="mt-6 rounded-3xl bg-background p-5 shadow-lg border border-border">
+        <div className="mt-6 rounded-3xl bg-gray-50 p-5 shadow-lg border border-gray-200">
 
 
           <div className="flex items-center gap-3">
@@ -446,7 +446,7 @@ export default function CheckoutPage() {
 
 
         </div>
-        <div className="mt-5 rounded-3xl bg-background p-5 shadow-lg border border-border">
+        <div className="mt-5 rounded-3xl bg-gray-50 p-5 shadow-lg border border-gray-200">
 
 
           <div className="flex items-center gap-3">
@@ -501,7 +501,7 @@ export default function CheckoutPage() {
 
                     ? "bg-primary text-white"
 
-                    : "bg-background text-slate-700"
+                    : "bg-gray-50 text-slate-700"
 
                   }`}
 
@@ -577,7 +577,7 @@ export default function CheckoutPage() {
 
                 <ChevronDown
 
-                  className="absolute right-3 top-3 text-textSecondary"
+                  className="absolute right-3 top-3 text-gray-500"
 
                 />
 
@@ -761,7 +761,7 @@ export default function CheckoutPage() {
 
 
         </div>
-        <div className="mt-5 rounded-3xl bg-background p-5 shadow-lg border border-border">
+        <div className="mt-5 rounded-3xl bg-gray-50 p-5 shadow-lg border border-gray-200">
 
 
           <div className="flex items-center gap-3">
@@ -803,9 +803,9 @@ export default function CheckoutPage() {
                     
                     paymentMethod===method
 
-                    ? "border-primary bg-background text-primary"
+                    ? "border-primary bg-gray-50 text-primary"
 
-                    : "bg-background"
+                    : "bg-gray-50"
 
                   }`}
 
@@ -835,7 +835,7 @@ export default function CheckoutPage() {
 
 
 
-        <div className="mt-5 rounded-3xl bg-background p-5 shadow-lg border border-border">
+        <div className="mt-5 rounded-3xl bg-gray-50 p-5 shadow-lg border border-gray-200">
 
 
           <h2 className="font-bold text-lg">
@@ -869,7 +869,7 @@ export default function CheckoutPage() {
                     </p>
 
 
-                    <p className="text-sm text-textSecondary">
+                    <p className="text-sm text-gray-500">
 
                       Qty: {item.qty}
 
@@ -880,7 +880,7 @@ export default function CheckoutPage() {
 
 
 
-                  <p className="font-bold text-primary">
+                  <p className="font-bold text-text">
 
                     ৳ {item.price * item.qty}
 
@@ -979,7 +979,7 @@ export default function CheckoutPage() {
               </span>
 
 
-              <span className="text-primary">
+              <span className="text-text">
 
                 ৳ {grandTotal}
 

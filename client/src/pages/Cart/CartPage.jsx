@@ -29,7 +29,7 @@ export default function CartPage() {
 
     return (
 
-      <div className="min-h-screen bg-background flex items-center justify-center px-5">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-5">
 
 
         <motion.div
@@ -88,7 +88,7 @@ export default function CartPage() {
 
   return (
 
-    <div className="min-h-screen bg-background px-5 py-8">
+    <div className="min-h-screen bg-gray-50 px-5 py-8">
 
 
       <div className="mx-auto max-w-3xl">
@@ -101,7 +101,7 @@ export default function CartPage() {
         </h1>
 
 
-        <p className="mt-2 text-textSecondary">
+        <p className="mt-2 text-gray-500">
 
           {totalItems} items in your cart
 
@@ -145,7 +145,7 @@ export default function CartPage() {
                 }}
 
 
-                className="rounded-3xl bg-background p-5 shadow-lg border border-border"
+                className="rounded-3xl bg-gray-50 p-5 shadow-lg border border-gray-200"
 
               >
 
@@ -163,7 +163,7 @@ export default function CartPage() {
                     </h2>
 
 
-                    <p className="mt-1 text-primary font-bold">
+                    <p className="mt-1 text-text font-bold">
 
                       ৳ {item.price}
 
@@ -203,7 +203,7 @@ export default function CartPage() {
 
                       onClick={()=>decreaseQty(item.id)}
 
-                      className="flex h-10 w-10 items-center justify-center rounded-full bg-surface text-primary"
+                      className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-primary"
 
                     >
 
@@ -268,7 +268,7 @@ export default function CartPage() {
 
 
 
-        <div className="mt-8 rounded-3xl bg-background p-6 shadow-lg border border-border">
+        <div className="mt-8 rounded-3xl bg-gray-50 p-6 shadow-lg border border-gray-200">
 
 
           <div className="flex justify-between text-lg">
@@ -278,7 +278,7 @@ export default function CartPage() {
             </span>
 
 
-            <span className="font-bold text-primary">
+            <span className="font-bold text-text">
 
               ৳ {totalPrice}
 

@@ -50,7 +50,7 @@ export default function OrderSuccessAnimation({ onClose }) {
           Our restaurant has already started preparing it.
         </p>
 
-        <div className="mt-7 rounded-2xl bg-background p-5 space-y-4">
+        <div className="mt-7 rounded-2xl bg-gray-50 p-5 space-y-4">
           <div className="flex items-center gap-3">
             <PackageCheck
               size={22}

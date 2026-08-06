@@ -91,7 +91,7 @@ export default function BottomNavigation(){
                           ?
                           "bg-primary text-white"
                           :
-                          "text-text"
+                          "text-gray-900"
                         }
                       `}
                     >
