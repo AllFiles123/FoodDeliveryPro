@@ -346,9 +346,11 @@ Profile
 
 <div className="
 mt-8
-rounded-3xl
+rounded-[32px]
 bg-white
-p-6
+border
+border-gray-100
+p-7
 shadow-lg
 ">
 
@@ -356,7 +358,7 @@ shadow-lg
 <div className="
 flex
 items-center
-gap-5
+gap-6
 ">
 
 
@@ -368,13 +370,13 @@ profileImage ||
 }
 
 className="
-h-24
-w-24
+h-28
+w-28
 rounded-full
 object-cover
-border-4
+border-[5px]
 border-white
-shadow
+shadow-lg
 "
 
 />
@@ -383,8 +385,10 @@ shadow
 <div>
 
 <h2 className="
-text-xl
+text-2xl
 font-bold
+tracking-tight
+text-gray-900
 ">
 
 {formData.fullName}
@@ -394,6 +398,7 @@ font-bold
 
 <p className="
 text-gray-500
+mt-1
 ">
 
 {formData.email}
@@ -422,7 +427,7 @@ w-full
 items-center
 justify-between
 rounded-2xl
-bg-gray-100
+bg-[#F8F8F8]
 p-4
 font-semibold
 "
@@ -432,7 +437,7 @@ font-semibold
 <div className="
 flex
 items-center
-gap-3
+gap-4
 ">
 
 <User size={20}/>
@@ -442,7 +447,10 @@ Profile Details
 </div>
 
 
-<ChevronRight/>
+<ChevronRight
+size={20}
+className="text-gray-400"
+/>
 
 </button>
 
@@ -463,7 +471,7 @@ w-full
 items-center
 justify-between
 rounded-2xl
-bg-gray-100
+bg-[#F8F8F8]
 p-4
 font-semibold
 "
@@ -473,7 +481,7 @@ font-semibold
 <div className="
 flex
 items-center
-gap-3
+gap-4
 ">
 
 <CreditCard size={20}/>
@@ -483,17 +491,17 @@ Payment Methods
 </div>
 
 
-<ChevronRight/>
+<ChevronRight
+size={20}
+className="text-gray-400"
+/>
 
 </button>
 
 
 <div className="
 mt-5
-rounded-3xl
-bg-white
-shadow-xl
-overflow-hidden
+space-y-3
 ">
 
 {
@@ -515,10 +523,15 @@ items-center
 justify-between
 px-5
 py-4
-border-b
-last:border-b-0
-hover:bg-gray-50
-transition
+mb-3
+rounded-2xl
+bg-white
+border
+border-gray-100
+shadow-sm
+hover:shadow-md
+transition-all
+duration-200
 "
 
 >
@@ -533,7 +546,7 @@ gap-4
 h-10
 w-10
 rounded-full
-bg-gray-100
+bg-[#F8F8F8]
 flex
 items-center
 justify-center
@@ -548,7 +561,7 @@ item.danger
 ?
 "text-red-500"
 :
-"text-gray-700"
+"text-orange-500"
 }
 
 />
@@ -610,7 +623,7 @@ screen==="details" && (
 <div className="
 flex
 items-center
-gap-3
+gap-4
 mb-6
 ">
 
@@ -642,10 +655,12 @@ Personal Information
 
 
 <div className="
-rounded-3xl
+rounded-[28px]
+border
+border-gray-100
 bg-white
 p-6
-shadow-lg
+shadow-md
 ">
 
 
@@ -902,7 +917,7 @@ screen==="payment" && (
 <div className="
 flex
 items-center
-gap-3
+gap-4
 mb-6
 ">
 
@@ -948,6 +963,7 @@ mb-4
 text-sm
 font-bold
 text-gray-500
+mt-1
 ">
 
 Add Payment Method
@@ -998,7 +1014,7 @@ w-10
 items-center
 justify-center
 rounded-full
-bg-gray-100
+bg-[#F8F8F8]
 ">
 
 
@@ -1025,7 +1041,7 @@ font-medium
 <div className="
 flex
 items-center
-gap-3
+gap-4
 ">
 
 
