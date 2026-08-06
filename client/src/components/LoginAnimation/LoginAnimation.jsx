@@ -9,7 +9,7 @@ export default function LoginAnimation() {
   } = useLoginAnimation();
 
   return (
-    <div className="flex items-center justify-center py-8">
+    <div className="mb-6 flex items-center justify-center overflow-hidden">
       <Ghost
         coverEyes={coverEyes}
         sad={sad}

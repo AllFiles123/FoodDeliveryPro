@@ -10,6 +10,7 @@ import authService from "../../services/authService";
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
 import LoginAnimation from "../../components/LoginAnimation/LoginAnimation";
+import { useLoginAnimation } from "../../context/LoginAnimationContext";
 
 
 export default function LoginPage() {
@@ -149,6 +150,7 @@ export default function LoginPage() {
 
       setCoverEyes(false);
       setSad(false);
+      setSuccess(true);
 
       showToast(
         "Login Successful",
