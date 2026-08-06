@@ -27,6 +27,17 @@ export default function HomePage() {
 
   const [showFilter,setShowFilter] = useState(false);
 
+  useEffect(()=>{
+    document.body.style.overflow = showFilter ? "hidden" : "auto";
+
+    if(showFilter){
+      document.body.classList.add("filter-open");
+    }else{
+      document.body.classList.remove("filter-open");
+    }
+
+  },[showFilter]);
+
   const [filters,setFilters] = useState({
     category:"",
     rating:0,

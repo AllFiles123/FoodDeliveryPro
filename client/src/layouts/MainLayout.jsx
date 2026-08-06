@@ -28,6 +28,7 @@ export default function MainLayout(){
 
       {
         !hideBottomNavigation &&
+        !document.body.classList.contains("filter-open") &&
         <BottomNavigation/>
       }
 
