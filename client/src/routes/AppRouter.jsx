@@ -19,7 +19,7 @@ import ProfilePage from "../pages/Profile/ProfilePage";
 import RestaurantListPage from "../pages/Restaurant/RestaurantListPage";
 import RestaurantDetailsPage from "../pages/Restaurant/RestaurantDetailsPage";
 // নতুন পেজটি ইম্পোর্ট করা হলো
-import CategoryFoodsPage from "../pages/Restaurant/CategoryFoodsPage"; 
+import CategoryFoodsPage from "../pages/CategoryFoods/CategoryFoodsPage"; 
 
 import CartPage from "../pages/Cart/CartPage";
 import CheckoutPage from "../pages/Checkout/CheckoutPage";

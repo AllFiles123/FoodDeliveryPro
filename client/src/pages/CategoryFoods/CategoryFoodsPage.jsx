@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import restaurantService from "../../services/restaurantService";
-import FoodCard from "./components/FoodCard"; 
+import FoodCard from "../Restaurant/components/FoodCard"; 
 
 export default function CategoryFoodsPage() {
   const { id, categoryName } = useParams();
