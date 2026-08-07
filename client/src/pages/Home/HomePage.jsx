@@ -6,9 +6,14 @@ import {
   Star,
   Heart,
   Plus,
-  SlidersHorizontal,
   Clock3,
-  ChevronRight
+  SlidersHorizontal,
+  ChevronRight,
+  Pizza,
+  Beef,
+  Coffee,
+  IceCream2,
+  Salad
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -19,11 +24,11 @@ export default function HomePage() {
 
 const navigate = useNavigate();
 
-const [activeCategory,setActiveCategory]=useState(0);
-
 const [restaurants,setRestaurants]=useState([]);
 
 const [showFilter,setShowFilter]=useState(false);
+
+const [activeCategory,setActiveCategory]=useState(0);
 
 const [filters,setFilters]=useState({
 category:"",
@@ -36,39 +41,28 @@ deliveryTime:""
 const categories=[
 
 {
-id:1,
-name:"Fruits",
-image:"https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=300"
+name:"Pizza",
+icon:Pizza
 },
 
 {
-id:2,
-name:"Drinks",
-image:"https://images.unsplash.com/photo-1544145945-f90425340c7e?w=300"
+name:"Burger",
+icon:Beef
 },
 
 {
-id:3,
-name:"Snack",
-image:"https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=300"
-},
-
-{
-id:4,
-name:"Food",
-image:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=300"
-},
-
-{
-id:5,
 name:"Coffee",
-image:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300"
+icon:Coffee
 },
 
 {
-id:6,
 name:"Dessert",
-image:"https://images.unsplash.com/photo-1551024601-bec78aea704b?w=300"
+icon:IceCream2
+},
+
+{
+name:"Healthy",
+icon:Salad
 }
 
 ];
@@ -77,55 +71,56 @@ const featuredItems=[
 
 {
 id:1,
-title:"Premium Chicken Burger",
+title:"Chicken Burger Deluxe",
 rating:"4.8",
 time:"20 min",
-image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=900",
+image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200",
 tags:["CHICKEN","BURGER"]
 },
 
 {
 id:2,
 title:"Italian Pizza",
-rating:"4.7",
+rating:"4.9",
 time:"25 min",
-image:"https://images.unsplash.com/photo-1513104890138-7c749659a591?w=900",
+image:"https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1200",
 tags:["PIZZA","CHEESE"]
 },
 
 {
 id:3,
-title:"Cold Coffee",
-rating:"4.9",
+title:"Premium Coffee",
+rating:"4.7",
 time:"15 min",
-image:"https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900",
+image:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200",
 tags:["COFFEE"]
 }
 
 ];
+const popularDishes = [
 
-const popularDishes=[
 {
 id:1,
-name:"Chicken Steak",
+name:"Grilled Chicken",
 calorie:"170 Kal",
-price:"$14",
-image:"https://images.unsplash.com/photo-1544025162-d76694265947?w=700"
+price:"$12",
+image:"https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=800"
 },
 
 {
 id:2,
 name:"Beef Burger",
-calorie:"210 Kal",
-price:"$12",
-image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=700"
+calorie:"240 Kal",
+price:"$10",
+image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800"
 },
+
 {
 id:3,
 name:"Italian Pasta",
 calorie:"180 Kal",
-price:"$15",
-image:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=700"
+price:"$14",
+image:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=800"
 },
 
 {
@@ -133,23 +128,7 @@ id:4,
 name:"Healthy Salad",
 calorie:"120 Kal",
 price:"$9",
-image:"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=700"
-},
-
-{
-id:5,
-name:"Grilled Chicken",
-calorie:"190 Kal",
-price:"$16",
-image:"https://images.unsplash.com/photo-1600891964092-4316c288032e?w=700"
-},
-
-{
-id:6,
-name:"French Fries",
-calorie:"150 Kal",
-price:"$7",
-image:"https://images.unsplash.com/photo-1576107232684-1279f390859f?w=700"
+image:"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800"
 }
 
 ];
@@ -179,9 +158,9 @@ image:"https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300"
 
 {
 id:4,
-dish:"Cold Coffee",
+dish:"Premium Coffee",
 restaurant:"Coffee Time",
-image:"https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300"
+image:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300"
 }
 
 ];
@@ -209,12 +188,12 @@ const response=
 await restaurantService.getRestaurants();
 
 setRestaurants(
-response.restaurants?.slice(0,6)||[]
+response.restaurants || []
 );
 
-}catch(err){
+}catch(error){
 
-console.error(err);
+console.error(error);
 
 }
 
@@ -223,9 +202,9 @@ console.error(err);
 loadRestaurants();
 
 },[]);
-return(
 
-<div className="min-h-screen bg-[#F6F7FB]">
+return(
+<div className="min-h-screen bg-[#F7F8FC]">
 
 <div className="mx-auto max-w-7xl px-5 py-6">
 
@@ -264,19 +243,17 @@ Your Location
 className="
 h-12
 w-12
+overflow-hidden
 rounded-full
 bg-white
 shadow-md
-flex
-items-center
-justify-center
 "
 >
 
 <img
 src="https://i.pravatar.cc/100"
 alt=""
-className="h-full w-full rounded-full object-cover"
+className="h-full w-full object-cover"
 />
 
 </div>
@@ -305,7 +282,6 @@ className="text-gray-400"
 />
 
 <input
-type="text"
 placeholder="Search food or restaurant..."
 className="
 w-full
@@ -342,81 +318,56 @@ shadow-lg
 
 <section className="mt-9">
 
-<div className="flex items-center justify-between">
+<div className="flex gap-6 overflow-x-auto pb-2">
 
-<h2 className="text-xl font-bold">
-
-Categories
-
-</h2>
-
-</div>
-
-<div
-className="
-mt-5
-flex
-gap-6
-overflow-x-auto
-pb-3
-"
->
 
 {categories.map((item,index)=>(
 
 <motion.button
-
-key={item.id}
-
+key={item.name}
 whileTap={{scale:.95}}
-
 onClick={()=>setActiveCategory(index)}
-
 className="
-min-w-[78px]
-text-center
+min-w-[90px]
+flex
+flex-col
+items-center
+justify-center
 "
 
 >
 
 <div
 className={`
-mx-auto
-h-16
-w-16
-overflow-hidden
+relative
+flex
+h-20
+w-20
+items-center
+justify-center
 rounded-full
-border-2
 bg-white
-shadow-md
-${activeCategory===index
+shadow-xl
+transition-all
+duration-300
+${
+activeCategory===index
 ?
-"border-primary"
+"ring-2 ring-primary scale-105"
 :
-"border-transparent"
+""
 }
 `}
 >
 
-<img
-src={item.image}
-alt={item.name}
-className="
-h-full
-w-full
-object-cover
-"
+<item.icon
+size={34}
+className="text-primary"
 />
 
 </div>
 
-<p
-className="
-mt-3
-text-sm
-font-semibold
-"
->
+<p className="mt-3 text-sm font-semibold text-gray-900">
 
 {item.name}
 
@@ -424,15 +375,16 @@ font-semibold
 
 <div
 className={`
-mx-auto
 mt-2
 h-1
 rounded-full
+bg-primary
 transition-all
 duration-300
-${activeCategory===index
+${
+activeCategory===index
 ?
-"w-8 bg-primary"
+"w-8"
 :
 "w-0"
 }
@@ -456,7 +408,7 @@ Featured Items
 
 </h2>
 
-<button className="flex items-center gap-1 text-sm font-semibold text-primary">
+<button className="flex items-center gap-1 text-primary font-semibold">
 
 See All
 
@@ -472,6 +424,8 @@ flex
 gap-5
 overflow-x-auto
 pb-3
+snap-x
+snap-mandatory
 "
 >
 
@@ -481,14 +435,15 @@ pb-3
 
 key={item.id}
 
-whileHover={{y:-4}}
+whileHover={{y:-5}}
 
 whileTap={{scale:.98}}
 
 className="
-min-w-[330px]
+min-w-[340px]
+snap-start
 overflow-hidden
-rounded-[24px]
+rounded-[25px]
 bg-white
 shadow-lg
 "
@@ -502,7 +457,7 @@ src={item.image}
 alt={item.title}
 
 className="
-h-48
+h-52
 w-full
 object-cover
 "
@@ -511,9 +466,9 @@ object-cover
 
 <div className="p-5">
 
-<div className="flex items-center justify-between">
+<div className="flex items-start justify-between">
 
-<h3 className="text-lg font-bold">
+<h3 className="text-lg font-bold leading-6">
 
 {item.title}
 
@@ -536,11 +491,11 @@ className="fill-yellow-400 text-yellow-400"
 
 </div>
 
-<div className="mt-3 flex items-center gap-3 text-sm text-gray-500">
+<div className="mt-3 flex items-center gap-2 text-gray-500">
 
-<Clock3 size={16}/>
+<Clock3 size={15}/>
 
-<span>
+<span className="text-sm">
 
 {item.time}
 
@@ -548,7 +503,7 @@ className="fill-yellow-400 text-yellow-400"
 
 </div>
 
-<div className="mt-4 flex gap-2">
+<div className="mt-4 flex flex-wrap gap-2">
 
 {item.tags.map((tag)=>(
 
@@ -561,9 +516,9 @@ rounded-full
 bg-gray-100
 px-3
 py-1
-text-xs
-font-semibold
-tracking-wide
+text-[11px]
+font-bold
+tracking-wider
 "
 
 >
@@ -595,7 +550,15 @@ Popular Dishes
 
 </h2>
 
-<button className="flex items-center gap-1 text-sm font-semibold text-primary">
+<button
+className="
+flex
+items-center
+gap-1
+font-semibold
+text-primary
+"
+>
 
 See All
 
@@ -613,13 +576,13 @@ See All
 
 key={item.id}
 
-whileHover={{y:-4}}
+whileHover={{y:-5}}
 
 whileTap={{scale:.98}}
 
 className="
 overflow-hidden
-rounded-[24px]
+rounded-[25px]
 bg-white
 shadow-lg
 "
@@ -635,7 +598,7 @@ src={item.image}
 alt={item.name}
 
 className="
-h-44
+h-48
 w-full
 object-cover
 "
@@ -646,8 +609,8 @@ object-cover
 
 className="
 absolute
-right-3
-top-3
+right-4
+top-4
 flex
 h-10
 w-10
@@ -660,7 +623,10 @@ shadow-md
 
 >
 
-<Heart size={18}/>
+<Heart
+size={18}
+className="text-red-500"
+/>
 
 </button>
 
@@ -668,7 +634,7 @@ shadow-md
 
 <div className="p-4">
 
-<h3 className="text-base font-bold">
+<h3 className="font-bold">
 
 {item.name}
 
@@ -680,7 +646,7 @@ shadow-md
 
 </p>
 
-<div className="mt-4 flex items-center justify-between">
+<div className="mt-5 flex items-center justify-between">
 
 <span className="text-lg font-bold text-primary">
 
@@ -692,8 +658,8 @@ shadow-md
 
 className="
 flex
-h-10
-w-10
+h-11
+w-11
 items-center
 justify-center
 rounded-xl
@@ -728,7 +694,15 @@ People Looking For
 
 </h2>
 
-<button className="flex items-center gap-1 text-sm font-semibold text-primary">
+<button
+className="
+flex
+items-center
+gap-1
+font-semibold
+text-primary
+"
+>
 
 See All
 
@@ -747,6 +721,8 @@ See All
 key={item.id}
 
 whileHover={{x:4}}
+
+whileTap={{scale:.98}}
 
 className="
 flex
@@ -822,6 +798,7 @@ shadow
 </div>
 
 </section>
+
 <section className="mt-10">
 
 <div className="mb-5 flex items-center justify-between">
@@ -834,7 +811,7 @@ Nearby Restaurants
 
 <button
 onClick={()=>navigate("/restaurants")}
-className="flex items-center gap-1 text-sm font-semibold text-primary"
+className="flex items-center gap-1 font-semibold text-primary"
 >
 
 See All
@@ -853,7 +830,7 @@ See All
 
 key={restaurant.id}
 
-whileHover={{y:-4}}
+whileHover={{y:-5}}
 
 whileTap={{scale:.98}}
 
@@ -862,13 +839,12 @@ onClick={()=>navigate(`/restaurants/${restaurant.id}`)}
 className="
 cursor-pointer
 overflow-hidden
-rounded-[26px]
+rounded-[25px]
 bg-white
 shadow-lg
 "
 
 >
-
 <div className="relative">
 
 <img
@@ -893,28 +869,28 @@ className="
 absolute
 left-4
 top-4
+flex
+items-center
+gap-1
 rounded-full
 bg-white/90
 px-3
 py-2
 backdrop-blur
+shadow
 "
 >
-
-<div className="flex items-center gap-1">
 
 <Star
 size={15}
 className="fill-yellow-400 text-yellow-400"
 />
 
-<span className="text-sm font-semibold">
+<span className="font-semibold">
 
 {restaurant.rating}
 
 </span>
-
-</div>
 
 </div>
 
@@ -965,17 +941,11 @@ className="fill-yellow-400 text-yellow-400"
 </section>
 
 <FilterBottomSheet
-
 open={showFilter}
-
 onClose={()=>setShowFilter(false)}
-
 filters={filters}
-
 setFilters={setFilters}
-
 onApply={()=>setShowFilter(false)}
-
 />
 
 </div>
