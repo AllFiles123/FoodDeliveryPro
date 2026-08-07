@@ -1,16 +1,13 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   MapPin,
   Star,
-  Heart,
   Plus,
   Clock3,
   SlidersHorizontal,
   Bell,
-  ShoppingBag,
-  RotateCcw
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -21,7 +18,14 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [restaurants, setRestaurants] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
-  const [activeCategory, setActiveCategory] = useState(2); // 'All' index default active
+  const [activeCategory, setActiveCategory] = useState(2); 
+
+  // নতুন ব্যানারের ডেটা
+  const banners = [
+    { id: 1, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1000&q=80", title: "Fresh Deals", discount: "50% OFF" },
+    { id: 2, image: "https://images.unsplash.com/photo-1543353071-873f17a7a088?w=1000&q=80", title: "Healthy Salads", discount: "Buy 1 Get 1" },
+    { id: 3, image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1000&q=80", title: "Grilled Items", discount: "Free Delivery" },
+  ];
 
   const [filters, setFilters] = useState({
     category: "",
@@ -31,7 +35,6 @@ export default function HomePage() {
     deliveryTime: ""
   });
 
-  // Categories from Image 3
   const categories = [
     { name: "Fruits", icon: "🍎" },
     { name: "Drinks", icon: "🍹" },
@@ -104,49 +107,73 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#FDFDFD] pb-24 overflow-x-hidden">
-      <div className="mx-auto max-w-7xl px-5 py-6">
+      
+      {/* --- Slidable Banner Section (Full Top) --- */}
+      <div className="relative h-[420px] w-full">
+        {/* Banner Slider */}
+        <div className="absolute inset-0 flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
+          {banners.map((banner) => (
+            <div key={banner.id} className="min-w-full h-full relative snap-start">
+              <img src={banner.image} className="w-full h-full object-cover" alt={banner.title} />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-white"></div>
+            </div>
+          ))}
+        </div>
+
+        {/* Content Over Banner */}
+        <div className="absolute inset-0 px-5 pt-6 flex flex-col justify-between">
+          
+          {/* Header (Location & Profile) */}
+          <div className="flex items-center justify-between z-10">
+            <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md p-1.5 pr-4 rounded-full border border-white/30">
+               <div className="bg-white p-2 rounded-full shadow-sm flex items-center justify-center">
+                  <MapPin size={16} className="text-[#1BAC4B]" />
+               </div>
+               <div>
+                  <p className="text-[10px] text-white/80 uppercase font-bold tracking-tight">Delivery to</p>
+                  <h2 className="text-[12px] font-bold text-white">11/2 Diriyah, Riyadh</h2>
+               </div>
+            </div>
+            <div className="flex gap-2">
+               <button className="h-11 w-11 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 relative">
+                  <Bell size={20} className="text-white" />
+                  <span className="absolute top-3 right-3 w-2 h-2 bg-[#FF5C38] rounded-full border-2 border-white"></span>
+               </button>
+               {/* Profile Picture instead of Cart */}
+               <button onClick={() => navigate("/profile")} className="h-11 w-11 rounded-full border-2 border-white overflow-hidden shadow-lg">
+                  <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&q=80" className="w-full h-full object-cover" alt="profile" />
+               </button>
+            </div>
+          </div>
+
+          <div className="mb-14">
+            <h1 className="text-[32px] font-bold text-white mb-6 leading-tight drop-shadow-lg">
+               Hungry? <br />
+               <span className="font-normal text-white/80">Order & Eat.</span>
+            </h1>
+
+            {/* Search & Filter Over Banner */}
+            <div className="flex gap-3">
+              <div className="flex-1 flex items-center gap-3 rounded-full bg-white px-6 py-4 shadow-xl">
+                <Search size={20} className="text-gray-400" />
+                <input placeholder="Search for fast food..." className="w-full bg-transparent outline-none text-sm font-medium" />
+              </div>
+              <button
+                onClick={() => setShowFilter(true)}
+                className="flex h-14 w-14 items-center justify-center rounded-full bg-[#1BAC4B] text-white shadow-lg transition-transform active:scale-95" 
+              >
+                <SlidersHorizontal size={22} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-5">
         
-        {/* Header Section */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-             <div className="bg-white p-2.5 rounded-full shadow-sm border border-gray-100 flex items-center justify-center">
-                <MapPin size={18} className="text-gray-500" />
-             </div>
-             <div>
-                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tight">Delivery to</p>
-                <h2 className="text-[13px] font-bold text-gray-800">11/2 Diriyah, Riyadh</h2>
-             </div>
-          </div>
-          <div className="flex gap-2">
-             <button className="h-11 w-11 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 relative">
-                <Bell size={20} className="text-gray-600" />
-                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#FF5C38] rounded-full border-2 border-white"></span>
-             </button>
-             <button className="h-11 w-11 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100">
-                <ShoppingBag size={20} className="text-gray-600" />
-             </button>
-          </div>
-        </div>
-
-        <h1 className="text-[32px] font-bold text-gray-900 mb-6 leading-tight">Hungry? <span className="font-normal text-gray-400">Order & Eat.</span></h1>
-
-        {/* Search & Teal Filter Button */}
-        <div className="flex gap-3 mb-10">
-          <div className="flex-1 flex items-center gap-3 rounded-full bg-[#FAFAFA] px-6 py-4 border border-gray-100">
-            <Search size={20} className="text-gray-400" />
-            <input placeholder="Search for fast food..." className="w-full bg-transparent outline-none text-sm font-medium" />
-          </div>
-          <button
-            onClick={() => setShowFilter(true)}
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-[#1BAC4B] text-white shadow-lg transition-transform active:scale-95" 
-          >
-            <SlidersHorizontal size={22} />
-          </button>
-        </div>
-
-        {/* Category Circle Arch */}
-        <section className="relative h-48 mb-12 flex items-end justify-center">
-           <div className="absolute top-[-15%] w-[150%] h-[320px] bg-[#F4F4F4] rounded-[100%] -z-10 opacity-80 border-b border-gray-100"></div>
+        {/* Category Circle Arch (Already styled in your code) */}
+        <section className="relative h-40 mb-12 flex items-end justify-center -mt-10 z-20">
+           <div className="absolute top-[-15%] w-[150%] h-[300px] bg-[#FDFDFD] rounded-[100%] -z-10 border-t border-gray-100 shadow-[0_-20px_40px_rgba(0,0,0,0.03)]"></div>
            
            <div className="flex justify-between w-full px-1 items-end pb-2">
               {categories.map((item, index) => (
@@ -154,7 +181,7 @@ export default function HomePage() {
                    <motion.button
                      onClick={() => setActiveCategory(index)}
                      className={`w-14 h-14 rounded-full bg-white shadow-md flex items-center justify-center text-2xl transition-all duration-300
-                      ${activeCategory === index ? 'scale-110 -translate-y-6 shadow-xl ring-2 ring-white' : 'opacity-80'}`}
+                      ${activeCategory === index ? 'scale-110 -translate-y-6 shadow-xl ring-2 ring-[#1BAC4B]/20' : 'opacity-80'}`}
                    >
                      {item.icon}
                    </motion.button>
@@ -169,9 +196,8 @@ export default function HomePage() {
            </div>
         </section>
 
-        {/* --- UPDATE: Popular Dishes (Image 1 style - Curved & Sliding) --- */}
+        {/* Popular Dishes */}
         <section className="mt-8 relative pt-10 pb-16">
-          {/* Background Curve for that "Carved" effect from Image 1 */}
           <div className="absolute inset-0 bg-[#F4F4F4]/60 rounded-t-[100px] -z-10 scale-110 translate-y-6"></div>
           
           <div className="mb-6 flex items-center justify-between px-1">
@@ -202,7 +228,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Featured Items (Image 2 style preserved) */}
+        {/* Featured Items */}
         <section className="mt-12">
            <h2 className="text-xl font-bold mb-6 text-gray-900">Featured Items</h2>
            {featuredItems.map(item => (
@@ -229,7 +255,7 @@ export default function HomePage() {
            ))}
         </section>
 
-        {/* People looking for (Image 2 style preserved) */}
+        {/* People looking for */}
         <section className="mt-12">
            <h2 className="text-xl font-bold mb-6 text-gray-900">People are looking for 🔥</h2>
            <div className="space-y-4">
@@ -250,7 +276,7 @@ export default function HomePage() {
            </div>
         </section>
 
-        {/* Nearby Restaurants (Logic preserved) */}
+        {/* Nearby Restaurants */}
         <section className="mt-12">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-900">Nearby Restaurants</h2>
@@ -294,7 +320,6 @@ export default function HomePage() {
         />
       </div>
 
-      {/* Styles to hide scrollbar */}
       <style dangerouslySetInnerHTML={{__html: `
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
