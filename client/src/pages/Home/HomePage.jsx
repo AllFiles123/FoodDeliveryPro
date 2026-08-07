@@ -18,14 +18,24 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [restaurants, setRestaurants] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
-  const [activeCategory, setActiveCategory] = useState(2); 
-
-  // নতুন ব্যানারের ডেটা
+  const [activeCategory, setActiveCategory] = useState(2); // 'All' default
+  const [activeTimeFilter, setActiveTimeFilter] = useState("Today");
+  
+  // Banner Auto-slide logic
+  const [currentBanner, setCurrentBanner] = useState(0);
   const banners = [
-    { id: 1, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1000&q=80", title: "Fresh Deals", discount: "50% OFF" },
-    { id: 2, image: "https://images.unsplash.com/photo-1543353071-873f17a7a088?w=1000&q=80", title: "Healthy Salads", discount: "Buy 1 Get 1" },
-    { id: 3, image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1000&q=80", title: "Grilled Items", discount: "Free Delivery" },
+    { id: 1, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1000&q=80", title: "Fresh Deals" },
+    { id: 2, image: "https://images.unsplash.com/photo-1543353071-873f17a7a088?w=1000&q=80", title: "Healthy Salads" },
+    { id: 3, image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1000&q=80", title: "Grilled Items" },
   ];
+
+  // Auto slide every 3 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [banners.length]);
 
   const [filters, setFilters] = useState({
     category: "",
@@ -108,24 +118,28 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#FDFDFD] pb-24 overflow-x-hidden">
       
-      {/* --- Slidable Banner Section (Full Top) --- */}
-      <div className="relative h-[420px] w-full">
-        {/* Banner Slider */}
-        <div className="absolute inset-0 flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth">
-          {banners.map((banner) => (
-            <div key={banner.id} className="min-w-full h-full relative snap-start">
-              <img src={banner.image} className="w-full h-full object-cover" alt={banner.title} />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-white"></div>
-            </div>
-          ))}
-        </div>
+      {/* --- 1. FULL AUTO-SLIDING BANNER --- */}
+      <div className="relative h-[480px] w-full overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={currentBanner}
+            src={banners[currentBanner].image}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        </AnimatePresence>
+        
+        {/* Shadow Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-[#FDFDFD]"></div>
 
-        {/* Content Over Banner */}
-        <div className="absolute inset-0 px-5 pt-6 flex flex-col justify-between">
-          
-          {/* Header (Location & Profile) */}
-          <div className="flex items-center justify-between z-10">
-            <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md p-1.5 pr-4 rounded-full border border-white/30">
+        {/* Banner Overlays (Header & Search) */}
+        <div className="absolute inset-0 px-5 pt-6 flex flex-col">
+          {/* Header Area */}
+          <div className="flex items-center justify-between z-10 mb-8">
+            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md p-1 pr-4 rounded-full border border-white/20">
                <div className="bg-white p-2 rounded-full shadow-sm flex items-center justify-center">
                   <MapPin size={16} className="text-[#1BAC4B]" />
                </div>
@@ -135,91 +149,81 @@ export default function HomePage() {
                </div>
             </div>
             <div className="flex gap-2">
-               <button className="h-11 w-11 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 relative">
+               <button className="h-11 w-11 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 relative">
                   <Bell size={20} className="text-white" />
-                  <span className="absolute top-3 right-3 w-2 h-2 bg-[#FF5C38] rounded-full border-2 border-white"></span>
+                  <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-[#FF5C38] rounded-full border-2 border-white"></span>
                </button>
-               {/* Profile Picture instead of Cart */}
                <button onClick={() => navigate("/profile")} className="h-11 w-11 rounded-full border-2 border-white overflow-hidden shadow-lg">
                   <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&q=80" className="w-full h-full object-cover" alt="profile" />
                </button>
             </div>
           </div>
 
-          <div className="mb-14">
-            <h1 className="text-[32px] font-bold text-white mb-6 leading-tight drop-shadow-lg">
-               Hungry? <br />
-               <span className="font-normal text-white/80">Order & Eat.</span>
-            </h1>
+          <h1 className="text-[34px] font-bold text-white mb-6 leading-tight drop-shadow-md">
+             Hungry? <br />
+             <span className="font-normal text-white/80">Order & Eat.</span>
+          </h1>
 
-            {/* Search & Filter Over Banner */}
-            <div className="flex gap-3">
-              <div className="flex-1 flex items-center gap-3 rounded-full bg-white px-6 py-4 shadow-xl">
-                <Search size={20} className="text-gray-400" />
-                <input placeholder="Search for fast food..." className="w-full bg-transparent outline-none text-sm font-medium" />
-              </div>
-              <button
-                onClick={() => setShowFilter(true)}
-                className="flex h-14 w-14 items-center justify-center rounded-full bg-[#1BAC4B] text-white shadow-lg transition-transform active:scale-95" 
-              >
-                <SlidersHorizontal size={22} />
-              </button>
+          {/* Search Bar - Positioned with more space below banner */}
+          <div className="flex gap-3 mt-4">
+            <div className="flex-1 flex items-center gap-3 rounded-2xl bg-white px-5 py-4 shadow-2xl">
+              <Search size={20} className="text-gray-400" />
+              <input placeholder="Search for fast food..." className="w-full bg-transparent outline-none text-sm font-medium" />
             </div>
+            <button
+              onClick={() => setShowFilter(true)}
+              className="flex h-[58px] w-[58px] items-center justify-center rounded-2xl bg-[#1BAC4B] text-white shadow-lg active:scale-95 transition-all" 
+            >
+              <SlidersHorizontal size={22} />
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-5">
+      <div className="mx-auto max-w-7xl px-5 relative">
         
-        {/* Category Circle Arch (Already styled in your code) */}
-        <section className="relative h-40 mb-12 flex items-end justify-center -mt-10 z-20">
-           <div className="absolute top-[-15%] w-[150%] h-[300px] bg-[#FDFDFD] rounded-[100%] -z-10 border-t border-gray-100 shadow-[0_-20px_40px_rgba(0,0,0,0.03)]"></div>
+        {/* --- 2. BIG CATEGORY ICONS (Arch Design) --- */}
+        <section className="relative h-36 flex items-end justify-center -mt-16 z-20">
+           <div className="absolute top-0 w-[140%] h-[280px] bg-[#FDFDFD] rounded-[100%] -z-10 shadow-[0_-15px_30px_rgba(0,0,0,0.05)] border-t border-gray-50"></div>
            
-           <div className="flex justify-between w-full px-1 items-end pb-2">
+           <div className="flex justify-between w-full px-1 items-end pb-4">
               {categories.map((item, index) => (
                 <div key={index} className="flex flex-col items-center flex-1">
                    <motion.button
                      onClick={() => setActiveCategory(index)}
-                     className={`w-14 h-14 rounded-full bg-white shadow-md flex items-center justify-center text-2xl transition-all duration-300
-                      ${activeCategory === index ? 'scale-110 -translate-y-6 shadow-xl ring-2 ring-[#1BAC4B]/20' : 'opacity-80'}`}
+                     className={`w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center text-3xl transition-all duration-300
+                      ${activeCategory === index ? 'scale-110 -translate-y-4 ring-4 ring-[#1BAC4B]/10' : 'opacity-90'}`}
                    >
                      {item.icon}
                    </motion.button>
-                   <p className={`text-[10px] mt-2 font-bold ${activeCategory === index ? 'text-gray-900' : 'text-gray-400'}`}>
+                   <p className={`text-[11px] mt-2 font-bold ${activeCategory === index ? 'text-gray-900' : 'text-gray-400'}`}>
                      {item.name}
                    </p>
-                   {activeCategory === index && (
-                     <div className="w-5 h-[3px] bg-black rounded-full mt-1"></div>
-                   )}
                 </div>
               ))}
            </div>
         </section>
 
-        {/* Popular Dishes */}
-        <section className="mt-8 relative pt-10 pb-16">
-          <div className="absolute inset-0 bg-[#F4F4F4]/60 rounded-t-[100px] -z-10 scale-110 translate-y-6"></div>
+        {/* --- 3. POPULAR NOW (Reduced Gap) --- */}
+        <section className="mt-4 relative pt-6 pb-12">
+          <div className="absolute inset-0 bg-[#F8F8F8] rounded-[50px] -z-10 translate-y-4"></div>
           
-          <div className="mb-6 flex items-center justify-between px-1">
-             <h2 className="text-xl font-bold text-gray-900">Popular Now</h2>
-             <button className="text-xs font-bold text-gray-400">View All</button>
+          <div className="mb-6 flex items-center justify-between px-2">
+             <h2 className="text-xl font-extrabold text-gray-900">Popular Now</h2>
+             <button className="text-xs font-bold text-[#1BAC4B]">View All</button>
           </div>
 
-          <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory px-2">
+          <div className="flex gap-5 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory px-2">
             {popularDishes.map((item) => (
               <motion.div 
                 key={item.id} 
-                className="min-w-[190px] snap-center bg-white rounded-[40px] p-6 shadow-xl border border-gray-50 flex flex-col items-center relative"
+                className="min-w-[180px] snap-center bg-white rounded-[35px] p-5 shadow-xl border border-gray-50 flex flex-col items-center"
               >
-                <div className="mb-4">
-                  <img src={item.image} alt={item.name} className="w-32 h-32 object-cover rounded-full shadow-lg ring-4 ring-white" />
-                </div>
+                <img src={item.image} alt={item.name} className="w-28 h-28 object-cover rounded-full shadow-md ring-4 ring-gray-50 mb-4" />
                 <div className="w-full text-center">
-                   <h3 className="text-[13px] font-bold text-gray-800 leading-tight h-8 line-clamp-2">{item.name}</h3>
-                   <p className="text-[10px] text-gray-400 mt-2 font-bold flex items-center justify-center gap-1">
-                      🔥 {item.calorie}
-                   </p>
-                   <div className="mt-4 font-bold text-[18px] text-[#FF5C38]">
+                   <h3 className="text-[13px] font-bold text-gray-800 line-clamp-1">{item.name}</h3>
+                   <p className="text-[10px] text-gray-400 mt-1.5 font-bold">🔥 {item.calorie}</p>
+                   <div className="mt-3 font-bold text-[17px] text-[#FF5C38]">
                       {item.price}
                    </div>
                 </div>
@@ -228,26 +232,74 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Featured Items */}
-        <section className="mt-12">
-           <h2 className="text-xl font-bold mb-6 text-gray-900">Featured Items</h2>
+        {/* --- 4. POPULAR RESTAURANT (With Time Filters) --- */}
+        <section className="mt-8">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-extrabold text-gray-900">Popular Restaurant</h2>
+            <button onClick={() => navigate("/restaurants")} className="text-[#FF5C38] text-sm font-bold">See All</button>
+          </div>
+
+          {/* Time Filter Pills */}
+          <div className="flex gap-3 mb-6 overflow-x-auto no-scrollbar py-2">
+            {["Today", "This Week", "This Month"].map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setActiveTimeFilter(filter)}
+                className={`px-6 py-2.5 rounded-full text-[11px] font-bold transition-all whitespace-nowrap
+                ${activeTimeFilter === filter ? 'bg-[#1BAC4B] text-white shadow-md' : 'bg-gray-100 text-gray-400'}`}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+
+          <div className="space-y-6">
+            {restaurants.map((restaurant) => (
+              <motion.div
+                key={restaurant.id}
+                onClick={() => navigate(`/restaurants/${restaurant.id}`)}
+                className="bg-white rounded-[30px] overflow-hidden shadow-md border border-gray-50 group"
+              >
+                <div className="relative h-48">
+                  <img src={restaurant.image} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt={restaurant.name} />
+                  <div className="absolute left-4 top-4 bg-white/90 px-3 py-1 rounded-full shadow-sm backdrop-blur-sm">
+                    <div className="flex items-center gap-1.5 font-bold text-[11px]">
+                       <Star size={12} className="fill-yellow-400 text-yellow-400" /> {restaurant.rating}
+                    </div>
+                  </div>
+                </div>
+                <div className="p-5 flex justify-between items-center">
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">{restaurant.name}</h3>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-widest">{restaurant.category}</p>
+                  </div>
+                  <div className="text-[11px] text-gray-500 font-bold flex items-center gap-1.5 bg-gray-50 px-3 py-2 rounded-full">
+                    <Clock3 size={14} className="text-gray-400" /> {restaurant.deliveryTime}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* FEATURED ITEMS (Tightened Gap) */}
+        <section className="mt-10">
+           <h2 className="text-xl font-bold mb-5 text-gray-900">Featured Items</h2>
            {featuredItems.map(item => (
-              <div key={item.id} className="bg-white rounded-[30px] overflow-hidden shadow-sm border border-gray-50 mb-6">
-                 <div className="relative h-48">
-                    <img src={item.image} className="h-full w-full object-cover" alt={item.title} />
-                    <div className="absolute top-4 left-4 bg-white px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
-                       <span className="text-[11px] font-bold">{item.rating}</span>
-                       <Star size={12} className="fill-yellow-400 text-yellow-400" />
+              <div key={item.id} className="bg-white rounded-[25px] overflow-hidden shadow-sm border border-gray-50 mb-5 flex p-3 gap-4">
+                 <img src={item.image} className="h-24 w-24 rounded-2xl object-cover" alt={item.title} />
+                 <div className="flex-1 flex flex-col justify-center">
+                    <div className="flex justify-between items-start">
+                       <h3 className="font-bold text-[15px] text-gray-800">{item.title} ✅</h3>
+                       <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-lg">
+                          <Star size={10} className="fill-yellow-400 text-yellow-400" />
+                          <span className="text-[10px] font-bold">{item.rating}</span>
+                       </div>
                     </div>
-                 </div>
-                 <div className="p-5 flex justify-between items-center">
-                    <div>
-                       <h3 className="font-bold text-[17px] text-gray-800">{item.title} ✅</h3>
-                       <p className="text-[11px] text-gray-400 font-bold mt-1 uppercase tracking-wider">{item.time} • {item.deliveryFee}</p>
-                    </div>
-                    <div className="flex gap-2">
+                    <p className="text-[10px] text-gray-400 font-bold mt-1 tracking-tight">{item.time} • {item.deliveryFee}</p>
+                    <div className="flex gap-2 mt-2">
                        {item.tags.slice(0, 2).map(tag => (
-                          <span key={tag} className="bg-gray-100 px-3 py-1.5 rounded-lg text-[10px] font-bold text-gray-500 uppercase">{tag}</span>
+                          <span key={tag} className="bg-gray-50 px-2 py-1 rounded text-[9px] font-bold text-gray-400 uppercase">{tag}</span>
                        ))}
                     </div>
                  </div>
@@ -255,9 +307,9 @@ export default function HomePage() {
            ))}
         </section>
 
-        {/* People looking for */}
-        <section className="mt-12">
-           <h2 className="text-xl font-bold mb-6 text-gray-900">People are looking for 🔥</h2>
+        {/* PEOPLE LOOKING FOR (Tightened Gap) */}
+        <section className="mt-10">
+           <h2 className="text-xl font-bold mb-5 text-gray-900">People are looking for 🔥</h2>
            <div className="space-y-4">
              {peopleLookingFor.map((item) => (
                <div key={item.id} className="flex items-center justify-between bg-white rounded-[24px] p-4 shadow-sm border border-gray-50">
@@ -274,41 +326,6 @@ export default function HomePage() {
                </div>
              ))}
            </div>
-        </section>
-
-        {/* Nearby Restaurants */}
-        <section className="mt-12">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">Nearby Restaurants</h2>
-            <button onClick={() => navigate("/restaurants")} className="text-[#FF5C38] text-sm font-bold">See All</button>
-          </div>
-          <div className="space-y-8">
-            {restaurants.map((restaurant) => (
-              <motion.div
-                key={restaurant.id}
-                onClick={() => navigate(`/restaurants/${restaurant.id}`)}
-                className="bg-white rounded-[32px] overflow-hidden shadow-lg border border-gray-50 group cursor-pointer"
-              >
-                <div className="relative h-56">
-                  <img src={restaurant.image} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt={restaurant.name} />
-                  <div className="absolute left-5 top-5 bg-white/90 px-3.5 py-1.5 rounded-full shadow-md backdrop-blur-sm">
-                    <div className="flex items-center gap-1.5 font-bold text-xs">
-                       <Star size={14} className="fill-yellow-400 text-yellow-400" /> {restaurant.rating}
-                    </div>
-                  </div>
-                </div>
-                <div className="p-6 flex justify-between items-center">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900">{restaurant.name}</h3>
-                    <p className="text-xs text-gray-400 font-bold uppercase mt-1.5 tracking-widest">{restaurant.category}</p>
-                  </div>
-                  <div className="text-xs text-gray-500 font-bold flex items-center gap-1.5 bg-gray-50 px-3 py-2 rounded-full">
-                    <Clock3 size={16} className="text-gray-400" /> {restaurant.deliveryTime}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
         </section>
 
         <FilterBottomSheet
