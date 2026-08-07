@@ -18,7 +18,10 @@ import ProfilePage from "../pages/Profile/ProfilePage";
 
 import RestaurantListPage from "../pages/Restaurant/RestaurantListPage";
 import RestaurantDetailsPage from "../pages/Restaurant/RestaurantDetailsPage";
+
 import CategoryFoodsPage from "../pages/CategoryFoods/CategoryFoodsPage";
+
+import FoodDetails from "../pages/FoodDetails/FoodDetails";
 
 import CartPage from "../pages/Cart/CartPage";
 import CheckoutPage from "../pages/Checkout/CheckoutPage";
@@ -34,10 +37,17 @@ export default function AppRouter() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
+
+        {/* Splash */}
         <Route path="/" element={<SplashPage />} />
 
-        <Route path="/onboarding" element={<OnboardingPage />} />
+        {/* Onboarding */}
+        <Route
+          path="/onboarding"
+          element={<OnboardingPage />}
+        />
 
+        {/* Authentication */}
         <Route
           path="/login"
           element={
@@ -65,10 +75,17 @@ export default function AppRouter() {
           }
         />
 
-        <Route path="/otp" element={<OtpVerificationPage />} />
+        <Route
+          path="/otp"
+          element={<OtpVerificationPage />}
+        />
 
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route
+          path="/reset-password"
+          element={<ResetPasswordPage />}
+        />
 
+        {/* Home */}
         <Route
           path="/home"
           element={
@@ -78,6 +95,7 @@ export default function AppRouter() {
           }
         />
 
+        {/* Search */}
         <Route
           path="/search"
           element={
@@ -87,6 +105,34 @@ export default function AppRouter() {
           }
         />
 
+        {/* Restaurants */}
+        <Route
+          path="/restaurants"
+          element={<RestaurantListPage />}
+        />
+
+        <Route
+          path="/restaurants/:id"
+          element={<RestaurantDetailsPage />}
+        />
+
+        {/* Category Foods */}
+        <Route
+          path="/restaurants/:id/category/:categoryName"
+          element={<CategoryFoodsPage />}
+        />
+
+        {/* Food Details */}
+        <Route
+          path="/food/:id"
+          element={
+            <ProtectedRoute>
+              <FoodDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Cart */}
         <Route
           path="/cart"
           element={
@@ -96,15 +142,7 @@ export default function AppRouter() {
           }
         />
 
-        <Route
-          path="/orders"
-          element={
-            <ProtectedRoute>
-              <OrdersPage />
-            </ProtectedRoute>
-          }
-        />
-
+        {/* Checkout */}
         <Route
           path="/checkout"
           element={
@@ -114,15 +152,17 @@ export default function AppRouter() {
           }
         />
 
+        {/* Orders */}
         <Route
-          path="/profile"
+          path="/orders"
           element={
             <ProtectedRoute>
-              <ProfilePage />
+              <OrdersPage />
             </ProtectedRoute>
           }
         />
 
+        {/* Favourite */}
         <Route
           path="/favorite"
           element={
@@ -132,6 +172,7 @@ export default function AppRouter() {
           }
         />
 
+        {/* Map */}
         <Route
           path="/map"
           element={
@@ -141,17 +182,16 @@ export default function AppRouter() {
           }
         />
 
-        <Route path="/restaurants" element={<RestaurantListPage />} />
-
+        {/* Profile */}
         <Route
-          path="/restaurants/:id"
-          element={<RestaurantDetailsPage />}
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
         />
 
-        <Route
-          path="/restaurants/:id/category/:categoryName"
-          element={<CategoryFoodsPage />}
-        />
       </Route>
     </Routes>
   );
