@@ -18,12 +18,14 @@ import ProfilePage from "../pages/Profile/ProfilePage";
 
 import RestaurantListPage from "../pages/Restaurant/RestaurantListPage";
 import RestaurantDetailsPage from "../pages/Restaurant/RestaurantDetailsPage";
-// নতুন পেজটি ইম্পোর্ট করা হলো
-import CategoryFoodsPage from "../pages/CategoryFoods/CategoryFoodsPage"; 
+import CategoryFoodsPage from "../pages/CategoryFoods/CategoryFoodsPage";
 
 import CartPage from "../pages/Cart/CartPage";
 import CheckoutPage from "../pages/Checkout/CheckoutPage";
 import OrdersPage from "../pages/Orders/OrdersPage";
+
+import Favourite from "../pages/Favourite/Favourite";
+import Map from "../pages/Map/Map";
 
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
@@ -121,16 +123,35 @@ export default function AppRouter() {
           }
         />
 
+        <Route
+          path="/favorite"
+          element={
+            <ProtectedRoute>
+              <Favourite />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/map"
+          element={
+            <ProtectedRoute>
+              <Map />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="/restaurants" element={<RestaurantListPage />} />
 
-        <Route path="/restaurants/:id" element={<RestaurantDetailsPage />} />
+        <Route
+          path="/restaurants/:id"
+          element={<RestaurantDetailsPage />}
+        />
 
-        {/* নতুন ক্যাটাগরি ফিল্টার রাউটটি এখানে যোগ করা হলো */}
         <Route
           path="/restaurants/:id/category/:categoryName"
           element={<CategoryFoodsPage />}
         />
-        
       </Route>
     </Routes>
   );
