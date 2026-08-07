@@ -10,7 +10,7 @@ import {
   SlidersHorizontal,
   Bell,
   ShoppingBag,
-  Minus
+  RotateCcw
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -43,17 +43,24 @@ export default function HomePage() {
   const popularDishes = [
     {
       id: 1,
-      name: "Classic Burger",
+      name: "Cabbage with sauce",
       calorie: "170 Kal",
       price: "$25.00",
-      image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80"
+      image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80"
     },
     {
       id: 2,
-      name: "Chocolate ice",
+      name: "Puree soup with turkey",
       calorie: "100 Kal",
       price: "$35.00",
-      image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&q=80"
+      image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80"
+    },
+    {
+      id: 3,
+      name: "Three-Meat Lasagna",
+      calorie: "250 Kal",
+      price: "$45.00",
+      image: "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=800&q=80"
     }
   ];
 
@@ -96,7 +103,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] pb-10">
+    <div className="min-h-screen bg-[#FDFDFD] pb-24 overflow-x-hidden">
       <div className="mx-auto max-w-7xl px-5 py-6">
         
         {/* Header Section */}
@@ -137,8 +144,8 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* Category Circle Arch (Image 3 style) */}
-        <section className="relative h-48 mb-12 flex items-end justify-center overflow-hidden">
+        {/* Category Circle Arch */}
+        <section className="relative h-48 mb-12 flex items-end justify-center">
            <div className="absolute top-[-15%] w-[150%] h-[320px] bg-[#F4F4F4] rounded-[100%] -z-10 opacity-80 border-b border-gray-100"></div>
            
            <div className="flex justify-between w-full px-1 items-end pb-2">
@@ -162,29 +169,32 @@ export default function HomePage() {
            </div>
         </section>
 
-        {/* Popular Dishes (Image 1 style) */}
-        <section className="mt-8">
-          <div className="mb-5 flex items-center justify-between px-1">
-             <h2 className="text-xl font-bold text-gray-900">Popular Dishes</h2>
-             <button className="text-xs font-bold text-gray-400">See all</button>
+        {/* --- UPDATE: Popular Dishes (Image 1 style - Curved & Sliding) --- */}
+        <section className="mt-8 relative pt-10 pb-16">
+          {/* Background Curve for that "Carved" effect from Image 1 */}
+          <div className="absolute inset-0 bg-[#F4F4F4]/60 rounded-t-[100px] -z-10 scale-110 translate-y-6"></div>
+          
+          <div className="mb-6 flex items-center justify-between px-1">
+             <h2 className="text-xl font-bold text-gray-900">Popular Now</h2>
+             <button className="text-xs font-bold text-gray-400">View All</button>
           </div>
-          <div className="grid grid-cols-2 gap-5">
+
+          <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory px-2">
             {popularDishes.map((item) => (
-              <motion.div key={item.id} className="bg-white rounded-[32px] p-5 shadow-sm border border-gray-50 relative flex flex-col items-center">
-                <button className="absolute right-5 top-5 z-10 bg-white/80 p-1.5 rounded-full shadow-sm">
-                  <Heart size={18} className="text-red-500 fill-red-500" />
-                </button>
-                <img src={item.image} alt={item.name} className="w-32 h-32 object-cover rounded-full shadow-lg mb-4 ring-4 ring-white" />
+              <motion.div 
+                key={item.id} 
+                className="min-w-[190px] snap-center bg-white rounded-[40px] p-6 shadow-xl border border-gray-50 flex flex-col items-center relative"
+              >
+                <div className="mb-4">
+                  <img src={item.image} alt={item.name} className="w-32 h-32 object-cover rounded-full shadow-lg ring-4 ring-white" />
+                </div>
                 <div className="w-full text-center">
-                   <h3 className="text-sm font-bold text-gray-800">{item.name}</h3>
-                   <p className="text-[10px] text-gray-400 mt-1 font-bold flex items-center justify-center gap-1">
+                   <h3 className="text-[13px] font-bold text-gray-800 leading-tight h-8 line-clamp-2">{item.name}</h3>
+                   <p className="text-[10px] text-gray-400 mt-2 font-bold flex items-center justify-center gap-1">
                       🔥 {item.calorie}
                    </p>
-                   <div className="mt-5 flex items-center justify-between w-full">
-                      <span className="font-bold text-[15px] text-[#FF5C38]">{item.price}</span>
-                      <button className="h-9 w-9 bg-black text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition-transform">
-                         <Plus size={18}/>
-                      </button>
+                   <div className="mt-4 font-bold text-[18px] text-[#FF5C38]">
+                      {item.price}
                    </div>
                 </div>
               </motion.div>
@@ -192,7 +202,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Featured Items (Image 2 style) */}
+        {/* Featured Items (Image 2 style preserved) */}
         <section className="mt-12">
            <h2 className="text-xl font-bold mb-6 text-gray-900">Featured Items</h2>
            {featuredItems.map(item => (
@@ -219,7 +229,7 @@ export default function HomePage() {
            ))}
         </section>
 
-        {/* People looking for (Image 2 style) */}
+        {/* People looking for (Image 2 style preserved) */}
         <section className="mt-12">
            <h2 className="text-xl font-bold mb-6 text-gray-900">People are looking for 🔥</h2>
            <div className="space-y-4">
@@ -283,7 +293,12 @@ export default function HomePage() {
           onApply={() => setShowFilter(false)}
         />
       </div>
+
+      {/* Styles to hide scrollbar */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}} />
     </div>
   );
 }
-
