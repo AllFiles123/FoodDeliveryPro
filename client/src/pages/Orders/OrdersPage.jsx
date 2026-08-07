@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
 import {
+  ChevronDown,
+  ChevronUp,
   Phone,
   MapPin,
   Utensils,
@@ -10,6 +12,7 @@ import {
   Receipt,
   Bike,
   XCircle,
+  Clock,
   CheckCircle,
   Store,
 } from "lucide-react";
@@ -58,13 +61,19 @@ export default function OrdersPage() {
     }
   };
 
+  // Tab Filtering Logic
+  const filteredOrders = orders.filter((order) => {
+    const status = order.orderStatus || order.trackingStatus || "Order Placed";
+    if (activeTab === "All") return true;
+    if (activeTab === "Completed") return status === "Delivered";
+    if (activeTab === "Cancelled") return status === "Cancelled";
+    return true;
+  });
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FDFCFB]">
-        <div className="flex flex-col items-center">
-          <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 font-bold text-gray-400">Loading Orders...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="font-bold text-slate-500">Loading Orders...</p>
       </div>
     );
   }
@@ -72,12 +81,12 @@ export default function OrdersPage() {
   return (
     <div className="min-h-screen bg-[#FDFCFB] px-5 pt-4 pb-32">
       
-      {/* Page Title */}
-      <h1 className="text-xl font-black text-center text-gray-800 mb-6">
+      {/* Title */}
+      <h1 className="text-xl font-black text-center text-slate-800 mb-6">
         Order History
       </h1>
 
-      {/* Tabs (Image 1 Style) */}
+      {/* Modern Tabs (Image 1 style) */}
       <div className="flex bg-white shadow-sm border border-gray-100 rounded-full p-1.5 mb-8">
         {["All", "Completed", "Cancelled"].map((tab) => (
           <button
@@ -95,7 +104,7 @@ export default function OrdersPage() {
       </div>
 
       <div className="space-y-6">
-        {orders.map((order) => {
+        {filteredOrders.map((order) => {
           let items = [];
           try {
             items = typeof order.items === "string" ? JSON.parse(order.items) : order.items || [];
@@ -104,18 +113,23 @@ export default function OrdersPage() {
           const currentStatus = order.orderStatus || order.trackingStatus || "Order Placed";
           const activeStep = currentStatus === "Cancelled" ? -1 : trackingSteps.indexOf(currentStatus);
 
+          let trackingHistory = [];
+          try {
+            trackingHistory = JSON.parse(order.trackingHistory || "[]");
+          } catch { trackingHistory = []; }
+
           return (
             <motion.div
               key={order.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-[2.5rem] shadow-sm border border-gray-50 overflow-hidden"
+              className="bg-white rounded-[2.5rem] shadow-md shadow-gray-100 border border-gray-50 overflow-hidden"
             >
-              {/* Card Header Section (Styled like Image 1) */}
+              {/* Card Main Info (Image 1 Layout) */}
               <div className="p-5">
                 <div className="flex items-center gap-4">
-                  {/* Food Image Placeholder */}
-                  <div className="h-16 w-16 bg-orange-50 rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  {/* Left: Product Image */}
+                  <div className="h-16 w-16 bg-[#FFF4EE] rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {items[0]?.image ? (
                       <img src={items[0].image} className="w-full h-full object-cover" />
                     ) : (
@@ -123,116 +137,172 @@ export default function OrdersPage() {
                     )}
                   </div>
 
-                  {/* Order Info */}
+                  {/* Middle: Order Details */}
                   <div className="flex-1">
-                    <h3 className="font-bold text-gray-800 text-sm">
+                    <h3 className="font-bold text-slate-800 text-sm">
                       Order #{order.orderNumber?.slice(-8) || "DLSF1234"}
                     </h3>
-                    <p className="text-gray-400 text-[10px]">
+                    <p className="text-gray-400 text-[10px] mt-0.5">
                       {order.restaurantName || "Foodzy Restaurant"}
                     </p>
                   </div>
 
-                  {/* Price */}
+                  {/* Right: Price */}
                   <div className="text-right">
-                    <p className="font-black text-gray-800 text-lg">৳{order.totalAmount}</p>
+                    <p className="font-black text-slate-800 text-lg">৳{order.totalAmount}</p>
                   </div>
                 </div>
 
-                {/* Card Bottom Row: Items & Details Button */}
+                {/* Card Footer within Header: Items & Details Button */}
                 <div className="flex items-end justify-between mt-5 pt-4 border-t border-gray-50">
                    <div className="flex flex-col gap-1.5">
                       <span className="px-3 py-1 bg-white border border-orange-200 text-orange-500 rounded-full text-[10px] font-bold w-fit">
                         {items.length} items
                       </span>
-                      <p className="text-[9px] text-gray-400">
-                        Status: {currentStatus}
+                      <p className="text-[10px] text-gray-400">
+                        {currentStatus === "Delivered" ? `Delivered on ${new Date().toLocaleDateString()}` : `Status: ${currentStatus}`}
                       </p>
                    </div>
                    
                    <button
                      onClick={() => setOpen(open === order.id ? null : order.id)}
-                     className="bg-orange-50 text-orange-500 px-6 py-2 rounded-full text-xs font-bold transition-active active:scale-95"
+                     className="bg-[#FFF4EE] text-orange-500 px-6 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
                    >
                      {open === order.id ? "Close" : "Details"}
                    </button>
                 </div>
               </div>
 
-              {/* Collapsible Content (Logic from your original file) */}
+              {/* EXPANDED CONTENT - Restored completely from your file */}
               <AnimatePresence>
                 {open === order.id && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="px-5 pb-6 bg-[#FAFAFA]"
+                    className="px-5 pb-8 bg-[#FCFCFC]"
                   >
-                    <div className="pt-6 space-y-6">
+                    <div className="pt-6 border-t border-dashed border-gray-200">
                       
-                      {/* Item Details */}
-                      <div>
-                        <h4 className="text-xs font-bold text-gray-800 mb-3 flex items-center gap-2">
-                           <Utensils size={14} className="text-orange-500" /> Item Details
-                        </h4>
-                        <div className="space-y-3">
-                          {items.map((item, i) => (
-                            <div key={i} className="flex justify-between items-center text-xs">
-                              <p className="text-gray-600 font-medium">{item.name} x {item.quantity || 1}</p>
-                              <p className="font-bold">৳{Number(item.price || 0) * (item.quantity || 1)}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                      <h3 className="text-lg font-extrabold text-slate-800 mb-5">Order Summary</h3>
 
-                      {/* Customer Details */}
-                      <div className="bg-white p-4 rounded-2xl border border-gray-100">
-                        <h4 className="text-xs font-bold mb-3 flex items-center gap-2">
-                          <UserRound size={14} className="text-orange-500" /> Customer Info
+                      {/* ITEM DETAILS (From original file) */}
+                      <div className="rounded-2xl bg-white border border-gray-100 p-4 shadow-sm mb-5">
+                        <h4 className="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
+                           <Utensils size={16} className="text-orange-500" /> Item Details
                         </h4>
-                        <p className="text-[11px] text-gray-500 leading-relaxed">
-                          {order.customerName} <br />
-                          {order.customerPhone} <br />
-                          {order.fullAddress || order.address}
-                        </p>
-                      </div>
-
-                      {/* Bill Summary */}
-                      <div className="space-y-2">
-                        <h4 className="text-xs font-bold mb-3 flex items-center gap-2">
-                          <Receipt size={14} className="text-orange-500" /> Bill Summary
-                        </h4>
-                        <div className="text-[11px] space-y-1.5">
-                          <div className="flex justify-between"><span>Subtotal</span> <span>৳{order.subtotal || order.totalAmount}</span></div>
-                          <div className="flex justify-between"><span>Delivery</span> <span>৳{order.deliveryCharge || 0}</span></div>
-                          <div className="flex justify-between font-bold text-gray-800 border-t pt-1.5"><span>Total</span> <span>৳{order.totalAmount}</span></div>
-                        </div>
-                      </div>
-
-                      {/* Order Tracking (Original Logic) */}
-                      <div className="pt-2">
-                        <h4 className="text-xs font-bold mb-5">Order Tracking</h4>
-                        <div className="relative space-y-6 ml-2 border-l-2 border-gray-100 pl-6">
-                          {trackingSteps.map((step, index) => (
-                            <div key={step} className="relative">
-                              <div className={`absolute -left-[31px] top-0 h-4 w-4 rounded-full ring-4 ring-[#FAFAFA] ${index <= activeStep ? "bg-orange-500" : "bg-gray-200"}`}>
-                                {index < activeStep && <CheckCircle size={10} className="text-white m-auto mt-0.5" />}
+                        {items.map((item) => {
+                          const itemQty = Number(item.quantity || item.qty || 1);
+                          return (
+                            <div key={item.id} className="flex items-center gap-3 mb-3 last:mb-0">
+                              {item.image ? (
+                                <img src={item.image} className="h-12 w-12 rounded-xl object-cover" />
+                              ) : (
+                                <div className="h-12 w-12 rounded-xl bg-gray-50 flex items-center justify-center">
+                                  <Utensils size={20} className="text-gray-300"/>
+                                </div>
+                              )}
+                              <div className="flex-1">
+                                <p className="font-bold text-xs">{item.name}</p>
+                                <p className="text-[10px] text-gray-500">Qty: {itemQty}</p>
                               </div>
-                              <p className={`text-[11px] ${index <= activeStep ? "font-bold text-gray-800" : "text-gray-400"}`}>
-                                {step}
-                              </p>
+                              <p className="font-bold text-xs text-slate-800">৳{Number(item.price || 0) * itemQty}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* CUSTOMER DETAILS (From original file) */}
+                      <div className="rounded-2xl bg-white border border-gray-100 p-4 shadow-sm mb-5">
+                        <h4 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                          <UserRound size={16} className="text-orange-500" /> Customer Details
+                        </h4>
+                        <div className="space-y-1.5 text-xs text-gray-600">
+                          <p><span className="font-medium">Name:</span> {order.customerName || "N/A"}</p>
+                          <p className="flex items-center gap-1.5"><Phone size={12}/> {order.customerPhone || "No phone"}</p>
+                          <p className="flex items-start gap-1.5"><MapPin size={12} className="mt-0.5"/> {order.fullAddress || order.address || "No address"}</p>
+                        </div>
+                      </div>
+
+                      {/* PAYMENT DETAILS (From original file) */}
+                      <div className="rounded-2xl bg-white border border-gray-100 p-4 shadow-sm mb-5">
+                        <h4 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                          <CreditCard size={16} className="text-orange-500" /> Payment Details
+                        </h4>
+                        <p className="text-xs text-gray-600">Method: {order.paymentMethod}</p>
+                        <p className="text-xs text-gray-600 mt-1 font-semibold">Status: {order.paymentStatus || "Pending"}</p>
+                      </div>
+
+                      {/* BILL SUMMARY (From original file) */}
+                      <div className="rounded-2xl bg-white border border-gray-100 p-4 shadow-sm mb-5">
+                        <h4 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                          <Receipt size={16} className="text-orange-500" /> Bill Summary
+                        </h4>
+                        <div className="space-y-1 text-xs text-gray-600">
+                           <div className="flex justify-between"><span>Subtotal:</span> <span>৳ {order.subtotal || order.totalAmount}</span></div>
+                           <div className="flex justify-between"><span>Delivery Charge:</span> <span>৳ {order.deliveryCharge || 0}</span></div>
+                           <div className="flex justify-between border-b pb-1"><span>VAT:</span> <span>৳ {order.vat || 0}</span></div>
+                           <div className="flex justify-between text-base font-black text-slate-800 pt-1.5"><span>Total Amount:</span> <span>৳ {order.totalAmount}</span></div>
+                        </div>
+                      </div>
+
+                      {/* BIKE & ESTIMATED TIME (RESTORED AS REQUESTED) */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-6 rounded-2xl bg-[#FFFBF8] p-4 border border-orange-100"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-[10px] text-gray-500">Estimated Delivery</p>
+                            <p className="font-bold text-orange-600 text-sm">
+                              {order.estimatedDeliveryTime || "30-45 minutes"}
+                            </p>
+                          </div>
+                          <motion.div
+                            animate={{ x: [0, 8, 0] }}
+                            transition={{ repeat: Infinity, duration: 1.5 }}
+                          >
+                            <Bike size={28} className='text-orange-500'/>
+                          </motion.div>
+                        </div>
+                        {currentStatus === "Out for Delivery" && (
+                          <p className="mt-3 text-[11px] font-semibold text-orange-500">
+                             Your rider is on the way 🚴
+                          </p>
+                        )}
+                      </motion.div>
+
+                      {/* LIVE TRACKING (Logic Restored) */}
+                      <div className="mt-8">
+                        <h3 className="font-extrabold text-sm mb-6">Live Tracking</h3>
+                        <div className="relative space-y-8 ml-3">
+                          <div className="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-100"></div>
+                          {trackingSteps.map((step, index) => (
+                            <div key={step} className="relative flex items-center gap-4">
+                              <div className={`z-10 h-5 w-5 rounded-full ring-4 ring-[#FCFCFC] flex items-center justify-center ${index <= activeStep ? "bg-orange-500" : "bg-gray-200"}`}>
+                                {index < activeStep && <CheckCircle size={14} className="text-white" />}
+                              </div>
+                              <div>
+                                <p className={`text-xs ${index <= activeStep ? "font-bold text-slate-800" : "text-gray-400"}`}>{step}</p>
+                                {trackingHistory.find(h => h.status === step) && (
+                                  <p className="text-[9px] text-gray-400 mt-0.5">
+                                    {new Date(trackingHistory.find(h => h.status === step).time).toLocaleString()}
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
                       </div>
 
-                      {/* Cancel Order Action */}
+                      {/* CANCEL BUTTON */}
                       {currentStatus !== "Delivered" && currentStatus !== "Cancelled" && (
                         <button
                           onClick={() => cancelOrder(order.id)}
-                          className="w-full py-3 bg-red-50 text-red-500 rounded-2xl text-[11px] font-bold flex items-center justify-center gap-2"
+                          className="mt-8 w-full flex items-center justify-center gap-2 rounded-2xl bg-red-50 py-3.5 text-red-500 font-bold text-xs transition-colors hover:bg-red-100"
                         >
-                          <XCircle size={14} /> Cancel this order
+                          <XCircle size={16} /> Cancel Order
                         </button>
                       )}
 
@@ -247,3 +317,4 @@ export default function OrdersPage() {
     </div>
   );
 }
+
