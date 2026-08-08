@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import BottomNavigation from "../components/BottomNavigation/BottomNavigation";
+import FloatingCart from "../components/FloatingCart/FloatingCart";
 
 export default function MainLayout() {
   const location = useLocation();
@@ -31,11 +32,17 @@ export default function MainLayout() {
         to-background
       "
     >
+
       <Outlet />
+
+      {/* GLOBAL FLOATING CART */}
+
+      <FloatingCart />
 
       {!hideBottomNavigation && !filterIsOpen && (
         <BottomNavigation />
       )}
+
     </div>
   );
 }

@@ -9,26 +9,43 @@ import {
   SlidersHorizontal,
   Bell,
   ShoppingCart,
+  Check,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
 import FilterBottomSheet from "../../components/FilterBottomSheet/FilterBottomSheet";
 import restaurantService from "../../services/restaurantService";
+import { useCart } from "../../context/CartContext";
 
 export default function HomePage() {
   const navigate = useNavigate();
 
+  const {
+    addToCart,
+    getItemQty,
+  } = useCart();
+
   const [restaurants, setRestaurants] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
 
-  const [activeCategory, setActiveCategory] = useState(2);
-  const [activeTimeFilter, setActiveTimeFilter] = useState("Today");
+  const [activeCategory, setActiveCategory] =
+    useState(2);
 
-  const [userLocation, setUserLocation] = useState(
-    () => localStorage.getItem("userLocation") || "Set your location"
-  );
+  const [activeTimeFilter, setActiveTimeFilter] =
+    useState("Today");
 
-  const [currentBanner, setCurrentBanner] = useState(0);
+  const [userLocation, setUserLocation] =
+    useState(
+      () =>
+        localStorage.getItem("userLocation") ||
+        "Set your location"
+    );
+
+  const [currentBanner, setCurrentBanner] =
+    useState(0);
+
+  const [addedItemId, setAddedItemId] =
+    useState(null);
 
   const [filters, setFilters] = useState({
     category: "",
@@ -39,20 +56,33 @@ export default function HomePage() {
     nearMe: false,
   });
 
+  /*
+   * LOCATION UPDATE
+   */
   useEffect(() => {
     const updateLocation = () => {
       setUserLocation(
-        localStorage.getItem("userLocation") || "Set your location"
+        localStorage.getItem("userLocation") ||
+          "Set your location"
       );
     };
 
-    window.addEventListener("locationChanged", updateLocation);
+    window.addEventListener(
+      "locationChanged",
+      updateLocation
+    );
 
     return () => {
-      window.removeEventListener("locationChanged", updateLocation);
+      window.removeEventListener(
+        "locationChanged",
+        updateLocation
+      );
     };
   }, []);
 
+  /*
+   * BANNERS
+   */
   const banners = [
     {
       id: 1,
@@ -77,13 +107,18 @@ export default function HomePage() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentBanner((prev) =>
-        prev === banners.length - 1 ? 0 : prev + 1
+        prev === banners.length - 1
+          ? 0
+          : prev + 1
       );
     }, 3000);
 
     return () => clearInterval(timer);
   }, [banners.length]);
 
+  /*
+   * CATEGORIES
+   */
   const categories = [
     {
       name: "Fruits",
@@ -117,12 +152,15 @@ export default function HomePage() {
     },
   ];
 
+  /*
+   * POPULAR DISHES
+   */
   const popularDishes = [
     {
       id: 1,
       name: "Cabbage with sauce",
       calorie: "170 Kal",
-      price: "৳250",
+      price: 250,
       image:
         "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80",
     },
@@ -130,7 +168,7 @@ export default function HomePage() {
       id: 2,
       name: "Puree soup with turkey",
       calorie: "100 Kal",
-      price: "৳350",
+      price: 350,
       image:
         "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80",
     },
@@ -138,20 +176,24 @@ export default function HomePage() {
       id: 3,
       name: "Three-Meat Lasagna",
       calorie: "250 Kal",
-      price: "৳450",
+      price: 450,
       image:
         "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=800&q=80",
     },
   ];
 
+  /*
+   * FEATURED ITEMS
+   */
   const featuredItems = [
     {
       id: 1,
       title: "Egg Salad",
+      name: "Egg Salad",
       rating: "4.3",
       time: "10-15 mins",
       deliveryFee: "৳20 delivery",
-      price: "৳220",
+      price: 220,
       image:
         "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1000&q=80",
       tags: ["COFFEE", "CHICKEN"],
@@ -159,10 +201,11 @@ export default function HomePage() {
     {
       id: 2,
       title: "Chicken Pasta",
+      name: "Chicken Pasta",
       rating: "4.7",
       time: "15-20 mins",
       deliveryFee: "৳30 delivery",
-      price: "৳320",
+      price: 320,
       image:
         "https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?w=1000&q=80",
       tags: ["PASTA", "FAST FOOD"],
@@ -170,10 +213,11 @@ export default function HomePage() {
     {
       id: 3,
       title: "Fresh Pizza",
+      name: "Fresh Pizza",
       rating: "4.8",
       time: "20-25 mins",
       deliveryFee: "৳25 delivery",
-      price: "৳450",
+      price: 450,
       image:
         "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=1000&q=80",
       tags: ["PIZZA", "ITALIAN"],
@@ -181,93 +225,150 @@ export default function HomePage() {
     {
       id: 4,
       title: "Grilled Chicken",
+      name: "Grilled Chicken",
       rating: "4.6",
       time: "15-25 mins",
       deliveryFee: "৳20 delivery",
-      price: "৳390",
+      price: 390,
       image:
         "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=1000&q=80",
       tags: ["CHICKEN", "GRILLED"],
     },
   ];
 
+  /*
+   * PEOPLE LOOKING FOR
+   */
   const peopleLookingFor = [
     {
       id: 1,
       dish: "Spicy Fresh Crab",
+      name: "Spicy Fresh Crab",
       restaurant: "Waroenk Kita",
-      price: "৳550",
+      price: 550,
       image:
         "https://images.unsplash.com/photo-1551248429-40975aa4de74?w=500&q=80",
     },
     {
       id: 2,
       dish: "Chicken Burger",
+      name: "Chicken Burger",
       restaurant: "Burger House",
-      price: "৳280",
+      price: 280,
       image:
         "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80",
     },
   ];
 
+  /*
+   * BODY LOCK WHEN FILTER IS OPEN
+   */
   useEffect(() => {
-    document.body.style.overflow = showFilter ? "hidden" : "auto";
+    document.body.style.overflow =
+      showFilter ? "hidden" : "auto";
 
     return () => {
       document.body.style.overflow = "auto";
     };
   }, [showFilter]);
 
+  /*
+   * LOAD RESTAURANTS
+   * Existing API logic preserved.
+   */
   useEffect(() => {
     const loadRestaurants = async () => {
       try {
-        const response = await restaurantService.getRestaurants();
+        const response =
+          await restaurantService.getRestaurants();
 
-        setRestaurants(response.restaurants || []);
+        setRestaurants(
+          response?.restaurants || []
+        );
       } catch (error) {
-        console.error(error);
+        console.error(
+          "Failed to load restaurants:",
+          error
+        );
       }
     };
 
     loadRestaurants();
   }, []);
 
+  /*
+   * UNIFIED CART ADD
+   *
+   * IMPORTANT:
+   * HomePage আর localStorage directly modify করছে না.
+   * সব Add-to-Cart CartContext দিয়ে যাবে.
+   */
   const handleAddToCart = (item) => {
-    const existingCart = JSON.parse(
-      localStorage.getItem("cart") || "[]"
-    );
+    const cartItem = {
+      ...item,
+      id: item.id,
+      name:
+        item.name ||
+        item.title ||
+        item.dish ||
+        "Food Item",
+      title:
+        item.title ||
+        item.name ||
+        item.dish ||
+        "Food Item",
+      price:
+        typeof item.price === "number"
+          ? item.price
+          : Number(
+              String(item.price || 0)
+                .replace(/[৳$,\s]/g, "")
+            ) || 0,
+      image:
+        item.image ||
+        item.thumbnail ||
+        item.imageUrl ||
+        "",
+    };
 
-    const existingIndex = existingCart.findIndex(
-      (cartItem) => cartItem.id === item.id
-    );
+    addToCart(cartItem);
 
-    if (existingIndex >= 0) {
-      existingCart[existingIndex].quantity =
-        (existingCart[existingIndex].quantity || 1) + 1;
-    } else {
-      existingCart.push({
-        ...item,
-        quantity: 1,
-      });
-    }
+    setAddedItemId(item.id);
 
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(existingCart)
-    );
+    window.setTimeout(() => {
+      setAddedItemId((current) =>
+        current === item.id
+          ? null
+          : current
+      );
+    }, 900);
+  };
 
-    window.dispatchEvent(new Event("cartUpdated"));
+  /*
+   * SAFE PRICE FORMAT
+   */
+  const formatPrice = (price) => {
+    const numeric =
+      typeof price === "number"
+        ? price
+        : Number(
+            String(price || 0)
+              .replace(/[৳$,\s]/g, "")
+          ) || 0;
+
+    return `৳${numeric}`;
   };
 
   return (
     <div className="min-h-screen bg-[#FDFDFD] pb-24 overflow-x-hidden">
 
-      {/* ================= BANNER ================= */}
+      {/* =====================================================
+          HERO / BANNER
+      ===================================================== */}
 
       <div className="relative h-[480px] w-full overflow-hidden">
 
         <AnimatePresence mode="wait">
-
           <motion.img
             key={currentBanner}
             src={banners[currentBanner].image}
@@ -275,22 +376,28 @@ export default function HomePage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8 }}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover"
+            alt={banners[currentBanner].title}
           />
-
         </AnimatePresence>
 
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-transparent to-[#FDFDFD]" />
 
-        <div className="absolute inset-0 px-5 pt-6 flex flex-col">
+        <div className="absolute inset-0 flex flex-col px-5 pt-6">
 
-          {/* Header */}
+          {/* HEADER */}
 
-          <div className="flex items-center justify-between z-10 mb-8">
+          <div className="z-10 mb-8 flex items-center justify-between">
 
-            <div className="flex items-center gap-3 bg-white/15 backdrop-blur-md p-1 pr-4 rounded-full border border-white/20">
+            <button
+              type="button"
+              onClick={() =>
+                navigate("/location")
+              }
+              className="flex items-center gap-3 rounded-full border border-white/20 bg-white/15 p-1 pr-4 backdrop-blur-md"
+            >
 
-              <div className="bg-white p-2 rounded-full shadow-sm flex items-center justify-center">
+              <div className="flex items-center justify-center rounded-full bg-white p-2 shadow-sm">
 
                 <MapPin
                   size={16}
@@ -299,25 +406,26 @@ export default function HomePage() {
 
               </div>
 
-              <div>
+              <div className="text-left">
 
-                <p className="text-[10px] text-white/80 uppercase font-bold">
+                <p className="text-[10px] font-bold uppercase text-white/80">
                   Delivery to
                 </p>
 
-                <h2 className="text-[12px] font-bold text-white">
+                <h2 className="max-w-[150px] truncate text-[12px] font-bold text-white">
                   {userLocation}
                 </h2>
 
               </div>
 
-            </div>
+            </button>
 
             <div className="flex gap-2">
 
               <button
                 type="button"
-                className="h-11 w-11 bg-white/15 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 relative"
+                className="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/15 backdrop-blur-md"
+                aria-label="Notifications"
               >
 
                 <Bell
@@ -325,19 +433,22 @@ export default function HomePage() {
                   className="text-white"
                 />
 
-                <span className="absolute top-3 right-3 w-2 h-2 bg-[#FF5A00] rounded-full border-2 border-white" />
+                <span className="absolute right-3 top-3 h-2 w-2 rounded-full border-2 border-white bg-[#FF5A00]" />
 
               </button>
 
               <button
                 type="button"
-                onClick={() => navigate("/profile")}
-                className="h-11 w-11 rounded-full border-2 border-white overflow-hidden shadow-lg"
+                onClick={() =>
+                  navigate("/profile")
+                }
+                className="h-11 w-11 overflow-hidden rounded-full border-2 border-white shadow-lg"
+                aria-label="Profile"
               >
 
                 <img
                   src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&q=80"
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                   alt="profile"
                 />
 
@@ -347,7 +458,7 @@ export default function HomePage() {
 
           </div>
 
-          <h1 className="text-[34px] font-bold text-white mb-6 leading-tight drop-shadow-md">
+          <h1 className="mb-6 text-[34px] font-bold leading-tight text-white drop-shadow-md">
 
             Hungry?
 
@@ -359,31 +470,41 @@ export default function HomePage() {
 
           </h1>
 
-          {/* Search */}
+          {/* SEARCH */}
 
-          <div className="flex gap-3 mt-4">
-
-            <div className="flex-1 flex items-center gap-3 rounded-2xl bg-white px-5 py-4 shadow-2xl">
-
-              <Search
-                size={20}
-                className="text-gray-400"
-              />
-
-              <input
-                placeholder="Search for fast food..."
-                className="w-full bg-transparent outline-none text-sm font-medium"
-              />
-
-            </div>
+          <div className="mt-4 flex gap-3">
 
             <button
               type="button"
-              onClick={() => setShowFilter(true)}
-              className="flex h-[58px] w-[58px] items-center justify-center rounded-2xl bg-[#FF5A00] text-white shadow-lg active:scale-95 transition-all"
+              onClick={() =>
+                navigate("/search")
+              }
+              className="flex flex-1 items-center gap-3 rounded-2xl bg-white px-5 py-4 text-left shadow-2xl"
             >
 
-              <SlidersHorizontal size={22} />
+              <Search
+                size={20}
+                className="shrink-0 text-gray-400"
+              />
+
+              <span className="text-sm font-medium text-gray-400">
+                Search for fast food...
+              </span>
+
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                setShowFilter(true)
+              }
+              className="flex h-[58px] w-[58px] items-center justify-center rounded-2xl bg-[#FF5A00] text-white shadow-lg transition-all active:scale-95"
+              aria-label="Open filters"
+            >
+
+              <SlidersHorizontal
+                size={22}
+              />
 
             </button>
 
@@ -392,66 +513,76 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-5 relative">
+      <div className="relative mx-auto max-w-7xl px-5">
 
-        {/* ================= CATEGORIES ================= */}
+        {/* =====================================================
+            CATEGORIES
+        ===================================================== */}
 
-        <section className="relative h-[190px] flex items-end justify-center -mt-20 z-20">
+        <section className="relative z-20 -mt-20 flex h-[190px] items-end justify-center">
 
-          <div className="absolute top-0 w-[145%] h-[300px] bg-[#FDFDFD] rounded-[100%] -z-10 shadow-[0_-15px_30px_rgba(0,0,0,0.05)] border-t border-gray-50" />
+          <div className="absolute top-0 -z-10 h-[300px] w-[145%] rounded-[100%] border-t border-gray-50 bg-[#FDFDFD] shadow-[0_-15px_30px_rgba(0,0,0,0.05)]" />
 
-          <div className="flex justify-between w-full px-0 items-end pb-4">
+          <div className="flex w-full items-end justify-between px-0 pb-4">
 
-            {categories.map((item, index) => (
+            {categories.map(
+              (item, index) => (
 
-              <div
-                key={item.name}
-                className="flex flex-col items-center flex-1"
-              >
-
-                <motion.button
-                  type="button"
-                  onClick={() => setActiveCategory(index)}
-                  whileTap={{ scale: 0.92 }}
-                  className={`relative w-[62px] h-[62px] rounded-full bg-white shadow-lg overflow-hidden flex items-center justify-center transition-all duration-300 ${
-                    activeCategory === index
-                      ? "scale-110 -translate-y-3 ring-4 ring-[#FF5A00]/15"
-                      : "opacity-95"
-                  }`}
+                <div
+                  key={item.name}
+                  className="flex flex-1 flex-col items-center"
                 >
 
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <motion.button
+                    type="button"
+                    onClick={() =>
+                      setActiveCategory(index)
+                    }
+                    whileTap={{
+                      scale: 0.92,
+                    }}
+                    className={`relative flex h-[62px] w-[62px] items-center justify-center overflow-hidden rounded-full bg-white shadow-lg transition-all duration-300 ${
+                      activeCategory === index
+                        ? "scale-110 -translate-y-3 ring-4 ring-[#FF5A00]/15"
+                        : "opacity-95"
+                    }`}
+                  >
 
-                  <div className="absolute inset-0 bg-black/10" />
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="h-full w-full object-cover"
+                    />
 
-                </motion.button>
+                    <div className="absolute inset-0 bg-black/10" />
 
-                <p
-                  className={`text-[11px] mt-2 font-bold ${
-                    activeCategory === index
-                      ? "text-gray-900"
-                      : "text-gray-500"
-                  }`}
-                >
-                  {item.name}
-                </p>
+                  </motion.button>
 
-              </div>
+                  <p
+                    className={`mt-2 text-[11px] font-bold ${
+                      activeCategory === index
+                        ? "text-gray-900"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {item.name}
+                  </p>
 
-            ))}
+                </div>
+              )
+            )}
 
           </div>
+
         </section>
 
-        {/* ================= POPULAR ITEMS ================= */}
+        {/* =====================================================
+            POPULAR ITEMS
+        ===================================================== */}
 
-        <section className="mt-2 relative pt-5 pb-10">
+        <section className="relative mt-2 pb-10 pt-5">
 
-          <div className="absolute inset-0 bg-[#F8F8F8] rounded-[45px] -z-10 translate-y-3" />
+          <div className="absolute inset-0 -z-10 translate-y-3 rounded-[45px] bg-[#F8F8F8]" />
 
           <div className="mb-5 flex items-center justify-between px-2">
 
@@ -461,6 +592,9 @@ export default function HomePage() {
 
             <button
               type="button"
+              onClick={() =>
+                navigate("/restaurants")
+              }
               className="text-xs font-bold text-[#FF5A00]"
             >
               View All
@@ -468,46 +602,97 @@ export default function HomePage() {
 
           </div>
 
-          <div className="flex gap-5 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory px-2">
+          <div className="no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto px-2 pb-4">
 
-            {popularDishes.map((item) => (
+            {popularDishes.map(
+              (item) => {
 
-              <motion.div
-                key={item.id}
-                whileTap={{ scale: 0.97 }}
-                className="min-w-[180px] snap-center bg-white rounded-[30px] p-4 shadow-lg border border-gray-100 flex flex-col items-center"
-              >
+                const qty =
+                  getItemQty(item.id);
 
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-28 h-28 object-cover rounded-full shadow-md ring-4 ring-gray-50 mb-4"
-                />
+                return (
+                  <motion.div
+                    key={item.id}
+                    whileTap={{
+                      scale: 0.97,
+                    }}
+                    className="min-w-[180px] snap-center rounded-[30px] border border-gray-100 bg-white p-4 shadow-lg"
+                  >
 
-                <div className="w-full text-center">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="mb-4 h-28 w-28 rounded-full object-cover shadow-md ring-4 ring-gray-50"
+                    />
 
-                  <h3 className="text-[13px] font-bold text-gray-800 line-clamp-1">
-                    {item.name}
-                  </h3>
+                    <div className="text-center">
 
-                  <p className="text-[10px] text-gray-400 mt-1.5 font-bold">
-                    🔥 {item.calorie}
-                  </p>
+                      <h3 className="line-clamp-1 text-[13px] font-bold text-gray-800">
+                        {item.name}
+                      </h3>
 
-                  <div className="mt-3 font-extrabold text-[17px] text-[#FF5A00]">
-                    {item.price}
-                  </div>
+                      <p className="mt-1.5 text-[10px] font-bold text-gray-400">
+                        🔥 {item.calorie}
+                      </p>
 
-                </div>
+                      <div className="mt-3 flex items-center justify-between">
 
-              </motion.div>
+                        <div className="font-extrabold text-[17px] text-[#FF5A00]">
+                          {formatPrice(
+                            item.price
+                          )}
+                        </div>
 
-            ))}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleAddToCart(
+                              item
+                            )
+                          }
+                          className={`flex h-9 w-9 items-center justify-center rounded-xl text-white shadow-md transition-all active:scale-90 ${
+                            addedItemId ===
+                            item.id
+                              ? "bg-green-500"
+                              : "bg-[#FF5A00]"
+                          }`}
+                          aria-label={`Add ${item.name} to cart`}
+                        >
+
+                          {addedItemId ===
+                          item.id ? (
+                            <Check
+                              size={18}
+                            />
+                          ) : (
+                            <Plus
+                              size={19}
+                            />
+                          )}
+
+                        </button>
+
+                      </div>
+
+                      {qty > 0 && (
+                        <p className="mt-2 text-[9px] font-bold text-green-600">
+                          {qty} in cart
+                        </p>
+                      )}
+
+                    </div>
+
+                  </motion.div>
+                );
+              }
+            )}
 
           </div>
         </section>
 
-        {/* ================= FEATURED ITEMS ================= */}
+        {/* =====================================================
+            FEATURED ITEMS
+        ===================================================== */}
 
         <section className="mt-8">
 
@@ -519,6 +704,9 @@ export default function HomePage() {
 
             <button
               type="button"
+              onClick={() =>
+                navigate("/restaurants")
+              }
               className="text-sm font-bold text-[#FF5A00]"
             >
               See All
@@ -528,81 +716,117 @@ export default function HomePage() {
 
           <div className="grid grid-cols-2 gap-4">
 
-            {featuredItems.map((item) => (
+            {featuredItems.map(
+              (item) => {
 
-              <motion.div
-                key={item.id}
-                whileTap={{ scale: 0.97 }}
-                className="overflow-hidden rounded-[24px] bg-white shadow-md border border-gray-100"
-              >
+                const qty =
+                  getItemQty(item.id);
 
-                <div className="relative h-[145px]">
+                return (
+                  <motion.div
+                    key={item.id}
+                    whileTap={{
+                      scale: 0.97,
+                    }}
+                    className="overflow-hidden rounded-[24px] border border-gray-100 bg-white shadow-md"
+                  >
 
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="h-full w-full object-cover"
-                  />
+                    <div className="relative h-[145px]">
 
-                  <div className="absolute top-3 left-3 bg-[#FF5A00] text-white px-2.5 py-1 rounded-full text-[9px] font-extrabold">
-                    FEATURED
-                  </div>
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="h-full w-full object-cover"
+                      />
 
-                  <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-white/95 px-2 py-1">
+                      <div className="absolute left-3 top-3 rounded-full bg-[#FF5A00] px-2.5 py-1 text-[9px] font-extrabold text-white">
+                        FEATURED
+                      </div>
 
-                    <Star
-                      size={11}
-                      className="fill-yellow-400 text-yellow-400"
-                    />
+                      <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-white/95 px-2 py-1">
 
-                    <span className="text-[10px] font-bold">
-                      {item.rating}
-                    </span>
+                        <Star
+                          size={11}
+                          className="fill-yellow-400 text-yellow-400"
+                        />
 
-                  </div>
+                        <span className="text-[10px] font-bold">
+                          {item.rating}
+                        </span>
 
-                </div>
+                      </div>
 
-                <div className="p-3">
+                    </div>
 
-                  <h3 className="font-extrabold text-[14px] text-gray-900 line-clamp-1">
-                    {item.title}
-                  </h3>
+                    <div className="p-3">
 
-                  <p className="mt-1 text-[9px] font-bold text-gray-400">
-                    {item.time} • {item.deliveryFee}
-                  </p>
+                      <h3 className="line-clamp-1 text-[14px] font-extrabold text-gray-900">
+                        {item.title}
+                      </h3>
 
-                  <div className="mt-2 flex items-center justify-between">
+                      <p className="mt-1 text-[9px] font-bold text-gray-400">
+                        {item.time} •{" "}
+                        {item.deliveryFee}
+                      </p>
 
-                    <span className="font-extrabold text-[#FF5A00] text-[15px]">
-                      {item.price}
-                    </span>
+                      <div className="mt-2 flex items-center justify-between">
 
-                    <button
-                      type="button"
-                      onClick={() => handleAddToCart(item)}
-                      className="h-9 w-9 rounded-xl bg-[#FF5A00] text-white flex items-center justify-center shadow-md active:scale-90 transition-transform"
-                      aria-label={`Add ${item.title} to cart`}
-                    >
+                        <span className="text-[15px] font-extrabold text-[#FF5A00]">
+                          {formatPrice(
+                            item.price
+                          )}
+                        </span>
 
-                      <Plus size={19} />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleAddToCart(
+                              item
+                            )
+                          }
+                          className={`flex h-9 w-9 items-center justify-center rounded-xl text-white shadow-md transition-transform active:scale-90 ${
+                            addedItemId ===
+                            item.id
+                              ? "bg-green-500"
+                              : "bg-[#FF5A00]"
+                          }`}
+                          aria-label={`Add ${item.title} to cart`}
+                        >
 
-                    </button>
+                          {addedItemId ===
+                          item.id ? (
+                            <Check
+                              size={18}
+                            />
+                          ) : (
+                            <Plus
+                              size={19}
+                            />
+                          )}
 
-                  </div>
+                        </button>
 
-                </div>
+                      </div>
 
-              </motion.div>
+                      {qty > 0 && (
+                        <p className="mt-2 text-[9px] font-bold text-green-600">
+                          {qty} in cart
+                        </p>
+                      )}
 
-            ))}
+                    </div>
+
+                  </motion.div>
+                );
+              }
+            )}
 
           </div>
-
         </section>
 
-        {/* ================= POPULAR RESTAURANTS ================= */}
+        {/* =====================================================
+            POPULAR RESTAURANTS
+        ===================================================== */}
 
         <section className="mt-10">
 
@@ -614,187 +838,250 @@ export default function HomePage() {
 
             <button
               type="button"
-              onClick={() => navigate("/restaurants")}
-              className="text-[#FF5A00] text-sm font-bold"
+              onClick={() =>
+                navigate("/restaurants")
+              }
+              className="text-sm font-bold text-[#FF5A00]"
             >
               See All
             </button>
 
           </div>
 
-          <div className="flex gap-3 mb-6 overflow-x-auto no-scrollbar py-2">
+          <div className="no-scrollbar mb-6 flex gap-3 overflow-x-auto py-2">
 
-            {["Today", "This Week", "This Month"].map(
-              (filter) => (
+            {[
+              "Today",
+              "This Week",
+              "This Month",
+            ].map((filter) => (
 
-                <button
-                  key={filter}
-                  type="button"
-                  onClick={() =>
-                    setActiveTimeFilter(filter)
-                  }
-                  className={`px-6 py-2.5 rounded-full text-[11px] font-bold transition-all whitespace-nowrap ${
-                    activeTimeFilter === filter
-                      ? "bg-[#FF5A00] text-white shadow-md"
-                      : "bg-gray-100 text-gray-500"
-                  }`}
-                >
-                  {filter}
-                </button>
+              <button
+                key={filter}
+                type="button"
+                onClick={() =>
+                  setActiveTimeFilter(
+                    filter
+                  )
+                }
+                className={`whitespace-nowrap rounded-full px-6 py-2.5 text-[11px] font-bold transition-all ${
+                  activeTimeFilter ===
+                  filter
+                    ? "bg-[#FF5A00] text-white shadow-md"
+                    : "bg-gray-100 text-gray-500"
+                }`}
+              >
+                {filter}
+              </button>
 
-              )
-            )}
+            ))}
 
           </div>
 
           <div className="space-y-6">
 
-            {restaurants.map((restaurant) => (
+            {restaurants.map(
+              (restaurant) => (
 
-              <motion.div
-                key={restaurant.id}
-                whileTap={{ scale: 0.98 }}
-                onClick={() =>
-                  navigate(
-                    `/restaurants/${restaurant.id}`
-                  )
-                }
-                className="bg-white rounded-[30px] overflow-hidden shadow-md border border-gray-100 group cursor-pointer"
-              >
+                <motion.div
+                  key={restaurant.id}
+                  whileTap={{
+                    scale: 0.98,
+                  }}
+                  onClick={() =>
+                    navigate(
+                      `/restaurants/${restaurant.id}`
+                    )
+                  }
+                  className="group cursor-pointer overflow-hidden rounded-[30px] border border-gray-100 bg-white shadow-md"
+                >
 
-                <div className="relative h-48">
+                  <div className="relative h-48">
 
-                  <img
-                    src={
-                      restaurant.image ||
-                      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000&q=80"
-                    }
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    alt={restaurant.name}
-                  />
+                    <img
+                      src={
+                        restaurant.image ||
+                        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000&q=80"
+                      }
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      alt={
+                        restaurant.name
+                      }
+                    />
 
-                  <div className="absolute left-4 top-4 bg-white/95 px-3 py-1 rounded-full shadow-sm">
+                    <div className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 shadow-sm">
 
-                    <div className="flex items-center gap-1.5 font-bold text-[11px]">
+                      <div className="flex items-center gap-1.5 text-[11px] font-bold">
 
-                      <Star
-                        size={12}
-                        className="fill-yellow-400 text-yellow-400"
-                      />
+                        <Star
+                          size={12}
+                          className="fill-yellow-400 text-yellow-400"
+                        />
 
-                      {restaurant.rating}
+                        {restaurant.rating}
+
+                      </div>
 
                     </div>
 
                   </div>
 
-                </div>
+                  <div className="flex items-center justify-between p-5">
 
-                <div className="p-5 flex justify-between items-center">
+                    <div>
 
-                  <div>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        {restaurant.name}
+                      </h3>
 
-                    <h3 className="text-lg font-bold text-gray-900">
-                      {restaurant.name}
-                    </h3>
+                      <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        {restaurant.category}
+                      </p>
 
-                    <p className="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-widest">
-                      {restaurant.category}
-                    </p>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-2 text-[11px] font-bold text-gray-500">
+
+                      <Clock3
+                        size={14}
+                        className="text-[#FF5A00]"
+                      />
+
+                      {restaurant.deliveryTime}
+
+                    </div>
 
                   </div>
 
-                  <div className="text-[11px] text-gray-500 font-bold flex items-center gap-1.5 bg-gray-50 px-3 py-2 rounded-full">
+                </motion.div>
 
-                    <Clock3
-                      size={14}
-                      className="text-[#FF5A00]"
-                    />
+              )
+            )}
 
-                    {restaurant.deliveryTime}
+            {restaurants.length === 0 && (
+              <div className="rounded-[28px] border border-gray-100 bg-white p-8 text-center shadow-sm">
 
-                  </div>
+                <p className="text-sm font-bold text-gray-500">
+                  No restaurants available right now.
+                </p>
 
-                </div>
-
-              </motion.div>
-
-            ))}
+              </div>
+            )}
 
           </div>
 
         </section>
 
-        {/* ================= PEOPLE ARE LOOKING FOR ================= */}
+        {/* =====================================================
+            PEOPLE ARE LOOKING FOR
+        ===================================================== */}
 
         <section className="mt-10">
 
-          <h2 className="text-xl font-extrabold mb-5 text-gray-900">
+          <h2 className="mb-5 text-xl font-extrabold text-gray-900">
             People are looking for 🔥
           </h2>
 
           <div className="space-y-4">
 
-            {peopleLookingFor.map((item) => (
+            {peopleLookingFor.map(
+              (item) => {
 
-              <div
-                key={item.id}
-                className="flex items-center justify-between bg-white rounded-[24px] p-4 shadow-sm border border-gray-100"
-              >
+                const qty =
+                  getItemQty(item.id);
 
-                <div className="flex items-center gap-4 min-w-0">
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between rounded-[24px] border border-gray-100 bg-white p-4 shadow-sm"
+                  >
 
-                  <img
-                    src={item.image}
-                    alt={item.dish}
-                    className="h-16 w-16 rounded-2xl object-cover shadow-sm"
-                  />
+                    <div className="flex min-w-0 items-center gap-4">
 
-                  <div className="min-w-0">
+                      <img
+                        src={item.image}
+                        alt={item.dish}
+                        className="h-16 w-16 rounded-2xl object-cover shadow-sm"
+                      />
 
-                    <h3 className="font-extrabold text-sm text-gray-800 truncate">
-                      {item.dish}
-                    </h3>
+                      <div className="min-w-0">
 
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">
-                      {item.restaurant}
-                    </p>
+                        <h3 className="truncate text-sm font-extrabold text-gray-800">
+                          {item.dish}
+                        </h3>
 
-                    <p className="mt-1 text-sm font-extrabold text-[#FF5A00]">
-                      {item.price}
-                    </p>
+                        <p className="text-[10px] font-bold uppercase tracking-tight text-gray-400">
+                          {item.restaurant}
+                        </p>
+
+                        <p className="mt-1 text-sm font-extrabold text-[#FF5A00]">
+                          {formatPrice(
+                            item.price
+                          )}
+                        </p>
+
+                        {qty > 0 && (
+                          <p className="mt-0.5 text-[9px] font-bold text-green-600">
+                            {qty} in cart
+                          </p>
+                        )}
+
+                      </div>
+
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleAddToCart(
+                          item
+                        )
+                      }
+                      className={`ml-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-md transition-transform active:scale-90 ${
+                        addedItemId ===
+                        item.id
+                          ? "bg-green-500"
+                          : "bg-[#FF5A00]"
+                      }`}
+                      aria-label={`Add ${item.dish} to cart`}
+                    >
+
+                      {addedItemId ===
+                      item.id ? (
+                        <Check
+                          size={19}
+                        />
+                      ) : (
+                        <ShoppingCart
+                          size={19}
+                        />
+                      )}
+
+                    </button>
 
                   </div>
-
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleAddToCart(item)}
-                  className="ml-3 h-11 w-11 shrink-0 bg-[#FF5A00] text-white rounded-xl flex items-center justify-center shadow-md active:scale-90 transition-transform"
-                  aria-label={`Add ${item.dish} to cart`}
-                >
-
-                  <ShoppingCart size={19} />
-
-                </button>
-
-              </div>
-
-            ))}
+                );
+              }
+            )}
 
           </div>
 
         </section>
 
-        {/* ================= FILTER ================= */}
+        {/* =====================================================
+            FILTER
+        ===================================================== */}
 
         <FilterBottomSheet
           open={showFilter}
-          onClose={() => setShowFilter(false)}
+          onClose={() =>
+            setShowFilter(false)
+          }
           filters={filters}
           setFilters={setFilters}
-          onApply={() => setShowFilter(false)}
+          onApply={() =>
+            setShowFilter(false)
+          }
         />
 
       </div>
