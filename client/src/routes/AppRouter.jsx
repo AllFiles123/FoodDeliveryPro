@@ -21,14 +21,16 @@ import RestaurantDetailsPage from "../pages/Restaurant/RestaurantDetailsPage";
 
 import CategoryFoodsPage from "../pages/CategoryFoods/CategoryFoodsPage";
 
-import FoodDetails from "../pages/FoodDetails/FoodDetails";
-
 import CartPage from "../pages/Cart/CartPage";
 import CheckoutPage from "../pages/Checkout/CheckoutPage";
 import OrdersPage from "../pages/Orders/OrdersPage";
 
+import LocationPage from "../pages/Location/LocationPage";
+
 import Favourite from "../pages/Favourite/Favourite";
 import Map from "../pages/Map/Map";
+
+import FoodDetails from "../pages/FoodDetails/FoodDetails";
 
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
@@ -39,7 +41,10 @@ export default function AppRouter() {
       <Route element={<MainLayout />}>
 
         {/* Splash */}
-        <Route path="/" element={<SplashPage />} />
+        <Route
+          path="/"
+          element={<SplashPage />}
+        />
 
         {/* Onboarding */}
         <Route
@@ -47,7 +52,7 @@ export default function AppRouter() {
           element={<OnboardingPage />}
         />
 
-        {/* Authentication */}
+        {/* Auth */}
         <Route
           path="/login"
           element={
@@ -85,6 +90,16 @@ export default function AppRouter() {
           element={<ResetPasswordPage />}
         />
 
+        {/* Location */}
+        <Route
+          path="/location"
+          element={
+            <ProtectedRoute>
+              <LocationPage />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Home */}
         <Route
           path="/home"
@@ -105,39 +120,22 @@ export default function AppRouter() {
           }
         />
 
-        {/* Restaurants */}
-        <Route
-          path="/restaurants"
-          element={<RestaurantListPage />}
-        />
-
-        <Route
-          path="/restaurants/:id"
-          element={<RestaurantDetailsPage />}
-        />
-
-        {/* Category Foods */}
-        <Route
-          path="/restaurants/:id/category/:categoryName"
-          element={<CategoryFoodsPage />}
-        />
-
-        {/* Food Details */}
-        <Route
-          path="/food/:id"
-          element={
-            <ProtectedRoute>
-              <FoodDetails />
-            </ProtectedRoute>
-          }
-        />
-
         {/* Cart */}
         <Route
           path="/cart"
           element={
             <ProtectedRoute>
               <CartPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Orders */}
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <OrdersPage />
             </ProtectedRoute>
           }
         />
@@ -152,12 +150,12 @@ export default function AppRouter() {
           }
         />
 
-        {/* Orders */}
+        {/* Profile */}
         <Route
-          path="/orders"
+          path="/profile"
           element={
             <ProtectedRoute>
-              <OrdersPage />
+              <ProfilePage />
             </ProtectedRoute>
           }
         />
@@ -182,12 +180,30 @@ export default function AppRouter() {
           }
         />
 
-        {/* Profile */}
+        {/* Restaurants */}
         <Route
-          path="/profile"
+          path="/restaurants"
+          element={<RestaurantListPage />}
+        />
+
+        {/* Restaurant Details */}
+        <Route
+          path="/restaurants/:id"
+          element={<RestaurantDetailsPage />}
+        />
+
+        {/* Category Foods */}
+        <Route
+          path="/restaurants/:id/category/:categoryName"
+          element={<CategoryFoodsPage />}
+        />
+
+        {/* Food Details */}
+        <Route
+          path="/food/:id"
           element={
             <ProtectedRoute>
-              <ProfilePage />
+              <FoodDetails />
             </ProtectedRoute>
           }
         />
@@ -196,3 +212,4 @@ export default function AppRouter() {
     </Routes>
   );
 }
+

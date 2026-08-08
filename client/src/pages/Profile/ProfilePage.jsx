@@ -1,850 +1,1148 @@
-import {useState,useEffect} from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-ArrowLeft,
-Settings,
-Pencil,
-User,
-Package,
-MapPin,
-CreditCard,
-Bell,
-Moon,
-HelpCircle,
-LogOut,
-ChevronRight,
-Wallet,
-Building2,
-Smartphone,
-Upload
+  ArrowLeft,
+  Settings,
+  Pencil,
+  User,
+  Package,
+  MapPin,
+  CreditCard,
+  Bell,
+  Moon,
+  HelpCircle,
+  LogOut,
+  ChevronRight,
+  Wallet,
+  Building2,
+  Smartphone,
+  Upload,
+  Plus,
+  Trash2,
+  X,
+  Check,
+  Navigation,
+  Home,
+  Briefcase,
+  Star,
 } from "lucide-react";
 
-import {useAuth} from "../../context/AuthContext";
-import {useToast} from "../../context/ToastContext";
+import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
+import profileService from "../../services/profileService";
 
+export default function ProfilePage() {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const { showToast } = useToast();
 
-export default function ProfilePage(){
+  const [screen, setScreen] = useState("profile");
 
-const {user}=useAuth();
+  const [profileImage, setProfileImage] = useState(
+    localStorage.getItem("profileImage") ||
+      user?.profileImage ||
+      ""
+  );
 
-const {showToast}=useToast();
+  const [formData, setFormData] = useState({
+    fullName: user?.fullName || "David Warner",
+    email: user?.email || "davidwarner@gmail.com",
+    phone: user?.phone || "+8801XXXXXXXXX",
+    address: "",
+    about: "",
+  });
 
+  const [savedCards, setSavedCards] = useState(() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("savedCards") || "[]"
+      );
+    } catch {
+      return [];
+    }
+  });
 
-const [screen,setScreen]=useState("profile");
+  const [addresses, setAddresses] = useState(() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("savedAddresses") || "[]"
+      );
+    } catch {
+      return [];
+    }
+  });
 
+  const [showCardForm, setShowCardForm] = useState(false);
+  const [showAddressForm, setShowAddressForm] = useState(false);
 
-const [profileImage,setProfileImage]=useState(
-localStorage.getItem("profileImage") ||
-user?.profileImage ||
-""
-);
+  const [cardData, setCardData] = useState({
+    holder: "",
+    number: "",
+    expiry: "",
+    cvv: "",
+    type: "Mastercard",
+  });
 
+  const [addressData, setAddressData] = useState({
+    label: "Home",
+    address: "",
+    city: "Dhaka",
+    phone: "",
+  });
 
-const [formData,setFormData]=useState({
+  useEffect(() => {
+    const storedImage = localStorage.getItem("profileImage");
 
-fullName:user?.fullName || "David Warner",
+    if (storedImage) {
+      setProfileImage(storedImage);
+    }
+  }, []);
 
-email:user?.email || "davidwarner@gmail.com",
+  useEffect(() => {
+    localStorage.setItem(
+      "savedCards",
+      JSON.stringify(savedCards)
+    );
+  }, [savedCards]);
 
-phone:user?.phone || "+8801XXXXXXXXX",
+  useEffect(() => {
+    localStorage.setItem(
+      "savedAddresses",
+      JSON.stringify(addresses)
+    );
+  }, [addresses]);
 
-address:"",
+  const currentLocation = localStorage.getItem("userLocation") || "";
 
-about:""
+  const maskedCardNumber = useMemo(() => {
+    const clean = cardData.number.replace(/\D/g, "");
 
-});
+    if (!clean) {
+      return "•••• •••• •••• ••••";
+    }
 
+    const lastFour = clean.slice(-4);
 
-useEffect(()=>{
+    return `•••• •••• •••• ${lastFour}`;
+  }, [cardData.number]);
 
-const img=
-localStorage.getItem("profileImage");
+  const detectCardType = (number) => {
+    const clean = number.replace(/\D/g, "");
 
-if(img){
-setProfileImage(img);
+    if (/^4/.test(clean)) return "Visa";
+    if (/^5[1-5]/.test(clean)) return "Mastercard";
+
+    return "Credit Card";
+  };
+
+  const handleImage = (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+
+    setProfileImage(url);
+
+    localStorage.setItem("profileImage", url);
+
+    showToast("Profile photo updated", "success");
+  };
+
+  const handleChange = (event) => {
+    setFormData((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.value,
+    }));
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      await profileService.updateProfile(formData);
+      showToast("Profile saved successfully", "success");
+    } catch (error) {
+      console.error(error);
+      showToast("Profile saved locally", "success");
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
+
+  const formatCardNumber = (value) => {
+    const clean = value
+      .replace(/\D/g, "")
+      .slice(0, 16);
+
+    return clean.replace(/(.{4})/g, "$1 ").trim();
+  };
+
+  const formatExpiry = (value) => {
+    const clean = value
+      .replace(/\D/g, "")
+      .slice(0, 4);
+
+    if (clean.length <= 2) return clean;
+
+    return `${clean.slice(0, 2)}/${clean.slice(2)}`;
+  };
+
+  const handleCardNumberChange = (value) => {
+    const formatted = formatCardNumber(value);
+
+    setCardData((prev) => ({
+      ...prev,
+      number: formatted,
+      type: detectCardType(formatted),
+    }));
+  };
+
+  const handleSaveCard = () => {
+    const cleanNumber = cardData.number.replace(/\D/g, "");
+
+    if (!cardData.holder.trim()) {
+      showToast("Enter card holder name", "error");
+      return;
+    }
+
+    if (cleanNumber.length < 12) {
+      showToast("Enter a valid card number", "error");
+      return;
+    }
+
+    if (!cardData.expiry) {
+      showToast("Enter expiry date", "error");
+      return;
+    }
+
+    if (cardData.cvv.length < 3) {
+      showToast("Enter valid CVV", "error");
+      return;
+    }
+
+    const newCard = {
+      id: Date.now(),
+      holder: cardData.holder.trim(),
+      number: cleanNumber.slice(-4),
+      expiry: cardData.expiry,
+      type: cardData.type,
+    };
+
+    setSavedCards((prev) => [newCard, ...prev]);
+
+    setCardData({
+      holder: "",
+      number: "",
+      expiry: "",
+      cvv: "",
+      type: "Mastercard",
+    });
+
+    setShowCardForm(false);
+
+    showToast("Card saved successfully", "success");
+  };
+
+  const deleteCard = (id) => {
+    setSavedCards((prev) =>
+      prev.filter((card) => card.id !== id)
+    );
+
+    showToast("Card removed", "success");
+  };
+
+  const useCurrentLocation = () => {
+    if (!currentLocation) {
+      showToast(
+        "No saved location found. Please set your location first.",
+        "error"
+      );
+      return;
+    }
+
+    setAddressData((prev) => ({
+      ...prev,
+      address: currentLocation,
+    }));
+
+    setShowAddressForm(true);
+  };
+
+  const handleSaveAddress = () => {
+    if (!addressData.address.trim()) {
+      showToast("Enter an address", "error");
+      return;
+    }
+
+    const newAddress = {
+      id: Date.now(),
+      label: addressData.label,
+      address: addressData.address.trim(),
+      city: addressData.city.trim(),
+      phone:
+        addressData.phone.trim() ||
+        formData.phone,
+    };
+
+    setAddresses((prev) => [newAddress, ...prev]);
+
+    setAddressData({
+      label: "Home",
+      address: "",
+      city: "Dhaka",
+      phone: "",
+    });
+
+    setShowAddressForm(false);
+
+    showToast("Address added successfully", "success");
+  };
+
+  const deleteAddress = (id) => {
+    setAddresses((prev) =>
+      prev.filter((item) => item.id !== id)
+    );
+
+    showToast("Address removed", "success");
+  };
+
+  const mainMenu = [
+    ["Profile Details", User, "details"],
+    ["My Orders", Package, "orders"],
+    ["My Addresses", MapPin, "addresses"],
+    ["Payment Methods", CreditCard, "payment"],
+    ["Saved Cards", CreditCard, "cards"],
+  ];
+
+  const settingMenu = [
+    ["Notifications", Bell],
+    ["Dark Mode", Moon],
+    ["Help & Support", HelpCircle],
+  ];
+
+  const backToProfile = () => {
+    setScreen("profile");
+    setShowCardForm(false);
+    setShowAddressForm(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-gray-100 to-green-100">
+      <div className="min-h-screen overflow-y-auto px-5 pb-40 pt-5">
+
+        {/* HEADER */}
+        <div className="mx-auto flex max-w-md items-center justify-between pb-5">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/80 shadow-sm backdrop-blur"
+          >
+            <ArrowLeft size={21} />
+          </button>
+
+          <h1 className="text-xl font-black text-slate-900">
+            Profile
+          </h1>
+
+          <button
+            className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/80 shadow-sm backdrop-blur"
+          >
+            <Settings size={20} />
+          </button>
+        </div>
+
+        <div className="mx-auto max-w-md">
+
+          {/* ================= PROFILE HOME ================= */}
+          {screen === "profile" && (
+            <>
+              {/* USER CARD */}
+              <div className="rounded-[2rem] border border-white/70 bg-white/80 p-5 shadow-xl backdrop-blur-xl">
+                <div className="flex items-center justify-between gap-4">
+
+                  <div className="flex min-w-0 items-center gap-4">
+
+                    <div className="relative shrink-0">
+                      <img
+                        src={
+                          profileImage ||
+                          "/default-avatar.png"
+                        }
+                        className="h-20 w-20 rounded-full object-cover shadow-md"
+                        alt="Profile"
+                      />
+
+                      <label className="absolute bottom-0 right-0 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-green-600 text-white shadow-lg">
+                        <Pencil size={13} />
+
+                        <input
+                          type="file"
+                          hidden
+                          accept="image/*"
+                          onChange={handleImage}
+                        />
+                      </label>
+                    </div>
+
+                    <div className="min-w-0">
+                      <h2 className="truncate text-lg font-black text-slate-900">
+                        {formData.fullName}
+                      </h2>
+
+                      <p className="mt-1 truncate text-sm text-gray-500">
+                        {formData.email}
+                      </p>
+
+                      <p className="mt-1 text-xs font-semibold text-gray-400">
+                        {formData.phone}
+                      </p>
+                    </div>
+
+                  </div>
+
+                  <button
+                    onClick={() => setScreen("details")}
+                    className="rounded-xl bg-green-50 p-3 text-green-600"
+                  >
+                    <Pencil size={18} />
+                  </button>
+
+                </div>
+              </div>
+
+              {/* MAIN MENU */}
+              <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-white/80 p-4 shadow-xl backdrop-blur-xl">
+
+                {mainMenu.map(([title, Icon, target]) => (
+                  <button
+                    key={title}
+                    onClick={() => {
+                      if (target === "orders") {
+                        navigate("/orders");
+                        return;
+                      }
+
+                      setScreen(target);
+                    }}
+                    className="flex w-full items-center justify-between border-b border-gray-100 py-4 last:border-none"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-100">
+                        <Icon size={21} />
+                      </div>
+
+                      <span className="text-sm font-bold text-slate-800">
+                        {title}
+                      </span>
+                    </div>
+
+                    <ChevronRight
+                      size={19}
+                      className="text-gray-400"
+                    />
+                  </button>
+                ))}
+
+              </div>
+
+              {/* SETTINGS */}
+              <div className="mt-5 overflow-hidden rounded-[2rem] border border-white/70 bg-white/80 p-4 shadow-xl backdrop-blur-xl">
+
+                {settingMenu.map(([title, Icon]) => (
+                  <button
+                    key={title}
+                    className="flex w-full items-center justify-between border-b border-gray-100 py-4 last:border-none"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-100">
+                        <Icon size={21} />
+                      </div>
+
+                      <span className="text-sm font-bold text-slate-800">
+                        {title}
+                      </span>
+                    </div>
+
+                    <ChevronRight
+                      size={19}
+                      className="text-gray-400"
+                    />
+                  </button>
+                ))}
+
+              </div>
+
+              {/* LOGOUT */}
+              <div className="mt-5 rounded-[2rem] border border-red-100 bg-white/80 p-4 shadow-xl backdrop-blur-xl">
+                <button
+                  onClick={handleLogout}
+                  className="flex w-full items-center gap-4 py-4 text-red-500"
+                >
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-50">
+                    <LogOut size={21} />
+                  </div>
+
+                  <span className="text-sm font-black">
+                    Logout
+                  </span>
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* ================= PROFILE DETAILS ================= */}
+          {screen === "details" && (
+            <>
+              <div className="mb-5 flex items-center gap-3">
+                <button
+                  onClick={backToProfile}
+                  className="rounded-xl bg-white p-3 shadow-sm"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+
+                <h2 className="text-xl font-black">
+                  Profile Details
+                </h2>
+              </div>
+
+              <div className="rounded-[2rem] bg-white/90 p-5 shadow-xl">
+
+                <div className="mb-6 flex flex-col items-center">
+                  <img
+                    src={
+                      profileImage ||
+                      "/default-avatar.png"
+                    }
+                    className="h-28 w-28 rounded-full object-cover shadow-lg"
+                    alt="Profile"
+                  />
+
+                  <label className="mt-4 flex cursor-pointer items-center gap-2 font-bold text-green-600">
+                    <Upload size={18} />
+                    Change Photo
+
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={handleImage}
+                    />
+                  </label>
+                </div>
+
+                <input
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  placeholder="Full Name"
+                  className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                />
+
+                <input
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Email"
+                  className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                />
+
+                <input
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="Phone"
+                  className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                />
+
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder="Address"
+                  className="mb-3 h-28 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                />
+
+                <textarea
+                  name="about"
+                  value={formData.about}
+                  onChange={handleChange}
+                  placeholder="About yourself"
+                  className="mb-4 h-28 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                />
+
+                <button
+                  onClick={handleSaveProfile}
+                  className="w-full rounded-2xl bg-green-600 py-4 font-black text-white shadow-lg shadow-green-200"
+                >
+                  Save Changes
+                </button>
+
+              </div>
+            </>
+          )}
+
+          {/* ================= PAYMENT METHODS ================= */}
+          {screen === "payment" && (
+            <>
+              <div className="mb-5 flex items-center gap-3">
+                <button
+                  onClick={backToProfile}
+                  className="rounded-xl bg-white p-3 shadow-sm"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+
+                <h2 className="text-xl font-black">
+                  Payment Methods
+                </h2>
+              </div>
+
+              <div className="space-y-3">
+
+                {[
+                  ["bKash", "Mobile Banking", Wallet],
+                  ["Nagad", "Digital Payment", Wallet],
+                  ["Rocket", "DBBL Mobile Banking", Wallet],
+                  ["Upay", "United Commercial Bank", Wallet],
+                  ["Bank Account", "Add bank account", Building2],
+                  ["UPI", "Unified Payment Interface", Smartphone],
+                ].map(([title, subtitle, Icon]) => (
+                  <button
+                    key={title}
+                    className="flex w-full items-center justify-between rounded-3xl bg-white/90 p-4 shadow-md"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100">
+                        <Icon size={21} />
+                      </div>
+
+                      <div className="text-left">
+                        <h3 className="font-black text-slate-800">
+                          {title}
+                        </h3>
+
+                        <p className="text-xs text-gray-500">
+                          {subtitle}
+                        </p>
+                      </div>
+                    </div>
+
+                    <ChevronRight
+                      size={19}
+                      className="text-gray-400"
+                    />
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => setScreen("cards")}
+                  className="flex w-full items-center justify-between rounded-3xl bg-green-600 p-5 text-white shadow-lg shadow-green-200"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20">
+                      <CreditCard size={23} />
+                    </div>
+
+                    <div className="text-left">
+                      <h3 className="font-black">
+                        Credit / Debit Card
+                      </h3>
+
+                      <p className="text-xs text-white/70">
+                        Visa, Mastercard and more
+                      </p>
+                    </div>
+                  </div>
+
+                  <ChevronRight size={20} />
+                </button>
+
+              </div>
+            </>
+          )}
+
+          {/* ================= SAVED CARDS ================= */}
+          {screen === "cards" && (
+            <>
+              <div className="mb-5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={backToProfile}
+                    className="rounded-xl bg-white p-3 shadow-sm"
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+
+                  <h2 className="text-xl font-black">
+                    Saved Cards
+                  </h2>
+                </div>
+
+                <button
+                  onClick={() => setShowCardForm(true)}
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl bg-green-600 text-white shadow-lg"
+                >
+                  <Plus size={21} />
+                </button>
+              </div>
+
+              {/* ADD CARD */}
+              {showCardForm && (
+                <div className="mb-6 rounded-[2rem] bg-white p-5 shadow-xl">
+
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-lg font-black">
+                      Add New Card
+                    </h3>
+
+                    <button
+                      onClick={() =>
+                        setShowCardForm(false)
+                      }
+                      className="rounded-full bg-gray-100 p-2"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  {/* CARD PREVIEW */}
+                  <div className="mb-5 overflow-hidden rounded-[1.7rem] bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 p-5 text-white shadow-xl">
+
+                    <div className="flex items-start justify-between">
+                      <div className="text-xs font-bold uppercase tracking-widest text-white/60">
+                        {cardData.type || "Card"}
+                      </div>
+
+                      <div className="text-xl font-black">
+                        {cardData.type === "Visa"
+                          ? "VISA"
+                          : cardData.type === "Mastercard"
+                          ? "mastercard"
+                          : "CARD"}
+                      </div>
+                    </div>
+
+                    <div className="mt-8 text-2xl tracking-[0.18em]">
+                      {maskedCardNumber}
+                    </div>
+
+                    <div className="mt-7 flex items-end justify-between">
+                      <div>
+                        <p className="text-[8px] uppercase text-white/50">
+                          Card Holder
+                        </p>
+
+                        <p className="text-sm font-bold uppercase">
+                          {cardData.holder ||
+                            "YOUR NAME"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-[8px] uppercase text-white/50">
+                          Expiry
+                        </p>
+
+                        <p className="text-sm font-bold">
+                          {cardData.expiry || "MM/YY"}
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <input
+                    value={cardData.holder}
+                    onChange={(e) =>
+                      setCardData((prev) => ({
+                        ...prev,
+                        holder: e.target.value,
+                      }))
+                    }
+                    placeholder="Card Holder Name"
+                    className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                  />
+
+                  <input
+                    value={cardData.number}
+                    onChange={(e) =>
+                      handleCardNumberChange(
+                        e.target.value
+                      )
+                    }
+                    placeholder="Card Number"
+                    inputMode="numeric"
+                    className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                  />
+
+                  <div className="mb-3 grid grid-cols-2 gap-3">
+                    <input
+                      value={cardData.expiry}
+                      onChange={(e) =>
+                        setCardData((prev) => ({
+                          ...prev,
+                          expiry: formatExpiry(
+                            e.target.value
+                          ),
+                        }))
+                      }
+                      placeholder="MM/YY"
+                      inputMode="numeric"
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                    />
+
+                    <input
+                      value={cardData.cvv}
+                      onChange={(e) =>
+                        setCardData((prev) => ({
+                          ...prev,
+                          cvv: e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 4),
+                        }))
+                      }
+                      placeholder="CVV"
+                      type="password"
+                      inputMode="numeric"
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleSaveCard}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-green-600 py-4 font-black text-white shadow-lg shadow-green-200"
+                  >
+                    <Check size={19} />
+                    Save Card
+                  </button>
+
+                </div>
+              )}
+
+              {/* SAVED CARD LIST */}
+              {savedCards.length === 0 && !showCardForm ? (
+                <div className="rounded-[2rem] bg-white/90 p-8 text-center shadow-xl">
+                  <CreditCard
+                    size={48}
+                    className="mx-auto text-gray-300"
+                  />
+
+                  <h3 className="mt-4 font-black text-slate-800">
+                    No Saved Cards
+                  </h3>
+
+                  <p className="mt-1 text-sm text-gray-400">
+                    Add your Visa or Mastercard for faster checkout.
+                  </p>
+
+                  <button
+                    onClick={() => setShowCardForm(true)}
+                    className="mt-5 rounded-2xl bg-green-600 px-6 py-3 font-bold text-white"
+                  >
+                    Add Card
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {savedCards.map((card) => (
+                    <div
+                      key={card.id}
+                      className="rounded-[1.8rem] bg-white p-4 shadow-lg"
+                    >
+                      <div className="rounded-[1.5rem] bg-gradient-to-br from-slate-800 to-slate-700 p-5 text-white">
+
+                        <div className="flex justify-between">
+                          <span className="text-xs font-bold uppercase text-white/60">
+                            {card.type}
+                          </span>
+
+                          <span className="font-black">
+                            {card.type === "Visa"
+                              ? "VISA"
+                              : card.type === "Mastercard"
+                              ? "mastercard"
+                              : "CARD"}
+                          </span>
+                        </div>
+
+                        <p className="mt-7 text-xl tracking-widest">
+                          •••• •••• •••• {card.number}
+                        </p>
+
+                        <div className="mt-6 flex justify-between">
+                          <div>
+                            <p className="text-[8px] uppercase text-white/50">
+                              Card Holder
+                            </p>
+
+                            <p className="text-sm font-bold uppercase">
+                              {card.holder}
+                            </p>
+                          </div>
+
+                          <div>
+                            <p className="text-[8px] uppercase text-white/50">
+                              Expiry
+                            </p>
+
+                            <p className="font-bold">
+                              {card.expiry}
+                            </p>
+                          </div>
+                        </div>
+
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between px-2">
+                        <div className="flex items-center gap-2 text-xs font-bold text-green-600">
+                          <Check size={15} />
+                          Saved Card
+                        </div>
+
+                        <button
+                          onClick={() =>
+                            deleteCard(card.id)
+                          }
+                          className="rounded-xl bg-red-50 p-2 text-red-500"
+                        >
+                          <Trash2 size={17} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ================= ADDRESSES ================= */}
+          {screen === "addresses" && (
+            <>
+              <div className="mb-5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={backToProfile}
+                    className="rounded-xl bg-white p-3 shadow-sm"
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+
+                  <h2 className="text-xl font-black">
+                    My Addresses
+                  </h2>
+                </div>
+
+                <button
+                  onClick={() => setShowAddressForm(true)}
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl bg-green-600 text-white shadow-lg"
+                >
+                  <Plus size={21} />
+                </button>
+              </div>
+
+              {/* CURRENT LOCATION */}
+              {currentLocation && (
+                <div className="mb-5 rounded-[2rem] border border-green-100 bg-green-50 p-5">
+
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-green-600 text-white">
+                      <Navigation size={19} />
+                    </div>
+
+                    <div className="min-w-0">
+                      <p className="text-xs font-black uppercase tracking-wider text-green-600">
+                        Current Saved Location
+                      </p>
+
+                      <p className="mt-1 break-words text-sm font-bold text-slate-800">
+                        {currentLocation}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={useCurrentLocation}
+                    className="mt-4 w-full rounded-2xl bg-white py-3 text-sm font-black text-green-600 shadow-sm"
+                  >
+                    Use This Address
+                  </button>
+                </div>
+              )}
+
+              {/* MANUAL ADDRESS FORM */}
+              {showAddressForm && (
+                <div className="mb-6 rounded-[2rem] bg-white p-5 shadow-xl">
+
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-lg font-black">
+                      Add New Address
+                    </h3>
+
+                    <button
+                      onClick={() =>
+                        setShowAddressForm(false)
+                      }
+                      className="rounded-full bg-gray-100 p-2"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <div className="mb-4 grid grid-cols-3 gap-2">
+                    {[
+                      ["Home", Home],
+                      ["Work", Briefcase],
+                      ["Other", MapPin],
+                    ].map(([label, Icon]) => (
+                      <button
+                        key={label}
+                        onClick={() =>
+                          setAddressData((prev) => ({
+                            ...prev,
+                            label,
+                          }))
+                        }
+                        className={`flex flex-col items-center gap-1 rounded-2xl border p-3 ${
+                          addressData.label === label
+                            ? "border-green-600 bg-green-50 text-green-600"
+                            : "border-gray-200 bg-gray-50 text-gray-500"
+                        }`}
+                      >
+                        <Icon size={18} />
+                        <span className="text-[10px] font-bold">
+                          {label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <textarea
+                    value={addressData.address}
+                    onChange={(e) =>
+                      setAddressData((prev) => ({
+                        ...prev,
+                        address: e.target.value,
+                      }))
+                    }
+                    placeholder="House / Road / Area / Full Address"
+                    className="mb-3 h-28 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                  />
+
+                  <input
+                    value={addressData.city}
+                    onChange={(e) =>
+                      setAddressData((prev) => ({
+                        ...prev,
+                        city: e.target.value,
+                      }))
+                    }
+                    placeholder="City"
+                    className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                  />
+
+                  <input
+                    value={addressData.phone}
+                    onChange={(e) =>
+                      setAddressData((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
+                    placeholder="Contact Phone"
+                    className="mb-4 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                  />
+
+                  <button
+                    onClick={handleSaveAddress}
+                    className="w-full rounded-2xl bg-green-600 py-4 font-black text-white shadow-lg shadow-green-200"
+                  >
+                    Save Address
+                  </button>
+
+                </div>
+              )}
+
+              {/* SAVED ADDRESSES */}
+              {addresses.length === 0 && !showAddressForm ? (
+                <div className="rounded-[2rem] bg-white/90 p-8 text-center shadow-xl">
+                  <MapPin
+                    size={48}
+                    className="mx-auto text-gray-300"
+                  />
+
+                  <h3 className="mt-4 font-black text-slate-800">
+                    No Saved Addresses
+                  </h3>
+
+                  <p className="mt-1 text-sm text-gray-400">
+                    Add your home, work or another delivery address.
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      setShowAddressForm(true)
+                    }
+                    className="mt-5 rounded-2xl bg-green-600 px-6 py-3 font-bold text-white"
+                  >
+                    Add Address
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {addresses.map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-[2rem] bg-white p-5 shadow-lg"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+
+                        <div className="flex min-w-0 items-start gap-3">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-green-50 text-green-600">
+                            {item.label === "Home" ? (
+                              <Home size={19} />
+                            ) : item.label === "Work" ? (
+                              <Briefcase size={19} />
+                            ) : (
+                              <MapPin size={19} />
+                            )}
+                          </div>
+
+                          <div className="min-w-0">
+                            <h3 className="font-black text-slate-800">
+                              {item.label}
+                            </h3>
+
+                            <p className="mt-1 break-words text-sm text-gray-500">
+                              {item.address}
+                            </p>
+
+                            <p className="mt-1 text-xs font-semibold text-gray-400">
+                              {item.city} • {item.phone}
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() =>
+                            deleteAddress(item.id)
+                          }
+                          className="shrink-0 rounded-xl bg-red-50 p-2 text-red-500"
+                        >
+                          <Trash2 size={17} />
+                        </button>
+
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
 }
-
-},[]);
-
-
-
-const handleImage=(e)=>{
-
-const file=e.target.files[0];
-
-if(!file)return;
-
-
-const url=URL.createObjectURL(file);
-
-setProfileImage(url);
-
-localStorage.setItem(
-"profileImage",
-url
-);
-
-showToast("Profile photo updated");
-
-};
-
-
-
-const handleChange=(e)=>{
-
-setFormData({
-
-...formData,
-
-[e.target.name]:e.target.value
-
-});
-
-};
-
-
-
-const paymentMethods=[
-
-{
-title:"bKash",
-subtitle:"Mobile Banking",
-icon:Wallet
-},
-
-{
-title:"Nagad",
-subtitle:"Digital Payment",
-icon:Wallet
-},
-
-{
-title:"Rocket",
-subtitle:"DBBL Mobile Banking",
-icon:Wallet
-},
-
-{
-title:"Upay",
-subtitle:"United Commercial Bank",
-icon:Wallet
-},
-
-{
-title:"Bank Account",
-subtitle:"Add bank account",
-icon:Building2
-},
-
-{
-title:"Credit/Debit Card",
-subtitle:"Visa or Mastercard",
-icon:CreditCard
-},
-
-{
-title:"UPI",
-subtitle:"Unified Payment Interface",
-icon:Smartphone
-}
-
-];
-
-
-
-const mainMenu=[
-
-["Profile Details",User,"details"],
-
-["My Orders",Package],
-
-["My Addresses",MapPin],
-
-["Payment Methods",CreditCard,"payment"],
-
-["Saved Cards",CreditCard]
-
-];
-
-
-const settingMenu=[
-
-["Notifications",Bell],
-
-["Dark Mode",Moon],
-
-["Help & Support",HelpCircle]
-
-];
-
-
-const openScreen=(value)=>{
-
-setScreen(value);
-
-};
-
-
-
-return (
-
-<div className="
-min-h-screen
-pb-28
-bg-gradient-to-br
-from-pink-100
-via-gray-100
-to-green-100
-p-5
-"
->
-{/* HEADER */}
-
-<div className="
-flex
-items-center
-justify-between
-mb-6
-">
-
-<ArrowLeft size={24}/>
-
-<h1 className="
-text-xl
-font-bold
-">
-Profile
-</h1>
-
-<Settings size={24}/>
-
-</div>
-
-
-
-
-{/* PROFILE SCREEN */}
-
-{
-screen==="profile" &&
-
-<>
-
-<div className="
-rounded-3xl
-bg-gray-50/70
-backdrop-blur-xl
-border
-border-white
-shadow-lg
-p-5
-flex
-items-center
-justify-between
-">
-
-<div className="
-flex
-items-center
-gap-4
-min-w-0
-">
-
-
-<img
-
-src={
-profileImage ||
-"/default-avatar.png"
-}
-
-className="
-h-20
-w-20
-rounded-full
-object-cover
-"
-
-/>
-
-
-<div className="
-min-w-0
-">
-
-<h2 className="
-font-bold
-text-lg
-truncate
-">
-
-{formData.fullName}
-
-</h2>
-
-
-<p className="
-text-gray-500
-text-sm
-truncate
-max-w-[180px]
-">
-
-{formData.email}
-
-</p>
-
-
-</div>
-
-
-</div>
-
-
-<Pencil size={20}/>
-
-</div>
-
-
-
-
-<div className="
-mt-6
-space-y-5
-">
-
-
-<div className="
-rounded-3xl
-bg-gray-50/70
-backdrop-blur-xl
-shadow-lg
-p-4
-">
-
-
-{
-
-mainMenu.map(([title,Icon,target])=>(
-
-
-<button
-
-key={title}
-
-onClick={()=>target && openScreen(target)}
-
-className="
-w-full
-flex
-items-center
-justify-between
-py-4
-border-b
-last:border-none
-"
-
-
->
-
-
-<div className="
-flex
-items-center
-gap-4
-">
-
-<Icon size={22}/>
-
-<span>
-{title}
-</span>
-
-</div>
-
-
-<ChevronRight size={20}/>
-
-
-</button>
-
-
-))
-
-}
-
-
-</div>
-
-
-
-<div className="
-rounded-3xl
-bg-gray-50/70
-backdrop-blur-xl
-shadow-lg
-p-4
-">
-
-
-{
-
-settingMenu.map(([title,Icon])=>(
-
-<div
-key={title}
-className="
-flex
-items-center
-justify-between
-py-4
-border-b
-last:border-none
-"
->
-
-
-<div className="
-flex
-items-center
-gap-4
-">
-
-<Icon size={22}/>
-
-<span>
-{title}
-</span>
-
-</div>
-
-
-<ChevronRight size={20}/>
-
-
-</div>
-
-
-))
-
-}
-
-
-</div>
-
-
-
-
-<div className="
-rounded-3xl
-bg-gray-50/70
-backdrop-blur-xl
-shadow-lg
-p-4
-mb-6
-">
-
-
-<div className="
-flex
-items-center
-gap-4
-py-4
-text-red-500
-">
-
-<LogOut size={22}/>
-
-<span>
-Logout
-</span>
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-</>
-
-}
-{
-screen==="details" &&
-
-<>
-
-<div className="
-flex
-items-center
-gap-3
-mb-6
-">
-
-<button
-onClick={()=>setScreen("profile")}
->
-<ArrowLeft/>
-</button>
-
-<h1 className="
-text-xl
-font-bold
-">
-Profile Details
-</h1>
-
-</div>
-
-
-
-<div className="
-rounded-3xl
-bg-gray-50/70
-backdrop-blur-xl
-shadow-lg
-p-5
-">
-
-
-<div className="
-flex
-flex-col
-items-center
-mb-6
-">
-
-
-<img
-
-src={
-profileImage ||
-"/default-avatar.png"
-}
-
-className="
-h-28
-w-28
-rounded-full
-object-cover
-"
-
-/>
-
-
-<label className="
-mt-3
-text-primary
-font-semibold
-cursor-pointer
-">
-
-
-<Upload
-size={18}
-className="inline mr-2"
-/>
-
-Change Photo
-
-
-<input
-
-type="file"
-
-hidden
-
-accept="image/*"
-
-onChange={handleImage}
-
-/>
-
-
-</label>
-
-
-</div>
-
-
-
-<input
-
-name="fullName"
-
-value={formData.fullName}
-
-onChange={handleChange}
-
-className="
-w-full
-rounded-2xl
-border
-p-4
-mb-3
-bg-gray-50
-"
-
-/>
-
-
-<input
-
-name="email"
-
-value={formData.email}
-
-onChange={handleChange}
-
-className="
-w-full
-rounded-2xl
-border
-p-4
-mb-3
-bg-gray-50
-"
-
-/>
-
-
-<input
-
-name="phone"
-
-value={formData.phone}
-
-onChange={handleChange}
-
-className="
-w-full
-rounded-2xl
-border
-p-4
-mb-3
-bg-gray-50
-"
-
-/>
-
-
-
-<textarea
-
-name="address"
-
-value={formData.address}
-
-onChange={handleChange}
-
-placeholder="Address"
-
-className="
-w-full
-rounded-2xl
-border
-p-4
-mb-3
-bg-gray-50
-h-28
-"
-
-/>
-
-
-
-<textarea
-
-name="about"
-
-value={formData.about}
-
-onChange={handleChange}
-
-placeholder="About yourself"
-
-className="
-w-full
-rounded-2xl
-border
-p-4
-mb-4
-bg-gray-50
-h-28
-"
-
-/>
-
-
-
-<button
-
-onClick={()=>showToast("Profile Saved")}
-
-className="
-w-full
-bg-black
-text-white
-rounded-2xl
-py-4
-font-bold
-"
-
->
-
-Save Changes
-
-</button>
-
-
-</div>
-
-
-</>
-
-}
-{
-screen==="payment" &&
-
-<>
-
-<div className="
-flex
-items-center
-gap-3
-mb-6
-">
-
-<button
-onClick={()=>setScreen("profile")}
->
-<ArrowLeft/>
-</button>
-
-
-<h1 className="
-text-xl
-font-bold
-">
-Payment Methods
-</h1>
-
-
-</div>
-
-
-
-<div className="
-rounded-3xl
-bg-gray-50/70
-backdrop-blur-xl
-shadow-lg
-p-5
-">
-
-
-{
-
-paymentMethods.map((item,index)=>{
-
-const Icon=item.icon;
-
-
-return(
-
-<div
-key={index}
-className="
-flex
-items-center
-justify-between
-py-4
-border-b
-last:border-none
-"
->
-
-
-<div className="
-flex
-items-center
-gap-4
-">
-
-
-<div className="
-h-12
-w-12
-rounded-2xl
-bg-gray-100
-flex
-items-center
-justify-center
-">
-
-<Icon size={22}/>
-
-</div>
-
-
-<div>
-
-<h3 className="
-font-semibold
-">
-
-{item.title}
-
-</h3>
-
-
-<p className="
-text-sm
-text-gray-500
-">
-
-{item.subtitle}
-
-</p>
-
-
-</div>
-
-
-</div>
-
-
-<ChevronRight
-size={20}
-/>
-
-
-</div>
-
-
-)
-
-
-})
-
-
-}
-
-
-</div>
-
-
-</>
-
-}
-
-
-</div>
-
-);
-
-}
-
-
