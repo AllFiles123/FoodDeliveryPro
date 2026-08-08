@@ -5,20 +5,17 @@ import {
   Minus,
   Plus,
   ShoppingBag,
-  Truck,
-  X,
   Trash2,
-  Tag,
-  GripVertical,
+  X,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 
+const TARGET_AMOUNT = 2000;
+const DISCOUNT_PERCENT = 10;
+
 const fallbackImage =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='24' fill='%23f5f5f5'/%3E%3Cpath d='M38 82h44M42 78l8-35h20l8 35M52 43l8-10 8 10' fill='none' stroke='%23d1d5db' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E";
-
-const DISCOUNT_THRESHOLD = 2000;
-const DISCOUNT_PERCENT = 10;
 
 export default function FloatingCart() {
   const navigate = useNavigate();
@@ -36,25 +33,41 @@ export default function FloatingCart() {
   const [open, setOpen] = React.useState(false);
 
   const [position, setPosition] = React.useState(() => {
-    try {
-      const saved = localStorage.getItem(
-        "fooddeliverypro-floating-cart-position"
-      );
+    if (typeof window === "undefined") {
+      return {
+        x: 16,
+        y: window?.innerHeight
+          ? window.innerHeight - 180
+          : 600,
+      };
+    }
 
-      if (saved) {
-        return JSON.parse(saved);
+    const saved = localStorage.getItem(
+      "fooddeliverypro-floating-cart-position"
+    );
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+
+        if (
+          typeof parsed?.x === "number" &&
+          typeof parsed?.y === "number"
+        ) {
+          return parsed;
+        }
+      } catch {
+        // Ignore invalid saved position
       }
-    } catch (error) {
-      console.error(error);
     }
 
     return {
-      x: 0,
-      y: 0,
+      x: window.innerWidth - 76,
+      y: window.innerHeight - 180,
     };
   });
 
-  const [isDragging, setIsDragging] = React.useState(false);
+  const dragStartRef = React.useRef(null);
 
   const hidden =
     location.pathname.startsWith("/cart") ||
@@ -68,28 +81,25 @@ export default function FloatingCart() {
     location.pathname.startsWith("/onboarding");
 
   React.useEffect(() => {
-    try {
-      localStorage.setItem(
-        "fooddeliverypro-floating-cart-position",
-        JSON.stringify(position)
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  }, [position]);
+    if (typeof window === "undefined") return;
 
-  React.useEffect(() => {
     const handleResize = () => {
-      setPosition((prev) => ({
-        x: Math.max(
-          Math.min(prev.x, window.innerWidth * 0.35),
-          -window.innerWidth * 0.35
-        ),
-        y: Math.max(
-          Math.min(prev.y, window.innerHeight * 0.35),
-          -window.innerHeight * 0.35
-        ),
-      }));
+      setPosition((prev) => {
+        const maxX = Math.max(8, window.innerWidth - 68);
+        const maxY = Math.max(80, window.innerHeight - 68);
+
+        const next = {
+          x: Math.min(Math.max(prev.x, 8), maxX),
+          y: Math.min(Math.max(prev.y, 80), maxY),
+        };
+
+        localStorage.setItem(
+          "fooddeliverypro-floating-cart-position",
+          JSON.stringify(next)
+        );
+
+        return next;
+      });
     };
 
     window.addEventListener("resize", handleResize);
@@ -99,9 +109,15 @@ export default function FloatingCart() {
     };
   }, []);
 
-  if (hidden || cart.length === 0) {
-    return null;
-  }
+  React.useEffect(() => {
+    if (!open) {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   const getItemName = (item) =>
     item.name ||
@@ -118,47 +134,129 @@ export default function FloatingCart() {
   const getItemPrice = (item) =>
     Number(item.price || 0);
 
-  const discountUnlocked =
-    totalPrice >= DISCOUNT_THRESHOLD;
-
-  const amountRemaining = Math.max(
-    DISCOUNT_THRESHOLD - totalPrice,
+  const remainingAmount = Math.max(
+    TARGET_AMOUNT - totalPrice,
     0
   );
 
-  const progressPercentage = Math.min(
-    (totalPrice / DISCOUNT_THRESHOLD) * 100,
+  const progressPercent = Math.min(
+    (totalPrice / TARGET_AMOUNT) * 100,
     100
   );
 
-  const discountAmount = discountUnlocked
-    ? (totalPrice * DISCOUNT_PERCENT) / 100
-    : 0;
+  const discountAmount =
+    totalPrice >= TARGET_AMOUNT
+      ? (totalPrice * DISCOUNT_PERCENT) / 100
+      : 0;
 
-  const finalSubtotal = Math.max(
-    totalPrice - discountAmount,
-    0
-  );
+  const finalPrice =
+    totalPrice - discountAmount;
 
-  const handleCart = () => {
+  const handleCheckout = () => {
     setOpen(false);
     navigate("/cart");
   };
 
-  const handleDragEnd = (_, info) => {
-    setIsDragging(false);
+  const handleDragStart = (event) => {
+    if (open) return;
 
-    setPosition((prev) => ({
-      x: prev.x + info.offset.x,
-      y: prev.y + info.offset.y,
-    }));
+    dragStartRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originalX: position.x,
+      originalY: position.y,
+      moved: false,
+    };
+
+    event.currentTarget.setPointerCapture?.(
+      event.pointerId
+    );
   };
+
+  const handleDragMove = (event) => {
+    const drag = dragStartRef.current;
+
+    if (!drag || open) return;
+
+    const deltaX = event.clientX - drag.startX;
+    const deltaY = event.clientY - drag.startY;
+
+    if (
+      Math.abs(deltaX) > 4 ||
+      Math.abs(deltaY) > 4
+    ) {
+      drag.moved = true;
+    }
+
+    if (!drag.moved) return;
+
+    const maxX = Math.max(
+      8,
+      window.innerWidth - 68
+    );
+
+    const maxY = Math.max(
+      80,
+      window.innerHeight - 68
+    );
+
+    const nextX = Math.min(
+      Math.max(
+        drag.originalX + deltaX,
+        8
+      ),
+      maxX
+    );
+
+    const nextY = Math.min(
+      Math.max(
+        drag.originalY + deltaY,
+        80
+      ),
+      maxY
+    );
+
+    setPosition({
+      x: nextX,
+      y: nextY,
+    });
+  };
+
+  const handleDragEnd = () => {
+    const drag = dragStartRef.current;
+
+    if (!drag) return;
+
+    if (drag.moved) {
+      localStorage.setItem(
+        "fooddeliverypro-floating-cart-position",
+        JSON.stringify(position)
+      );
+    }
+
+    dragStartRef.current = null;
+  };
+
+  const handleFloatingClick = () => {
+    const drag = dragStartRef.current;
+
+    if (drag?.moved) {
+      return;
+    }
+
+    setOpen(true);
+  };
+
+  if (hidden || cart.length === 0) {
+    return null;
+  }
 
   return (
     <>
-      {/* =========================================
+      {/* =====================================================
           EXPANDED CART BACKDROP
-      ========================================== */}
+      ====================================================== */}
 
       <AnimatePresence>
         {open && (
@@ -166,22 +264,28 @@ export default function FloatingCart() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9980] bg-black/20 backdrop-blur-[2px]"
+            className="
+              fixed
+              inset-0
+              z-[9980]
+              bg-black/20
+              backdrop-blur-[2px]
+            "
             onClick={() => setOpen(false)}
           />
         )}
       </AnimatePresence>
 
-      {/* =========================================
+      {/* =====================================================
           EXPANDED CART PANEL
-      ========================================== */}
+      ====================================================== */}
 
       <AnimatePresence>
         {open && (
           <motion.div
             initial={{
               opacity: 0,
-              y: 25,
+              y: 40,
               scale: 0.96,
             }}
             animate={{
@@ -191,7 +295,7 @@ export default function FloatingCart() {
             }}
             exit={{
               opacity: 0,
-              y: 25,
+              y: 40,
               scale: 0.96,
             }}
             transition={{
@@ -199,17 +303,19 @@ export default function FloatingCart() {
               stiffness: 360,
               damping: 30,
             }}
-            onClick={(event) => event.stopPropagation()}
+            onClick={(event) =>
+              event.stopPropagation()
+            }
             className="
               fixed
-              bottom-[90px]
-              left-3
-              right-3
+              bottom-[82px]
+              left-4
+              right-4
               z-[9990]
               mx-auto
               max-w-md
               overflow-hidden
-              rounded-[26px]
+              rounded-[28px]
               bg-gradient-to-br
               from-[#d90045]
               via-[#e4004f]
@@ -219,24 +325,45 @@ export default function FloatingCart() {
               shadow-[0_20px_70px_rgba(190,0,55,0.35)]
             "
           >
+
             {/* HEADER */}
 
-            <div className="flex items-center justify-between px-2 py-2">
+            <div className="flex items-center justify-between px-3 py-2">
 
               <div className="flex items-center gap-2">
 
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15">
-                  <ShoppingBag size={16} />
+                <div
+                  className="
+                    flex
+                    h-9
+                    w-9
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-white/15
+                  "
+                >
+                  <ShoppingBag size={18} />
                 </div>
 
                 <div>
+
                   <div className="flex items-center gap-2">
 
                     <h2 className="text-sm font-black">
                       Your Cart
                     </h2>
 
-                    <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold">
+                    <span
+                      className="
+                        rounded-full
+                        bg-white/15
+                        px-2
+                        py-0.5
+                        text-[10px]
+                        font-bold
+                      "
+                    >
                       {totalItems}
                     </span>
 
@@ -244,8 +371,12 @@ export default function FloatingCart() {
 
                   <p className="mt-0.5 text-[9px] text-white/70">
                     {totalItems}{" "}
-                    {totalItems === 1 ? "item" : "items"} in your cart
+                    {totalItems === 1
+                      ? "item"
+                      : "items"}{" "}
+                    in your cart
                   </p>
+
                 </div>
 
               </div>
@@ -255,8 +386,8 @@ export default function FloatingCart() {
                 onClick={() => setOpen(false)}
                 className="
                   flex
-                  h-8
-                  w-8
+                  h-9
+                  w-9
                   items-center
                   justify-center
                   rounded-full
@@ -266,20 +397,33 @@ export default function FloatingCart() {
                 "
                 aria-label="Close cart"
               >
-                <X size={16} />
+                <X size={17} />
               </button>
 
             </div>
 
             {/* ITEMS */}
 
-            <div className="mt-1 max-h-[250px] space-y-2 overflow-y-auto pr-1">
+            <div
+              className="
+                mt-1
+                max-h-[270px]
+                space-y-2
+                overflow-y-auto
+                pr-1
+              "
+            >
 
               {cart.map((item) => {
 
-                const itemName = getItemName(item);
-                const itemImage = getItemImage(item);
-                const itemPrice = getItemPrice(item);
+                const itemName =
+                  getItemName(item);
+
+                const itemImage =
+                  getItemImage(item);
+
+                const itemPrice =
+                  getItemPrice(item);
 
                 return (
                   <motion.div
@@ -288,7 +432,7 @@ export default function FloatingCart() {
                     className="
                       flex
                       items-center
-                      gap-2.5
+                      gap-3
                       rounded-2xl
                       border
                       border-white/10
@@ -299,12 +443,25 @@ export default function FloatingCart() {
 
                     {/* IMAGE */}
 
-                    <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-white">
+                    <div
+                      className="
+                        h-12
+                        w-12
+                        shrink-0
+                        overflow-hidden
+                        rounded-xl
+                        bg-white
+                      "
+                    >
 
                       <img
                         src={itemImage}
                         alt={itemName}
-                        className="h-full w-full object-cover"
+                        className="
+                          h-full
+                          w-full
+                          object-cover
+                        "
                         onError={(event) => {
                           event.currentTarget.src =
                             fallbackImage;
@@ -321,7 +478,7 @@ export default function FloatingCart() {
                         {itemName}
                       </p>
 
-                      <p className="mt-0.5 text-[9px] text-white/60">
+                      <p className="mt-0.5 text-[10px] text-white/60">
                         ৳{itemPrice.toFixed(2)} each
                       </p>
 
@@ -344,10 +501,18 @@ export default function FloatingCart() {
                           "
                           aria-label={`Decrease ${itemName}`}
                         >
-                          <Minus size={10} />
+                          <Minus size={11} />
                         </button>
 
-                        <span className="mx-2 min-w-[14px] text-center text-[10px] font-black">
+                        <span
+                          className="
+                            mx-2
+                            min-w-[14px]
+                            text-center
+                            text-[10px]
+                            font-black
+                          "
+                        >
                           {item.qty}
                         </span>
 
@@ -369,7 +534,7 @@ export default function FloatingCart() {
                           "
                           aria-label={`Increase ${itemName}`}
                         >
-                          <Plus size={10} />
+                          <Plus size={11} />
                         </button>
 
                       </div>
@@ -378,9 +543,9 @@ export default function FloatingCart() {
 
                     {/* PRICE + REMOVE ICON */}
 
-                    <div className="flex shrink-0 flex-col items-end justify-between self-stretch">
+                    <div className="flex flex-col items-end">
 
-                      <p className="text-[10px] font-black">
+                      <p className="text-[11px] font-black">
                         ৳{(
                           itemPrice * item.qty
                         ).toFixed(2)}
@@ -392,23 +557,22 @@ export default function FloatingCart() {
                           removeFromCart(item.id)
                         }
                         className="
-                          mt-auto
+                          mt-1
                           flex
                           h-7
                           w-7
                           items-center
                           justify-center
-                          rounded-full
-                          bg-white/10
-                          text-white/70
+                          rounded-lg
+                          text-white/50
                           transition
-                          hover:bg-white/20
+                          hover:bg-white/10
                           hover:text-white
                           active:scale-90
                         "
                         aria-label={`Remove ${itemName}`}
                       >
-                        <Trash2 size={13} />
+                        <Trash2 size={14} />
                       </button>
 
                     </div>
@@ -429,84 +593,64 @@ export default function FloatingCart() {
                 border-white/10
                 bg-white/10
                 px-3
-                py-2.5
+                py-3
               "
             >
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between">
 
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15">
-                  {discountUnlocked ? (
-                    <Tag size={14} />
-                  ) : (
-                    <Truck size={14} />
-                  )}
-                </div>
+                <p className="text-[10px] font-semibold text-white/90">
 
-                <div className="min-w-0 flex-1">
+                  {totalPrice >= TARGET_AMOUNT
+                    ? "10% discount unlocked"
+                    : `Add ৳${remainingAmount.toFixed(
+                        0
+                      )} more for 10% off`}
 
-                  {discountUnlocked ? (
-                    <>
-                      <div className="flex items-center justify-between gap-2">
+                </p>
 
-                        <p className="text-[10px] font-bold text-white">
-                          10% discount unlocked
-                        </p>
-
-                        <span className="text-[9px] font-black text-white">
-                          ৳{discountAmount.toFixed(0)} OFF
-                        </span>
-
-                      </div>
-
-                      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/15">
-
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: "100%" }}
-                          transition={{
-                            duration: 0.5,
-                          }}
-                          className="h-full rounded-full bg-white"
-                        />
-
-                      </div>
-
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-between gap-2">
-
-                        <p className="text-[10px] font-bold text-white/90">
-                          Add ৳{amountRemaining.toFixed(0)} more
-                        </p>
-
-                        <span className="shrink-0 text-[9px] font-bold text-white/70">
-                          ৳{totalPrice.toFixed(0)} / ৳2,000
-                        </span>
-
-                      </div>
-
-                      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/15">
-
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{
-                            width: `${progressPercentage}%`,
-                          }}
-                          transition={{
-                            duration: 0.5,
-                          }}
-                          className="h-full rounded-full bg-white/90"
-                        />
-
-                      </div>
-                    </>
-                  )}
-
-                </div>
+                <span className="text-[10px] font-black">
+                  {Math.min(
+                    totalPrice,
+                    TARGET_AMOUNT
+                  ).toFixed(0)}
+                  /{TARGET_AMOUNT}
+                </span>
 
               </div>
+
+              <div
+                className="
+                  mt-2
+                  h-1.5
+                  overflow-hidden
+                  rounded-full
+                  bg-white/15
+                "
+              >
+
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{
+                    width: `${progressPercent}%`,
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    ease: "easeOut",
+                  }}
+                  className="
+                    h-full
+                    rounded-full
+                    bg-white
+                  "
+                />
+
+              </div>
+
+              <p className="mt-1.5 text-[8px] text-white/55">
+                Add products worth ৳{TARGET_AMOUNT} to
+                unlock {DISCOUNT_PERCENT}% discount.
+              </p>
 
             </div>
 
@@ -515,32 +659,36 @@ export default function FloatingCart() {
             <div className="mt-3 flex items-center justify-between px-2">
 
               <span className="text-[10px] font-medium text-white/65">
-                {discountUnlocked
-                  ? "After discount"
-                  : "Subtotal"}
+                Subtotal
               </span>
 
-              <div className="text-right">
+              <span className="text-base font-black">
+                ৳{totalPrice.toFixed(2)}
+              </span>
 
-                {discountUnlocked && (
-                  <span className="mr-2 text-[9px] text-white/50 line-through">
-                    ৳{totalPrice.toFixed(2)}
-                  </span>
-                )}
+            </div>
 
-                <span className="text-base font-black">
-                  ৳{finalSubtotal.toFixed(2)}
+            {/* DISCOUNT */}
+
+            {discountAmount > 0 && (
+              <div className="mt-1 flex items-center justify-between px-2">
+
+                <span className="text-[10px] font-medium text-white/65">
+                  10% Discount
+                </span>
+
+                <span className="text-[11px] font-black">
+                  -৳{discountAmount.toFixed(2)}
                 </span>
 
               </div>
-
-            </div>
+            )}
 
             {/* PROCEED TO CART */}
 
             <button
               type="button"
-              onClick={handleCart}
+              onClick={handleCheckout}
               className="
                 mt-3
                 flex
@@ -550,7 +698,7 @@ export default function FloatingCart() {
                 rounded-2xl
                 bg-white
                 px-4
-                py-3
+                py-3.5
                 text-[#a9003b]
                 shadow-lg
                 transition-all
@@ -565,10 +713,12 @@ export default function FloatingCart() {
               <div className="flex items-center gap-1">
 
                 <span className="text-[10px] font-bold">
-                  View Cart
+
+                  ৳{finalPrice.toFixed(2)}
+
                 </span>
 
-                <ChevronRight size={15} />
+                <ChevronRight size={16} />
 
               </div>
 
@@ -578,119 +728,86 @@ export default function FloatingCart() {
         )}
       </AnimatePresence>
 
-      {/* =========================================
+      {/* =====================================================
           SMALL DRAGGABLE FLOATING CART
-      ========================================== */}
+          HIDDEN COMPLETELY WHEN CART IS OPEN
+      ====================================================== */}
 
-      <motion.div
-        drag
-        dragMomentum={false}
-        dragElastic={0.08}
-        onDragStart={() => setIsDragging(true)}
-        onDragEnd={handleDragEnd}
-        style={{
-          x: position.x,
-          y: position.y,
-        }}
-        className="
-          fixed
-          bottom-[88px]
-          right-3
-          z-[9995]
-          touch-none
-          select-none
-        "
-      >
-
+      {!open && (
         <motion.button
           type="button"
-          onClick={() => {
-            if (!isDragging) {
-              setOpen(true);
-            }
+          initial={{ opacity: 0, scale: 0.7 }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+            x: position.x,
+            y: position.y,
           }}
-          whileTap={{ scale: 0.94 }}
+          transition={{
+            type: "spring",
+            stiffness: 400,
+            damping: 28,
+          }}
+          onPointerDown={handleDragStart}
+          onPointerMove={handleDragMove}
+          onPointerUp={handleDragEnd}
+          onPointerCancel={handleDragEnd}
+          onClick={handleFloatingClick}
           className="
+            fixed
+            left-0
+            top-0
+            z-[9970]
             flex
-            h-12
+            h-14
+            w-14
+            touch-none
+            select-none
             items-center
-            gap-2
+            justify-center
             rounded-full
-            bg-[#e4004f]
-            px-3
+            bg-[#d90045]
             text-white
-            shadow-[0_8px_28px_rgba(190,0,55,0.32)]
-            border
-            border-white/15
+            shadow-[0_10px_35px_rgba(190,0,55,0.35)]
+            ring-2
+            ring-white/80
+            transition-transform
+            active:scale-95
           "
-          aria-label="Open floating cart"
+          aria-label="Open cart"
         >
 
-          <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-white/15">
+          <ShoppingBag size={22} />
 
-            <ShoppingBag size={16} />
+          {/* ITEM COUNT */}
 
-            <span
-              className="
-                absolute
-                -right-1
-                -top-1
-                flex
-                h-4
-                min-w-4
-                items-center
-                justify-center
-                rounded-full
-                bg-white
-                px-1
-                text-[8px]
-                font-black
-                text-[#e4004f]
-                shadow-sm
-              "
-            >
-              {totalItems}
-            </span>
-
-          </div>
-
-          <div className="flex flex-col items-start leading-none">
-
-            <span className="text-[9px] font-semibold text-white/70">
-              Cart
-            </span>
-
-            <span className="mt-0.5 text-[11px] font-black">
-              ৳{totalPrice.toFixed(0)}
-            </span>
-
-          </div>
-
-          <ChevronRight size={15} />
+          <span
+            className="
+              absolute
+              -right-1
+              -top-1
+              flex
+              h-5
+              min-w-5
+              items-center
+              justify-center
+              rounded-full
+              bg-white
+              px-1
+              text-[9px]
+              font-black
+              text-[#d90045]
+              shadow-sm
+            "
+          >
+            {totalItems > 99
+              ? "99+"
+              : totalItems}
+          </span>
 
         </motion.button>
+      )}
 
-        {/* DRAG HANDLE */}
-
-        <div
-          className="
-            pointer-events-none
-            absolute
-            -top-3
-            left-1/2
-            -translate-x-1/2
-            rounded-full
-            bg-white
-            px-1.5
-            py-0.5
-            text-gray-400
-            shadow-sm
-          "
-        >
-          <GripVertical size={10} />
-        </div>
-
-      </motion.div>
     </>
   );
 }
