@@ -1,66 +1,130 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-
 import {
   House,
-  ShoppingCart,
   ClipboardList,
   User,
   Heart,
   MapPin,
 } from "lucide-react";
 
-import { useCart } from "../../context/CartContext";
 import { useFavourite } from "../../context/FavouriteContext";
 
 const menus = [
-  { name: "Home", path: "/home", icon: House },
-  { name: "Orders", path: "/orders", icon: ClipboardList },
-  { name: "Cart", path: "/cart", icon: ShoppingCart },
-  { name: "Favorite", path: "/favorite", icon: Heart },
-  { name: "Map", path: "/map", icon: MapPin },
-  { name: "Profile", path: "/profile", icon: User },
+  {
+    name: "Home",
+    path: "/home",
+    icon: House,
+  },
+  {
+    name: "Orders",
+    path: "/orders",
+    icon: ClipboardList,
+  },
+  {
+    name: "Favorite",
+    path: "/favorite",
+    icon: Heart,
+  },
+  {
+    name: "Map",
+    path: "/map",
+    icon: MapPin,
+  },
+  {
+    name: "Profile",
+    path: "/profile",
+    icon: User,
+  },
 ];
 
 export default function BottomNavigation() {
-  const { totalItems } = useCart();
-
-  const { favourites } = useFavourite();
-
   const location = useLocation();
+  const { favourites } = useFavourite();
 
   const favouriteCount =
     (favourites?.items?.length || 0) +
     (favourites?.restaurants?.length || 0);
 
-  return (
-    <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center px-4">
+  /*
+   * Hide navigation on fullscreen pages.
+   */
+  const hiddenPaths = [
+    "/checkout",
+    "/profile/details",
+    "/profile/payment",
+  ];
 
+  const shouldHide = hiddenPaths.some((path) =>
+    location.pathname.startsWith(path)
+  );
+
+  if (shouldHide) {
+    return null;
+  }
+
+  /*
+   * Active menu detection.
+   */
+  const isMenuActive = (path) => {
+    if (path === "/profile") {
+      return location.pathname === "/profile";
+    }
+
+    return location.pathname === path;
+  };
+
+  return (
+    <div
+      className="
+        pointer-events-none
+        fixed
+        inset-x-0
+        bottom-0
+        z-[9999]
+        flex
+        justify-center
+        px-3
+        pb-[max(0.75rem,env(safe-area-inset-bottom))]
+      "
+    >
       <nav
+        aria-label="Bottom navigation"
         className="
-          flex items-center justify-around
-          w-full max-w-md
-          bg-[#1A1D24]
-          py-3 px-2
-          rounded-full
-          shadow-[0_15px_40px_rgba(0,0,0,0.5)]
-          border border-white/5
+          pointer-events-auto
+          flex
+          w-full
+          max-w-md
+          items-center
+          justify-between
+          gap-1
+          rounded-[1.75rem]
+          border
+          border-white/10
+          bg-[#1A1D24]/95
+          px-2
+          py-2
+          shadow-[0_15px_45px_rgba(0,0,0,0.45)]
+          backdrop-blur-xl
         "
       >
-
         {menus.map((item) => {
           const Icon = item.icon;
-
-          const isActive =
-            location.pathname === item.path;
+          const isActive = isMenuActive(item.path);
 
           return (
             <NavLink
               key={item.path}
               to={item.path}
-              className="flex justify-center"
+              aria-label={item.name}
+              className="
+                flex
+                min-w-0
+                flex-1
+                justify-center
+                outline-none
+              "
             >
-
               <motion.div
                 layout
                 transition={{
@@ -69,91 +133,65 @@ export default function BottomNavigation() {
                   damping: 30,
                 }}
                 className={`
-                  flex items-center gap-2
-                  px-4 py-2.5
-                  rounded-full
-                  transition-all
                   relative
-
+                  flex
+                  min-h-[44px]
+                  items-center
+                  justify-center
+                  gap-1.5
+                  rounded-full
+                  px-2
+                  sm:px-3
+                  transition-colors
                   ${
                     isActive
                       ? "bg-gradient-to-r from-[#FF3B30] to-[#E60023] text-white shadow-lg shadow-red-600/30"
-                      : "text-gray-500 hover:text-gray-400"
+                      : "text-gray-400 hover:text-gray-200"
                   }
                 `}
               >
-
-                {/* ICON */}
-                <div className="relative flex items-center justify-center">
-
+                <div className="relative flex shrink-0 items-center justify-center">
                   <Icon
-                    size={isActive ? 18 : 22}
+                    size={isActive ? 18 : 21}
                     strokeWidth={isActive ? 2.5 : 2}
                   />
 
-                  {/* CART BADGE */}
-                  {item.name === "Cart" && totalItems > 0 && (
-                    <span
-                      className={`
-                        absolute
-                        -right-3
-                        -top-3
-                        flex
-                        h-5
-                        w-5
-                        items-center
-                        justify-center
-                        rounded-full
-                        text-[10px]
-                        font-bold
-                        text-white
-                        ring-2
-
-                        ${
-                          isActive
-                            ? "ring-[#E60023] bg-[#1A1D24]"
-                            : "ring-[#1A1D24] bg-[#FF3B30]"
-                        }
-                      `}
-                    >
-                      {totalItems}
-                    </span>
-                  )}
-
-                  {/* FAVOURITE BADGE */}
+                  {/* FAVORITE BADGE */}
                   {item.name === "Favorite" &&
                     favouriteCount > 0 && (
                       <span
                         className={`
                           absolute
-                          -right-3
-                          -top-3
+                          -right-2.5
+                          -top-2.5
                           flex
                           h-5
-                          w-5
+                          min-w-5
                           items-center
                           justify-center
                           rounded-full
-                          text-[10px]
-                          font-bold
+                          px-1
+                          text-[9px]
+                          font-black
+                          leading-none
                           text-white
                           ring-2
-
                           ${
                             isActive
-                              ? "ring-[#E60023] bg-[#1A1D24]"
-                              : "ring-[#1A1D24] bg-[#FF3B30]"
+                              ? "bg-[#1A1D24] ring-[#E60023]"
+                              : "bg-[#FF3B30] ring-[#1A1D24]"
                           }
                         `}
                       >
-                        {favouriteCount}
+                        {favouriteCount > 99
+                          ? "99+"
+                          : favouriteCount}
                       </span>
                     )}
-
                 </div>
 
                 {/* ACTIVE LABEL */}
-                <AnimatePresence>
+                <AnimatePresence initial={false}>
                   {isActive && (
                     <motion.span
                       initial={{
@@ -168,28 +206,27 @@ export default function BottomNavigation() {
                         opacity: 0,
                         width: 0,
                       }}
+                      transition={{
+                        duration: 0.18,
+                      }}
                       className="
-                        text-[10px]
+                        overflow-hidden
+                        whitespace-nowrap
+                        text-[9px]
                         font-black
                         uppercase
-                        tracking-widest
-                        whitespace-nowrap
-                        overflow-hidden
+                        tracking-[0.08em]
                       "
                     >
                       {item.name}
                     </motion.span>
                   )}
                 </AnimatePresence>
-
               </motion.div>
-
             </NavLink>
           );
         })}
-
       </nav>
-
     </div>
   );
 }
