@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
-  Settings,
   Pencil,
   User,
   Package,
@@ -329,29 +328,8 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-gray-100 to-green-100">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-gray-100 to-orange-100">
       <div className="min-h-screen overflow-y-auto px-5 pb-40 pt-5">
-
-        {/* HEADER */}
-        <div className="mx-auto flex max-w-md items-center justify-between pb-5">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/80 shadow-sm backdrop-blur"
-          >
-            <ArrowLeft size={21} />
-          </button>
-
-          <h1 className="text-xl font-black text-slate-900">
-            Profile
-          </h1>
-
-          <button
-            className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/80 shadow-sm backdrop-blur"
-          >
-            <Settings size={20} />
-          </button>
-        </div>
-
         <div className="mx-auto max-w-md">
 
           {/* ================= PROFILE HOME ================= */}
@@ -373,7 +351,7 @@ export default function ProfilePage() {
                         alt="Profile"
                       />
 
-                      <label className="absolute bottom-0 right-0 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-green-600 text-white shadow-lg">
+                      <label className="absolute bottom-0 right-0 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-orange-500 text-white shadow-lg">
                         <Pencil size={13} />
 
                         <input
@@ -403,7 +381,7 @@ export default function ProfilePage() {
 
                   <button
                     onClick={() => setScreen("details")}
-                    className="rounded-xl bg-green-50 p-3 text-green-600"
+                    className="rounded-xl bg-orange-50 p-3 text-orange-500"
                   >
                     <Pencil size={18} />
                   </button>
@@ -519,7 +497,7 @@ export default function ProfilePage() {
                     alt="Profile"
                   />
 
-                  <label className="mt-4 flex cursor-pointer items-center gap-2 font-bold text-green-600">
+                  <label className="mt-4 flex cursor-pointer items-center gap-2 font-bold text-orange-500">
                     <Upload size={18} />
                     Change Photo
 
@@ -537,7 +515,7 @@ export default function ProfilePage() {
                   value={formData.fullName}
                   onChange={handleChange}
                   placeholder="Full Name"
-                  className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                  className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                 />
 
                 <input
@@ -545,7 +523,7 @@ export default function ProfilePage() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Email"
-                  className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                  className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                 />
 
                 <input
@@ -553,7 +531,7 @@ export default function ProfilePage() {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="Phone"
-                  className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                  className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                 />
 
                 <textarea
@@ -561,7 +539,7 @@ export default function ProfilePage() {
                   value={formData.address}
                   onChange={handleChange}
                   placeholder="Address"
-                  className="mb-3 h-28 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                  className="mb-3 h-28 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                 />
 
                 <textarea
@@ -569,12 +547,12 @@ export default function ProfilePage() {
                   value={formData.about}
                   onChange={handleChange}
                   placeholder="About yourself"
-                  className="mb-4 h-28 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                  className="mb-4 h-28 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                 />
 
                 <button
                   onClick={handleSaveProfile}
-                  className="w-full rounded-2xl bg-green-600 py-4 font-black text-white shadow-lg shadow-green-200"
+                  className="w-full rounded-2xl bg-orange-500 py-4 font-black text-white shadow-lg shadow-orange-200"
                 >
                   Save Changes
                 </button>
@@ -638,7 +616,7 @@ export default function ProfilePage() {
 
                 <button
                   onClick={() => setScreen("cards")}
-                  className="flex w-full items-center justify-between rounded-3xl bg-green-600 p-5 text-white shadow-lg shadow-green-200"
+                  className="flex w-full items-center justify-between rounded-3xl bg-orange-500 p-5 text-white shadow-lg shadow-orange-200"
                 >
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20">
@@ -682,7 +660,7 @@ export default function ProfilePage() {
 
                 <button
                   onClick={() => setShowCardForm(true)}
-                  className="flex h-11 w-11 items-center justify-center rounded-2xl bg-green-600 text-white shadow-lg"
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-lg"
                 >
                   <Plus size={21} />
                 </button>
@@ -762,7 +740,7 @@ export default function ProfilePage() {
                       }))
                     }
                     placeholder="Card Holder Name"
-                    className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                    className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                   />
 
                   <input
@@ -774,7 +752,7 @@ export default function ProfilePage() {
                     }
                     placeholder="Card Number"
                     inputMode="numeric"
-                    className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                    className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                   />
 
                   <div className="mb-3 grid grid-cols-2 gap-3">
@@ -790,7 +768,7 @@ export default function ProfilePage() {
                       }
                       placeholder="MM/YY"
                       inputMode="numeric"
-                      className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                     />
 
                     <input
@@ -806,13 +784,13 @@ export default function ProfilePage() {
                       placeholder="CVV"
                       type="password"
                       inputMode="numeric"
-                      className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                     />
                   </div>
 
                   <button
                     onClick={handleSaveCard}
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-green-600 py-4 font-black text-white shadow-lg shadow-green-200"
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 py-4 font-black text-white shadow-lg shadow-orange-200"
                   >
                     <Check size={19} />
                     Save Card
@@ -839,7 +817,7 @@ export default function ProfilePage() {
 
                   <button
                     onClick={() => setShowCardForm(true)}
-                    className="mt-5 rounded-2xl bg-green-600 px-6 py-3 font-bold text-white"
+                    className="mt-5 rounded-2xl bg-orange-500 px-6 py-3 font-bold text-white"
                   >
                     Add Card
                   </button>
@@ -896,7 +874,7 @@ export default function ProfilePage() {
                       </div>
 
                       <div className="mt-3 flex items-center justify-between px-2">
-                        <div className="flex items-center gap-2 text-xs font-bold text-green-600">
+                        <div className="flex items-center gap-2 text-xs font-bold text-orange-500">
                           <Check size={15} />
                           Saved Card
                         </div>
@@ -936,7 +914,7 @@ export default function ProfilePage() {
 
                 <button
                   onClick={() => setShowAddressForm(true)}
-                  className="flex h-11 w-11 items-center justify-center rounded-2xl bg-green-600 text-white shadow-lg"
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-lg"
                 >
                   <Plus size={21} />
                 </button>
@@ -944,15 +922,15 @@ export default function ProfilePage() {
 
               {/* CURRENT LOCATION */}
               {currentLocation && (
-                <div className="mb-5 rounded-[2rem] border border-green-100 bg-green-50 p-5">
+                <div className="mb-5 rounded-[2rem] border border-orange-100 bg-orange-50 p-5">
 
                   <div className="flex items-start gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-green-600 text-white">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-500 text-white">
                       <Navigation size={19} />
                     </div>
 
                     <div className="min-w-0">
-                      <p className="text-xs font-black uppercase tracking-wider text-green-600">
+                      <p className="text-xs font-black uppercase tracking-wider text-orange-500">
                         Current Saved Location
                       </p>
 
@@ -964,7 +942,7 @@ export default function ProfilePage() {
 
                   <button
                     onClick={useCurrentLocation}
-                    className="mt-4 w-full rounded-2xl bg-white py-3 text-sm font-black text-green-600 shadow-sm"
+                    className="mt-4 w-full rounded-2xl bg-white py-3 text-sm font-black text-orange-500 shadow-sm"
                   >
                     Use This Address
                   </button>
@@ -1006,7 +984,7 @@ export default function ProfilePage() {
                         }
                         className={`flex flex-col items-center gap-1 rounded-2xl border p-3 ${
                           addressData.label === label
-                            ? "border-green-600 bg-green-50 text-green-600"
+                            ? "border-orange-500 bg-orange-50 text-orange-500"
                             : "border-gray-200 bg-gray-50 text-gray-500"
                         }`}
                       >
@@ -1027,7 +1005,7 @@ export default function ProfilePage() {
                       }))
                     }
                     placeholder="House / Road / Area / Full Address"
-                    className="mb-3 h-28 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                    className="mb-3 h-28 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                   />
 
                   <input
@@ -1039,7 +1017,7 @@ export default function ProfilePage() {
                       }))
                     }
                     placeholder="City"
-                    className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                    className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                   />
 
                   <input
@@ -1051,12 +1029,12 @@ export default function ProfilePage() {
                       }))
                     }
                     placeholder="Contact Phone"
-                    className="mb-4 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-green-500"
+                    className="mb-4 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                   />
 
                   <button
                     onClick={handleSaveAddress}
-                    className="w-full rounded-2xl bg-green-600 py-4 font-black text-white shadow-lg shadow-green-200"
+                    className="w-full rounded-2xl bg-orange-500 py-4 font-black text-white shadow-lg shadow-orange-200"
                   >
                     Save Address
                   </button>
@@ -1084,7 +1062,7 @@ export default function ProfilePage() {
                     onClick={() =>
                       setShowAddressForm(true)
                     }
-                    className="mt-5 rounded-2xl bg-green-600 px-6 py-3 font-bold text-white"
+                    className="mt-5 rounded-2xl bg-orange-500 px-6 py-3 font-bold text-white"
                   >
                     Add Address
                   </button>
@@ -1099,7 +1077,7 @@ export default function ProfilePage() {
                       <div className="flex items-start justify-between gap-4">
 
                         <div className="flex min-w-0 items-start gap-3">
-                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-green-50 text-green-600">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-500">
                             {item.label === "Home" ? (
                               <Home size={19} />
                             ) : item.label === "Work" ? (

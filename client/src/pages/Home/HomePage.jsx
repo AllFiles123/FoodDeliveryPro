@@ -8,6 +8,7 @@ import {
   Clock3,
   SlidersHorizontal,
   Bell,
+  ShoppingCart,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -19,12 +20,24 @@ export default function HomePage() {
 
   const [restaurants, setRestaurants] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
+
   const [activeCategory, setActiveCategory] = useState(2);
   const [activeTimeFilter, setActiveTimeFilter] = useState("Today");
 
   const [userLocation, setUserLocation] = useState(
     () => localStorage.getItem("userLocation") || "Set your location"
   );
+
+  const [currentBanner, setCurrentBanner] = useState(0);
+
+  const [filters, setFilters] = useState({
+    category: "",
+    rating: 0,
+    minPrice: "",
+    maxPrice: "",
+    deliveryTime: "",
+    nearMe: false,
+  });
 
   useEffect(() => {
     const updateLocation = () => {
@@ -39,8 +52,6 @@ export default function HomePage() {
       window.removeEventListener("locationChanged", updateLocation);
     };
   }, []);
-
-  const [currentBanner, setCurrentBanner] = useState(0);
 
   const banners = [
     {
@@ -73,20 +84,37 @@ export default function HomePage() {
     return () => clearInterval(timer);
   }, [banners.length]);
 
-  const [filters, setFilters] = useState({
-    category: "",
-    rating: 0,
-    minPrice: "",
-    maxPrice: "",
-    deliveryTime: "",
-  });
-
   const categories = [
-    { name: "Fruits", icon: "🍎" },
-    { name: "Drinks", icon: "🍹" },
-    { name: "All", icon: "🍱" },
-    { name: "Snack", icon: "🍿" },
-    { name: "Food", icon: "🥗" },
+    {
+      name: "Fruits",
+      icon: "🍎",
+      image:
+        "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=300&q=80",
+    },
+    {
+      name: "Drinks",
+      icon: "🍹",
+      image:
+        "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=300&q=80",
+    },
+    {
+      name: "All",
+      icon: "🍱",
+      image:
+        "https://images.unsplash.com/photo-1547592180-85f173990554?w=300&q=80",
+    },
+    {
+      name: "Snacks",
+      icon: "🍿",
+      image:
+        "https://images.unsplash.com/photo-1621939514649-280e2aaec8a9?w=300&q=80",
+    },
+    {
+      name: "Food",
+      icon: "🥗",
+      image:
+        "https://images.unsplash.com/photo-1547592180-85f173990554?w=300&q=80",
+    },
   ];
 
   const popularDishes = [
@@ -94,7 +122,7 @@ export default function HomePage() {
       id: 1,
       name: "Cabbage with sauce",
       calorie: "170 Kal",
-      price: "$25.00",
+      price: "৳250",
       image:
         "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80",
     },
@@ -102,7 +130,7 @@ export default function HomePage() {
       id: 2,
       name: "Puree soup with turkey",
       calorie: "100 Kal",
-      price: "$35.00",
+      price: "৳350",
       image:
         "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80",
     },
@@ -110,7 +138,7 @@ export default function HomePage() {
       id: 3,
       name: "Three-Meat Lasagna",
       calorie: "250 Kal",
-      price: "$45.00",
+      price: "৳450",
       image:
         "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=800&q=80",
     },
@@ -119,23 +147,66 @@ export default function HomePage() {
   const featuredItems = [
     {
       id: 1,
-      title: "Egg salad",
+      title: "Egg Salad",
       rating: "4.3",
       time: "10-15 mins",
-      deliveryFee: "$2 delivery",
+      deliveryFee: "৳20 delivery",
+      price: "৳220",
       image:
         "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1000&q=80",
-      tags: ["COFFEE", "CHICKEN", "FAST FOOD"],
+      tags: ["COFFEE", "CHICKEN"],
+    },
+    {
+      id: 2,
+      title: "Chicken Pasta",
+      rating: "4.7",
+      time: "15-20 mins",
+      deliveryFee: "৳30 delivery",
+      price: "৳320",
+      image:
+        "https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?w=1000&q=80",
+      tags: ["PASTA", "FAST FOOD"],
+    },
+    {
+      id: 3,
+      title: "Fresh Pizza",
+      rating: "4.8",
+      time: "20-25 mins",
+      deliveryFee: "৳25 delivery",
+      price: "৳450",
+      image:
+        "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=1000&q=80",
+      tags: ["PIZZA", "ITALIAN"],
+    },
+    {
+      id: 4,
+      title: "Grilled Chicken",
+      rating: "4.6",
+      time: "15-25 mins",
+      deliveryFee: "৳20 delivery",
+      price: "৳390",
+      image:
+        "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=1000&q=80",
+      tags: ["CHICKEN", "GRILLED"],
     },
   ];
 
   const peopleLookingFor = [
     {
       id: 1,
-      dish: "Spacy fresh crab",
-      restaurant: "Waroenk kita",
+      dish: "Spicy Fresh Crab",
+      restaurant: "Waroenk Kita",
+      price: "৳550",
       image:
         "https://images.unsplash.com/photo-1551248429-40975aa4de74?w=500&q=80",
+    },
+    {
+      id: 2,
+      dish: "Chicken Burger",
+      restaurant: "Burger House",
+      price: "৳280",
+      image:
+        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80",
     },
   ];
 
@@ -151,6 +222,7 @@ export default function HomePage() {
     const loadRestaurants = async () => {
       try {
         const response = await restaurantService.getRestaurants();
+
         setRestaurants(response.restaurants || []);
       } catch (error) {
         console.error(error);
@@ -160,12 +232,42 @@ export default function HomePage() {
     loadRestaurants();
   }, []);
 
+  const handleAddToCart = (item) => {
+    const existingCart = JSON.parse(
+      localStorage.getItem("cart") || "[]"
+    );
+
+    const existingIndex = existingCart.findIndex(
+      (cartItem) => cartItem.id === item.id
+    );
+
+    if (existingIndex >= 0) {
+      existingCart[existingIndex].quantity =
+        (existingCart[existingIndex].quantity || 1) + 1;
+    } else {
+      existingCart.push({
+        ...item,
+        quantity: 1,
+      });
+    }
+
+    localStorage.setItem(
+      "cart",
+      JSON.stringify(existingCart)
+    );
+
+    window.dispatchEvent(new Event("cartUpdated"));
+  };
+
   return (
     <div className="min-h-screen bg-[#FDFDFD] pb-24 overflow-x-hidden">
 
-      {/* --- 1. FULL AUTO-SLIDING BANNER --- */}
+      {/* ================= BANNER ================= */}
+
       <div className="relative h-[480px] w-full overflow-hidden">
+
         <AnimatePresence mode="wait">
+
           <motion.img
             key={currentBanner}
             src={banners[currentBanner].image}
@@ -175,118 +277,164 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
             className="absolute inset-0 w-full h-full object-cover"
           />
+
         </AnimatePresence>
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-[#FDFDFD]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-transparent to-[#FDFDFD]" />
 
         <div className="absolute inset-0 px-5 pt-6 flex flex-col">
 
-          {/* Header Area */}
+          {/* Header */}
+
           <div className="flex items-center justify-between z-10 mb-8">
 
-            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md p-1 pr-4 rounded-full border border-white/20">
+            <div className="flex items-center gap-3 bg-white/15 backdrop-blur-md p-1 pr-4 rounded-full border border-white/20">
 
               <div className="bg-white p-2 rounded-full shadow-sm flex items-center justify-center">
-                <MapPin size={16} className="text-[#1BAC4B]" />
+
+                <MapPin
+                  size={16}
+                  className="text-[#FF5A00]"
+                />
+
               </div>
 
               <div>
-                <p className="text-[10px] text-white/80 uppercase font-bold tracking-tight">
+
+                <p className="text-[10px] text-white/80 uppercase font-bold">
                   Delivery to
                 </p>
 
                 <h2 className="text-[12px] font-bold text-white">
                   {userLocation}
                 </h2>
+
               </div>
 
             </div>
 
             <div className="flex gap-2">
 
-              <button className="h-11 w-11 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 relative">
-                <Bell size={20} className="text-white" />
+              <button
+                type="button"
+                className="h-11 w-11 bg-white/15 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 relative"
+              >
 
-                <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-[#FF5C38] rounded-full border-2 border-white" />
+                <Bell
+                  size={20}
+                  className="text-white"
+                />
+
+                <span className="absolute top-3 right-3 w-2 h-2 bg-[#FF5A00] rounded-full border-2 border-white" />
+
               </button>
 
               <button
+                type="button"
                 onClick={() => navigate("/profile")}
                 className="h-11 w-11 rounded-full border-2 border-white overflow-hidden shadow-lg"
               >
+
                 <img
                   src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&q=80"
                   className="w-full h-full object-cover"
                   alt="profile"
                 />
+
               </button>
 
             </div>
+
           </div>
 
           <h1 className="text-[34px] font-bold text-white mb-6 leading-tight drop-shadow-md">
-            Hungry? <br />
+
+            Hungry?
+
+            <br />
+
             <span className="font-normal text-white/80">
               Order & Eat.
             </span>
+
           </h1>
 
-          {/* Search Bar */}
+          {/* Search */}
+
           <div className="flex gap-3 mt-4">
 
             <div className="flex-1 flex items-center gap-3 rounded-2xl bg-white px-5 py-4 shadow-2xl">
-              <Search size={20} className="text-gray-400" />
+
+              <Search
+                size={20}
+                className="text-gray-400"
+              />
 
               <input
                 placeholder="Search for fast food..."
                 className="w-full bg-transparent outline-none text-sm font-medium"
               />
+
             </div>
 
             <button
+              type="button"
               onClick={() => setShowFilter(true)}
-              className="flex h-[58px] w-[58px] items-center justify-center rounded-2xl bg-[#1BAC4B] text-white shadow-lg active:scale-95 transition-all"
+              className="flex h-[58px] w-[58px] items-center justify-center rounded-2xl bg-[#FF5A00] text-white shadow-lg active:scale-95 transition-all"
             >
+
               <SlidersHorizontal size={22} />
+
             </button>
 
           </div>
+
         </div>
       </div>
 
       <div className="mx-auto max-w-7xl px-5 relative">
 
-        {/* --- 2. BIG CATEGORY ICONS --- */}
-        <section className="relative h-36 flex items-end justify-center -mt-16 z-20">
+        {/* ================= CATEGORIES ================= */}
 
-          <div className="absolute top-0 w-[140%] h-[280px] bg-[#FDFDFD] rounded-[100%] -z-10 shadow-[0_-15px_30px_rgba(0,0,0,0.05)] border-t border-gray-50" />
+        <section className="relative h-[190px] flex items-end justify-center -mt-20 z-20">
 
-          <div className="flex justify-between w-full px-1 items-end pb-4">
+          <div className="absolute top-0 w-[145%] h-[300px] bg-[#FDFDFD] rounded-[100%] -z-10 shadow-[0_-15px_30px_rgba(0,0,0,0.05)] border-t border-gray-50" />
+
+          <div className="flex justify-between w-full px-0 items-end pb-4">
 
             {categories.map((item, index) => (
 
               <div
-                key={index}
+                key={item.name}
                 className="flex flex-col items-center flex-1"
               >
 
                 <motion.button
+                  type="button"
                   onClick={() => setActiveCategory(index)}
-                  className={`w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center text-3xl transition-all duration-300
-                  ${
+                  whileTap={{ scale: 0.92 }}
+                  className={`relative w-[62px] h-[62px] rounded-full bg-white shadow-lg overflow-hidden flex items-center justify-center transition-all duration-300 ${
                     activeCategory === index
-                      ? "scale-110 -translate-y-4 ring-4 ring-[#1BAC4B]/10"
-                      : "opacity-90"
+                      ? "scale-110 -translate-y-3 ring-4 ring-[#FF5A00]/15"
+                      : "opacity-95"
                   }`}
                 >
-                  {item.icon}
+
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-cover"
+                  />
+
+                  <div className="absolute inset-0 bg-black/10" />
+
                 </motion.button>
 
                 <p
                   className={`text-[11px] mt-2 font-bold ${
                     activeCategory === index
                       ? "text-gray-900"
-                      : "text-gray-400"
+                      : "text-gray-500"
                   }`}
                 >
                   {item.name}
@@ -299,18 +447,22 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* --- 3. POPULAR NOW --- */}
-        <section className="mt-4 relative pt-6 pb-12">
+        {/* ================= POPULAR ITEMS ================= */}
 
-          <div className="absolute inset-0 bg-[#F8F8F8] rounded-[50px] -z-10 translate-y-4" />
+        <section className="mt-2 relative pt-5 pb-10">
 
-          <div className="mb-6 flex items-center justify-between px-2">
+          <div className="absolute inset-0 bg-[#F8F8F8] rounded-[45px] -z-10 translate-y-3" />
+
+          <div className="mb-5 flex items-center justify-between px-2">
 
             <h2 className="text-xl font-extrabold text-gray-900">
-              Popular Now
+              Popular Items
             </h2>
 
-            <button className="text-xs font-bold text-[#1BAC4B]">
+            <button
+              type="button"
+              className="text-xs font-bold text-[#FF5A00]"
+            >
               View All
             </button>
 
@@ -322,7 +474,8 @@ export default function HomePage() {
 
               <motion.div
                 key={item.id}
-                className="min-w-[180px] snap-center bg-white rounded-[35px] p-5 shadow-xl border border-gray-50 flex flex-col items-center"
+                whileTap={{ scale: 0.97 }}
+                className="min-w-[180px] snap-center bg-white rounded-[30px] p-4 shadow-lg border border-gray-100 flex flex-col items-center"
               >
 
                 <img
@@ -341,7 +494,7 @@ export default function HomePage() {
                     🔥 {item.calorie}
                   </p>
 
-                  <div className="mt-3 font-bold text-[17px] text-[#FF5C38]">
+                  <div className="mt-3 font-extrabold text-[17px] text-[#FF5A00]">
                     {item.price}
                   </div>
 
@@ -354,38 +507,51 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* --- 4. FEATURED ITEMS --- */}
-        <section className="mt-10">
+        {/* ================= FEATURED ITEMS ================= */}
 
-          <h2 className="text-xl font-bold mb-5 text-gray-900">
-            Featured Items
-          </h2>
+        <section className="mt-8">
 
-          {featuredItems.map((item) => (
+          <div className="mb-5 flex items-center justify-between">
 
-            <div
-              key={item.id}
-              className="bg-white rounded-[25px] overflow-hidden shadow-sm border border-gray-50 mb-5 flex p-3 gap-4"
+            <h2 className="text-xl font-extrabold text-gray-900">
+              Featured Items
+            </h2>
+
+            <button
+              type="button"
+              className="text-sm font-bold text-[#FF5A00]"
             >
+              See All
+            </button>
 
-              <img
-                src={item.image}
-                className="h-24 w-24 rounded-2xl object-cover"
-                alt={item.title}
-              />
+          </div>
 
-              <div className="flex-1 flex flex-col justify-center">
+          <div className="grid grid-cols-2 gap-4">
 
-                <div className="flex justify-between items-start">
+            {featuredItems.map((item) => (
 
-                  <h3 className="font-bold text-[15px] text-gray-800">
-                    {item.title} ✅
-                  </h3>
+              <motion.div
+                key={item.id}
+                whileTap={{ scale: 0.97 }}
+                className="overflow-hidden rounded-[24px] bg-white shadow-md border border-gray-100"
+              >
 
-                  <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-lg">
+                <div className="relative h-[145px]">
+
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="h-full w-full object-cover"
+                  />
+
+                  <div className="absolute top-3 left-3 bg-[#FF5A00] text-white px-2.5 py-1 rounded-full text-[9px] font-extrabold">
+                    FEATURED
+                  </div>
+
+                  <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-white/95 px-2 py-1">
 
                     <Star
-                      size={10}
+                      size={11}
                       className="fill-yellow-400 text-yellow-400"
                     />
 
@@ -397,35 +563,48 @@ export default function HomePage() {
 
                 </div>
 
-                <p className="text-[10px] text-gray-400 font-bold mt-1 tracking-tight">
-                  {item.time} • {item.deliveryFee}
-                </p>
+                <div className="p-3">
 
-                <div className="flex gap-2 mt-2">
+                  <h3 className="font-extrabold text-[14px] text-gray-900 line-clamp-1">
+                    {item.title}
+                  </h3>
 
-                  {item.tags.slice(0, 2).map((tag) => (
+                  <p className="mt-1 text-[9px] font-bold text-gray-400">
+                    {item.time} • {item.deliveryFee}
+                  </p>
 
-                    <span
-                      key={tag}
-                      className="bg-gray-50 px-2 py-1 rounded text-[9px] font-bold text-gray-400 uppercase"
-                    >
-                      {tag}
+                  <div className="mt-2 flex items-center justify-between">
+
+                    <span className="font-extrabold text-[#FF5A00] text-[15px]">
+                      {item.price}
                     </span>
 
-                  ))}
+                    <button
+                      type="button"
+                      onClick={() => handleAddToCart(item)}
+                      className="h-9 w-9 rounded-xl bg-[#FF5A00] text-white flex items-center justify-center shadow-md active:scale-90 transition-transform"
+                      aria-label={`Add ${item.title} to cart`}
+                    >
+
+                      <Plus size={19} />
+
+                    </button>
+
+                  </div>
 
                 </div>
 
-              </div>
+              </motion.div>
 
-            </div>
+            ))}
 
-          ))}
+          </div>
 
         </section>
 
-        {/* --- 5. POPULAR RESTAURANT --- */}
-        <section className="mt-8">
+        {/* ================= POPULAR RESTAURANTS ================= */}
+
+        <section className="mt-10">
 
           <div className="mb-4 flex items-center justify-between">
 
@@ -434,33 +613,37 @@ export default function HomePage() {
             </h2>
 
             <button
+              type="button"
               onClick={() => navigate("/restaurants")}
-              className="text-[#FF5C38] text-sm font-bold"
+              className="text-[#FF5A00] text-sm font-bold"
             >
               See All
             </button>
 
           </div>
 
-          {/* Time Filter Pills */}
           <div className="flex gap-3 mb-6 overflow-x-auto no-scrollbar py-2">
 
-            {["Today", "This Week", "This Month"].map((filter) => (
+            {["Today", "This Week", "This Month"].map(
+              (filter) => (
 
-              <button
-                key={filter}
-                onClick={() => setActiveTimeFilter(filter)}
-                className={`px-6 py-2.5 rounded-full text-[11px] font-bold transition-all whitespace-nowrap
-                ${
-                  activeTimeFilter === filter
-                    ? "bg-[#1BAC4B] text-white shadow-md"
-                    : "bg-gray-100 text-gray-400"
-                }`}
-              >
-                {filter}
-              </button>
+                <button
+                  key={filter}
+                  type="button"
+                  onClick={() =>
+                    setActiveTimeFilter(filter)
+                  }
+                  className={`px-6 py-2.5 rounded-full text-[11px] font-bold transition-all whitespace-nowrap ${
+                    activeTimeFilter === filter
+                      ? "bg-[#FF5A00] text-white shadow-md"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {filter}
+                </button>
 
-            ))}
+              )
+            )}
 
           </div>
 
@@ -470,21 +653,27 @@ export default function HomePage() {
 
               <motion.div
                 key={restaurant.id}
+                whileTap={{ scale: 0.98 }}
                 onClick={() =>
-                  navigate(`/restaurants/${restaurant.id}`)
+                  navigate(
+                    `/restaurants/${restaurant.id}`
+                  )
                 }
-                className="bg-white rounded-[30px] overflow-hidden shadow-md border border-gray-50 group"
+                className="bg-white rounded-[30px] overflow-hidden shadow-md border border-gray-100 group cursor-pointer"
               >
 
                 <div className="relative h-48">
 
                   <img
-                    src={restaurant.image}
+                    src={
+                      restaurant.image ||
+                      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000&q=80"
+                    }
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     alt={restaurant.name}
                   />
 
-                  <div className="absolute left-4 top-4 bg-white/90 px-3 py-1 rounded-full shadow-sm backdrop-blur-sm">
+                  <div className="absolute left-4 top-4 bg-white/95 px-3 py-1 rounded-full shadow-sm">
 
                     <div className="flex items-center gap-1.5 font-bold text-[11px]">
 
@@ -519,7 +708,7 @@ export default function HomePage() {
 
                     <Clock3
                       size={14}
-                      className="text-gray-400"
+                      className="text-[#FF5A00]"
                     />
 
                     {restaurant.deliveryTime}
@@ -533,12 +722,14 @@ export default function HomePage() {
             ))}
 
           </div>
+
         </section>
 
-        {/* --- 6. PEOPLE LOOKING FOR --- */}
+        {/* ================= PEOPLE ARE LOOKING FOR ================= */}
+
         <section className="mt-10">
 
-          <h2 className="text-xl font-bold mb-5 text-gray-900">
+          <h2 className="text-xl font-extrabold mb-5 text-gray-900">
             People are looking for 🔥
           </h2>
 
@@ -548,10 +739,10 @@ export default function HomePage() {
 
               <div
                 key={item.id}
-                className="flex items-center justify-between bg-white rounded-[24px] p-4 shadow-sm border border-gray-50"
+                className="flex items-center justify-between bg-white rounded-[24px] p-4 shadow-sm border border-gray-100"
               >
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 min-w-0">
 
                   <img
                     src={item.image}
@@ -559,9 +750,9 @@ export default function HomePage() {
                     className="h-16 w-16 rounded-2xl object-cover shadow-sm"
                   />
 
-                  <div>
+                  <div className="min-w-0">
 
-                    <h3 className="font-bold text-sm text-gray-800">
+                    <h3 className="font-extrabold text-sm text-gray-800 truncate">
                       {item.dish}
                     </h3>
 
@@ -569,12 +760,23 @@ export default function HomePage() {
                       {item.restaurant}
                     </p>
 
+                    <p className="mt-1 text-sm font-extrabold text-[#FF5A00]">
+                      {item.price}
+                    </p>
+
                   </div>
 
                 </div>
 
-                <button className="h-11 w-11 bg-[#1BAC4B] text-white rounded-xl flex items-center justify-center shadow-sm active:scale-95 transition-transform">
-                  <Plus size={22} />
+                <button
+                  type="button"
+                  onClick={() => handleAddToCart(item)}
+                  className="ml-3 h-11 w-11 shrink-0 bg-[#FF5A00] text-white rounded-xl flex items-center justify-center shadow-md active:scale-90 transition-transform"
+                  aria-label={`Add ${item.dish} to cart`}
+                >
+
+                  <ShoppingCart size={19} />
+
                 </button>
 
               </div>
@@ -582,7 +784,10 @@ export default function HomePage() {
             ))}
 
           </div>
+
         </section>
+
+        {/* ================= FILTER ================= */}
 
         <FilterBottomSheet
           open={showFilter}
@@ -597,8 +802,14 @@ export default function HomePage() {
       <style
         dangerouslySetInnerHTML={{
           __html: `
-            .no-scrollbar::-webkit-scrollbar { display: none; }
-            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+            .no-scrollbar::-webkit-scrollbar {
+              display: none;
+            }
+
+            .no-scrollbar {
+              -ms-overflow-style: none;
+              scrollbar-width: none;
+            }
           `,
         }}
       />

@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Heart,
   Flame,
+  Bell,
+  ChevronLeft,
+  Search,
   Star,
   MapPin,
   Clock,
   Utensils,
   Store,
+  Trash2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -22,33 +26,112 @@ const Favourite = () => {
   } = useFavourite();
 
   const [activeTab, setActiveTab] = useState("items");
+  const [search, setSearch] = useState("");
 
   const favouriteItems = favourites?.items || [];
   const favouriteRestaurants = favourites?.restaurants || [];
+
+  const filteredItems = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    if (!query) return favouriteItems;
+
+    return favouriteItems.filter((item) =>
+      [
+        item.name,
+        item.category,
+        item.restaurantName,
+        item.description,
+      ]
+        .filter(Boolean)
+        .some((value) =>
+          String(value).toLowerCase().includes(query)
+        )
+    );
+  }, [favouriteItems, search]);
+
+  const filteredRestaurants = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    if (!query) return favouriteRestaurants;
+
+    return favouriteRestaurants.filter((restaurant) =>
+      [
+        restaurant.name,
+        restaurant.category,
+        restaurant.location,
+        restaurant.address,
+        restaurant.description,
+      ]
+        .filter(Boolean)
+        .some((value) =>
+          String(value).toLowerCase().includes(query)
+        )
+    );
+  }, [favouriteRestaurants, search]);
+
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 pb-28 font-sans">
       <div className="mx-auto max-w-md">
 
         {/* HEADER */}
-        <div className="pb-3 pt-3">
-          <h1 className="text-xl font-extrabold leading-tight text-gray-800">
-            Favorite List
-          </h1>
+        <div className="flex items-center justify-between pb-5 pt-5">
+          <button
+            onClick={handleBack}
+            className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-gray-700 shadow-sm transition active:scale-95"
+          >
+            <ChevronLeft size={21} />
+          </button>
 
-          <p className="mt-0.5 text-[10px] font-semibold text-gray-400">
-            {favouriteItems.length + favouriteRestaurants.length} favorites
-          </p>
+          <div className="text-center">
+            <h1 className="text-xl font-extrabold text-gray-800">
+              Favorite List
+            </h1>
+
+            <p className="mt-0.5 text-[10px] font-semibold text-gray-400">
+              {favouriteItems.length + favouriteRestaurants.length} favorites
+            </p>
+          </div>
+
+          <button
+            className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-gray-700 shadow-sm"
+          >
+            <Bell size={19} />
+          </button>
         </div>
 
-        {/* FILTER BUTTONS */}
-        <div className="mb-8 flex rounded-full border border-gray-100 bg-white p-1.5 shadow-sm">
+        {/* SEARCH */}
+        <div className="relative mb-5">
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+            size={18}
+          />
+
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search favorites..."
+            className="w-full rounded-2xl border border-gray-100 bg-white py-3 pl-12 pr-4 text-sm outline-none shadow-sm focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+
+        {/* TABS */}
+        <div className="mb-6 flex rounded-2xl border border-gray-100 bg-white p-1.5 shadow-sm">
+
           <button
-            onClick={() => setActiveTab("items")}
-            className={`flex-1 rounded-full py-2.5 text-xs font-bold transition-all duration-300 ${
+            onClick={() => {
+              setActiveTab("items");
+              setSearch("");
+            }}
+            className={`flex-1 rounded-xl py-3 text-sm font-bold transition-all ${
               activeTab === "items"
-                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-lg"
-                : "text-gray-400"
+                ? "bg-green-600 text-white shadow-lg shadow-green-100"
+                : "text-gray-400 hover:text-green-600"
             }`}
           >
             Favourite Items
@@ -58,11 +141,14 @@ const Favourite = () => {
           </button>
 
           <button
-            onClick={() => setActiveTab("restaurants")}
-            className={`flex-1 rounded-full py-2.5 text-xs font-bold transition-all duration-300 ${
+            onClick={() => {
+              setActiveTab("restaurants");
+              setSearch("");
+            }}
+            className={`flex-1 rounded-xl py-3 text-sm font-bold transition-all ${
               activeTab === "restaurants"
-                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-lg"
-                : "text-gray-400"
+                ? "bg-green-600 text-white shadow-lg shadow-green-100"
+                : "text-gray-400 hover:text-green-600"
             }`}
           >
             Restaurants
@@ -70,21 +156,32 @@ const Favourite = () => {
               ({favouriteRestaurants.length})
             </span>
           </button>
+
         </div>
 
-        {/* ================= FAVOURITE ITEMS ================= */}
+        {/* ================= ITEMS ================= */}
 
         {activeTab === "items" && (
           <>
-            {favouriteItems.length === 0 ? (
+            {filteredItems.length === 0 ? (
               <EmptyState
                 icon={<Heart size={38} />}
-                title="No Favourite Items"
-                description="Food you favourite will appear here."
+                title={
+                  search
+                    ? "No matching favorites"
+                    : "No Favourite Items"
+                }
+                description={
+                  search
+                    ? "Try another search."
+                    : "Food you favourite will appear here."
+                }
               />
             ) : (
               <div className="grid grid-cols-2 gap-4">
-                {favouriteItems.map((item) => (
+
+                {filteredItems.map((item) => (
+
                   <div
                     key={item.id}
                     className="group relative overflow-hidden rounded-[28px] border border-gray-100 bg-white p-3 shadow-md"
@@ -142,14 +239,16 @@ const Favourite = () => {
 
                     {/* INFO */}
                     <div className="mt-3 flex items-center justify-between px-1">
-                      <span className="flex items-center rounded-lg bg-orange-50 px-2 py-1 text-[10px] font-extrabold text-orange-500">
+
+                      <span className="flex items-center rounded-lg bg-green-50 px-2 py-1 text-[10px] font-extrabold text-green-600">
                         <Flame size={11} className="mr-1" />
                         {item.calories || item.cal || "--"} Kal
                       </span>
 
-                      <span className="text-sm font-black text-orange-500">
+                      <span className="text-sm font-black text-green-700">
                         ৳ {item.price ?? "0"}
                       </span>
+
                     </div>
 
                     {/* RATING */}
@@ -165,25 +264,37 @@ const Favourite = () => {
                     </div>
 
                   </div>
+
                 ))}
+
               </div>
             )}
           </>
         )}
 
-        {/* ================= FAVOURITE RESTAURANTS ================= */}
+        {/* ================= RESTAURANTS ================= */}
 
         {activeTab === "restaurants" && (
           <>
-            {favouriteRestaurants.length === 0 ? (
+            {filteredRestaurants.length === 0 ? (
               <EmptyState
                 icon={<Store size={38} />}
-                title="No Favourite Restaurants"
-                description="Restaurants you favourite will appear here."
+                title={
+                  search
+                    ? "No matching restaurants"
+                    : "No Favourite Restaurants"
+                }
+                description={
+                  search
+                    ? "Try another search."
+                    : "Restaurants you favourite will appear here."
+                }
               />
             ) : (
               <div className="space-y-4">
-                {favouriteRestaurants.map((restaurant) => (
+
+                {filteredRestaurants.map((restaurant) => (
+
                   <div
                     key={restaurant.id}
                     className="relative overflow-hidden rounded-[28px] border border-gray-100 bg-white shadow-md"
@@ -227,7 +338,6 @@ const Favourite = () => {
                       />
                     </button>
 
-                    {/* RESTAURANT CONTENT */}
                     <div className="p-4">
 
                       <h3 className="text-lg font-extrabold text-slate-800">
@@ -240,7 +350,6 @@ const Favourite = () => {
                         </p>
                       )}
 
-                      {/* RESTAURANT INFO */}
                       <div className="mt-4 flex flex-wrap gap-2">
 
                         <span className="flex items-center gap-1 rounded-full bg-yellow-50 px-3 py-1.5 text-[10px] font-bold text-yellow-600">
@@ -252,7 +361,7 @@ const Favourite = () => {
                         </span>
 
                         {restaurant.deliveryTime && (
-                          <span className="flex items-center gap-1 rounded-full bg-orange-50 px-3 py-1.5 text-[10px] font-bold text-orange-500">
+                          <span className="flex items-center gap-1 rounded-full bg-green-50 px-3 py-1.5 text-[10px] font-bold text-green-600">
                             <Clock size={12} />
                             {restaurant.deliveryTime}
                           </span>
@@ -269,22 +378,24 @@ const Favourite = () => {
 
                       </div>
 
-                      {/* VIEW MENU */}
                       <button
                         onClick={() =>
                           navigate(
                             `/restaurants/${restaurant.id}`
                           )
                         }
-                        className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-400 to-orange-500 py-3 text-xs font-extrabold text-white shadow-lg transition active:scale-[0.98]"
+                        className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 py-3 text-xs font-extrabold text-white shadow-lg shadow-green-100 transition active:scale-[0.98]"
                       >
                         <Utensils size={15} />
                         View Menu
                       </button>
 
                     </div>
+
                   </div>
+
                 ))}
+
               </div>
             )}
           </>
@@ -297,6 +408,7 @@ const Favourite = () => {
           overflow-x: hidden;
         }
       `}</style>
+
     </div>
   );
 };
