@@ -8,12 +8,12 @@ import {
   CreditCard,
   Bell,
   Moon,
+  Sun,
   HelpCircle,
   LogOut,
   ChevronRight,
   Wallet,
   Building2,
-  Smartphone,
   Upload,
   Plus,
   Trash2,
@@ -22,6 +22,23 @@ import {
   Navigation,
   Home,
   Briefcase,
+  Tag,
+  Gift,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
+  Settings,
+  Copy,
+  Clock3,
+  CircleCheck,
+  CircleX,
+  ShoppingBag,
+  Receipt,
+  Palette,
+  ChevronDown,
+  TicketPercent,
+  Headphones,
+  LockKeyhole,
 } from "lucide-react";
 
 import { useLocation, useNavigate } from "react-router-dom";
@@ -39,7 +56,9 @@ export default function ProfilePage() {
 
   const [screen, setScreen] = useState("profile");
 
-  /* ================= PROFILE IMAGE ================= */
+  /* =========================================================
+     PROFILE IMAGE
+  ========================================================= */
 
   const [profileImage, setProfileImage] = useState(
     localStorage.getItem("profileImage") ||
@@ -47,7 +66,9 @@ export default function ProfilePage() {
       ""
   );
 
-  /* ================= PROFILE DATA ================= */
+  /* =========================================================
+     PROFILE DATA
+  ========================================================= */
 
   const [formData, setFormData] = useState({
     fullName: user?.fullName || "David Warner",
@@ -57,7 +78,15 @@ export default function ProfilePage() {
     about: "",
   });
 
-  /* ================= SAVED CARDS ================= */
+  /* =========================================================
+     PROFILE CONFIRM STATE
+  ========================================================= */
+
+  const [profileSaving, setProfileSaving] = useState(false);
+
+  /* =========================================================
+     SAVED CARDS
+  ========================================================= */
 
   const [savedCards, setSavedCards] = useState(() => {
     try {
@@ -69,7 +98,21 @@ export default function ProfilePage() {
     }
   });
 
-  /* ================= SAVED ADDRESSES ================= */
+  const [showCardForm, setShowCardForm] = useState(false);
+
+  const [cardData, setCardData] = useState({
+    holder: "",
+    number: "",
+    expiry: "",
+    cvv: "",
+    type: "Credit Card",
+  });
+
+  const [cardSaving, setCardSaving] = useState(false);
+
+  /* =========================================================
+     ADDRESSES
+  ========================================================= */
 
   const [addresses, setAddresses] = useState(() => {
     try {
@@ -81,7 +124,19 @@ export default function ProfilePage() {
     }
   });
 
-  /* ================= PAYMENT METHODS ================= */
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [addressSaving, setAddressSaving] = useState(false);
+
+  const [addressData, setAddressData] = useState({
+    label: "Home",
+    address: "",
+    city: "Dhaka",
+    phone: "",
+  });
+
+  /* =========================================================
+     PAYMENT METHODS
+  ========================================================= */
 
   const [savedPaymentMethods, setSavedPaymentMethods] =
     useState(() => {
@@ -108,34 +163,142 @@ export default function ProfilePage() {
   const [bankAccountName, setBankAccountName] =
     useState("");
 
-  /* ================= CARD FORM ================= */
-
-  const [showCardForm, setShowCardForm] =
+  const [paymentSaving, setPaymentSaving] =
     useState(false);
 
-  const [showAddressForm, setShowAddressForm] =
-    useState(false);
+  /* =========================================================
+     NOTIFICATIONS
+  ========================================================= */
 
-  const [cardData, setCardData] = useState({
-    holder: "",
-    number: "",
-    expiry: "",
-    cvv: "",
-    type: "Mastercard",
+  const [notifications, setNotifications] =
+    useState(() => {
+      try {
+        return JSON.parse(
+          localStorage.getItem(
+            "notifications"
+          ) || "[]"
+        );
+      } catch {
+        return [];
+      }
+    });
+
+  /* =========================================================
+     PROMOS
+  ========================================================= */
+
+  const [promoCodes, setPromoCodes] = useState(() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem(
+          "savedPromoCodes"
+        ) || "[]"
+      );
+    } catch {
+      return [];
+    }
   });
 
-  /* ================= ADDRESS FORM ================= */
+  const [promoInput, setPromoInput] = useState("");
 
-  const [addressData, setAddressData] = useState({
-    label: "Home",
-    address: "",
-    city: "Dhaka",
-    phone: "",
+  const defaultPromos = [
+    {
+      id: "WELCOME20",
+      code: "WELCOME20",
+      title: "Welcome Offer",
+      description:
+        "Get 20% off on your next food order.",
+      discount: "20% OFF",
+      minimum: "Minimum order ৳499",
+      active: true,
+    },
+    {
+      id: "FOOD50",
+      code: "FOOD50",
+      title: "Foodie Special",
+      description:
+        "Save ৳50 on selected restaurants.",
+      discount: "৳50 OFF",
+      minimum: "Minimum order ৳399",
+      active: true,
+    },
+    {
+      id: "FREEDEL",
+      code: "FREEDEL",
+      title: "Free Delivery",
+      description:
+        "Enjoy free delivery on eligible orders.",
+      discount: "FREE DELIVERY",
+      minimum: "Selected restaurants",
+      active: true,
+    },
+  ];
+
+  /* =========================================================
+     THEMES
+  ========================================================= */
+
+  const [theme, setTheme] = useState(() => {
+    return (
+      localStorage.getItem("appTheme") ||
+      "light"
+    );
   });
 
-  /* ==================================================
-     CHECKOUT -> PROFILE PAYMENT METHODS
-  ================================================== */
+  const themes = [
+    {
+      id: "light",
+      name: "Classic Light",
+      description:
+        "Clean and bright experience",
+      preview:
+        "bg-gradient-to-br from-white via-orange-50 to-orange-100",
+    },
+    {
+      id: "dark",
+      name: "Midnight",
+      description:
+        "Elegant dark experience",
+      preview:
+        "bg-gradient-to-br from-slate-950 via-slate-900 to-orange-950",
+    },
+    {
+      id: "sunset",
+      name: "Sunset",
+      description:
+        "Warm food-delivery inspired look",
+      preview:
+        "bg-gradient-to-br from-orange-300 via-amber-200 to-rose-200",
+    },
+    {
+      id: "ocean",
+      name: "Ocean",
+      description:
+        "Fresh and modern interface",
+      preview:
+        "bg-gradient-to-br from-cyan-300 via-sky-200 to-blue-300",
+    },
+    {
+      id: "forest",
+      name: "Forest",
+      description:
+        "Calm natural interface",
+      preview:
+        "bg-gradient-to-br from-emerald-300 via-green-200 to-lime-200",
+    },
+    {
+      id: "lavender",
+      name: "Lavender",
+      description:
+        "Soft premium appearance",
+      preview:
+        "bg-gradient-to-br from-purple-300 via-violet-200 to-pink-200",
+    },
+  ];
+
+  /* =========================================================
+     CHECKOUT -> PROFILE PAYMENT
+  ========================================================= */
 
   useEffect(() => {
     if (location.state?.openPaymentMethods) {
@@ -152,7 +315,9 @@ export default function ProfilePage() {
     navigate,
   ]);
 
-  /* ================= PROFILE IMAGE ================= */
+  /* =========================================================
+     PROFILE IMAGE
+  ========================================================= */
 
   useEffect(() => {
     const storedImage =
@@ -163,7 +328,9 @@ export default function ProfilePage() {
     }
   }, []);
 
-  /* ================= SAVE CARDS ================= */
+  /* =========================================================
+     LOCAL STORAGE
+  ========================================================= */
 
   useEffect(() => {
     localStorage.setItem(
@@ -172,16 +339,12 @@ export default function ProfilePage() {
     );
   }, [savedCards]);
 
-  /* ================= SAVE ADDRESSES ================= */
-
   useEffect(() => {
     localStorage.setItem(
       "savedAddresses",
       JSON.stringify(addresses)
     );
   }, [addresses]);
-
-  /* ================= SAVE PAYMENT METHODS ================= */
 
   useEffect(() => {
     localStorage.setItem(
@@ -194,52 +357,60 @@ export default function ProfilePage() {
     );
   }, [savedPaymentMethods]);
 
-  /* ================= CURRENT LOCATION ================= */
+  useEffect(() => {
+    localStorage.setItem(
+      "notifications",
+      JSON.stringify(notifications)
+    );
+  }, [notifications]);
 
-  const currentLocation =
-    localStorage.getItem("userLocation") || "";
+  useEffect(() => {
+    localStorage.setItem(
+      "savedPromoCodes",
+      JSON.stringify(promoCodes)
+    );
+  }, [promoCodes]);
 
-  /* ================= CARD PREVIEW ================= */
+  /* =========================================================
+     THEME
+  ========================================================= */
 
-  const maskedCardNumber = useMemo(() => {
-    const clean = cardData.number.replace(
-      /\D/g,
-      ""
+  useEffect(() => {
+    localStorage.setItem(
+      "appTheme",
+      theme
     );
 
-    if (!clean) {
-      return "•••• •••• •••• ••••";
-    }
+    document.documentElement.dataset.theme =
+      theme;
 
-    const lastFour = clean.slice(-4);
+    document.documentElement.classList.toggle(
+      "dark",
+      theme === "dark"
+    );
+  }, [theme]);
 
-    return `•••• •••• •••• ${lastFour}`;
-  }, [cardData.number]);
+  /* =========================================================
+     CURRENT LOCATION
+  ========================================================= */
 
-  /* ================= CARD TYPE ================= */
+  const currentLocation =
+    localStorage.getItem(
+      "userLocation"
+    ) || "";
 
-  const detectCardType = (number) => {
-    const clean = number.replace(/\D/g, "");
-
-    if (/^4/.test(clean)) {
-      return "Visa";
-    }
-
-    if (/^5[1-5]/.test(clean)) {
-      return "Mastercard";
-    }
-
-    return "Credit Card";
-  };
-
-  /* ================= PROFILE IMAGE ================= */
+  /* =========================================================
+     IMAGE
+  ========================================================= */
 
   const handleImage = (event) => {
-    const file = event.target.files?.[0];
+    const file =
+      event.target.files?.[0];
 
     if (!file) return;
 
-    const url = URL.createObjectURL(file);
+    const url =
+      URL.createObjectURL(file);
 
     setProfileImage(url);
 
@@ -254,7 +425,9 @@ export default function ProfilePage() {
     );
   };
 
-  /* ================= PROFILE CHANGE ================= */
+  /* =========================================================
+     PROFILE
+  ========================================================= */
 
   const handleChange = (event) => {
     setFormData((prev) => ({
@@ -264,29 +437,36 @@ export default function ProfilePage() {
     }));
   };
 
-  /* ================= SAVE PROFILE ================= */
+  const handleSaveProfile =
+    async () => {
+      if (profileSaving) return;
 
-  const handleSaveProfile = async () => {
-    try {
-      await profileService.updateProfile(
-        formData
-      );
+      try {
+        setProfileSaving(true);
 
-      showToast(
-        "Profile saved successfully",
-        "success"
-      );
-    } catch (error) {
-      console.error(error);
+        await profileService.updateProfile(
+          formData
+        );
 
-      showToast(
-        "Profile saved locally",
-        "success"
-      );
-    }
-  };
+        showToast(
+          "Profile updated successfully",
+          "success"
+        );
+      } catch (error) {
+        console.error(error);
 
-  /* ================= LOGOUT ================= */
+        showToast(
+          "Profile saved locally",
+          "success"
+        );
+      } finally {
+        setProfileSaving(false);
+      }
+    };
+
+  /* =========================================================
+     LOGOUT
+  ========================================================= */
 
   const handleLogout = () => {
     logout();
@@ -296,22 +476,108 @@ export default function ProfilePage() {
     });
   };
 
-  /* ================= CARD FORMAT ================= */
+  /* =========================================================
+     CARD DETECTION
+  ========================================================= */
 
-  const formatCardNumber = (value) => {
-    const clean = value
-      .replace(/\D/g, "")
-      .slice(0, 16);
+  const detectCardType = (number) => {
+    const clean =
+      String(number || "")
+        .replace(/\D/g, "");
+
+    if (/^4/.test(clean)) {
+      return "Visa";
+    }
+
+    if (
+      /^(5[1-5]|2(2[2-9]|[3-6][0-9]|7[01]|720))/.test(
+        clean
+      )
+    ) {
+      return "Mastercard";
+    }
+
+    if (
+      /^(34|37)/.test(clean)
+    ) {
+      return "American Express";
+    }
+
+    if (
+      /^(6011|65|64[4-9])/.test(
+        clean
+      )
+    ) {
+      return "Discover";
+    }
+
+    if (
+      /^(35)/.test(clean)
+    ) {
+      return "JCB";
+    }
+
+    return "Credit / Debit Card";
+  };
+
+  const luhnCheck = (number) => {
+    const digits =
+      String(number || "")
+        .replace(/\D/g, "");
+
+    if (
+      digits.length < 12 ||
+      digits.length > 19
+    ) {
+      return false;
+    }
+
+    let sum = 0;
+    let shouldDouble = false;
+
+    for (
+      let i = digits.length - 1;
+      i >= 0;
+      i--
+    ) {
+      let digit =
+        Number(digits[i]);
+
+      if (shouldDouble) {
+        digit *= 2;
+
+        if (digit > 9) {
+          digit -= 9;
+        }
+      }
+
+      sum += digit;
+      shouldDouble = !shouldDouble;
+    }
+
+    return sum % 10 === 0;
+  };
+
+  const formatCardNumber = (
+    value
+  ) => {
+    const clean =
+      value
+        .replace(/\D/g, "")
+        .slice(0, 19);
 
     return clean
       .replace(/(.{4})/g, "$1 ")
       .trim();
   };
 
-  const formatExpiry = (value) => {
-    const clean = value
-      .replace(/\D/g, "")
-      .slice(0, 4);
+  const formatExpiry = (
+    value
+  ) => {
+    const clean =
+      value
+        .replace(/\D/g, "")
+        .slice(0, 4);
 
     if (clean.length <= 2) {
       return clean;
@@ -323,24 +589,61 @@ export default function ProfilePage() {
     )}/${clean.slice(2)}`;
   };
 
-  /* ================= CARD NUMBER CHANGE ================= */
+  const handleCardNumberChange =
+    (value) => {
+      const formatted =
+        formatCardNumber(value);
 
-  const handleCardNumberChange = (value) => {
-    const formatted =
-      formatCardNumber(value);
+      setCardData((prev) => ({
+        ...prev,
+        number: formatted,
+        type: detectCardType(
+          formatted
+        ),
+      }));
+    };
 
-    setCardData((prev) => ({
-      ...prev,
-      number: formatted,
-      type: detectCardType(
-        formatted
-      ),
-    }));
-  };
+  const maskedCardNumber =
+    useMemo(() => {
+      const clean =
+        cardData.number.replace(
+          /\D/g,
+          ""
+        );
 
-  /* ================= SAVE CARD ================= */
+      if (!clean) {
+        return "•••• •••• •••• ••••";
+      }
+
+      const groups = [];
+
+      for (
+        let i = 0;
+        i < clean.length;
+        i += 4
+      ) {
+        groups.push(
+          clean.slice(i, i + 4)
+        );
+      }
+
+      return groups
+        .map((group, index) => {
+          if (
+            index ===
+            groups.length - 1
+          ) {
+            return group;
+          }
+
+          return "••••";
+        })
+        .join(" ");
+    }, [cardData.number]);
 
   const handleSaveCard = () => {
+    if (cardSaving) return;
+
     const cleanNumber =
       cardData.number.replace(
         /\D/g,
@@ -352,49 +655,53 @@ export default function ProfilePage() {
         "Enter card holder name",
         "error"
       );
-
       return;
     }
 
-    if (cleanNumber.length < 12) {
+    if (!luhnCheck(cleanNumber)) {
       showToast(
         "Enter a valid card number",
         "error"
       );
-
       return;
     }
 
-    if (!cardData.expiry) {
+    if (
+      !/^(0[1-9]|1[0-2])\/\d{2}$/.test(
+        cardData.expiry
+      )
+    ) {
       showToast(
-        "Enter expiry date",
+        "Enter expiry as MM/YY",
         "error"
       );
-
       return;
     }
 
-    if (cardData.cvv.length < 3) {
+    if (
+      cardData.cvv.length <
+      (cardData.type ===
+      "American Express"
+        ? 4
+        : 3)
+    ) {
       showToast(
         "Enter valid CVV",
         "error"
       );
-
       return;
     }
 
+    setCardSaving(true);
+
     const newCard = {
       id: Date.now(),
-
       holder:
         cardData.holder.trim(),
-
       number:
         cleanNumber.slice(-4),
-
       expiry:
         cardData.expiry,
-
       type:
         cardData.type,
     };
@@ -409,18 +716,20 @@ export default function ProfilePage() {
       number: "",
       expiry: "",
       cvv: "",
-      type: "Mastercard",
+      type: "Credit Card",
     });
 
     setShowCardForm(false);
 
+    setTimeout(() => {
+      setCardSaving(false);
+    }, 300);
+
     showToast(
-      "Card saved successfully",
+      `${newCard.type} saved successfully`,
       "success"
     );
   };
-
-  /* ================= DELETE CARD ================= */
 
   const deleteCard = (id) => {
     setSavedCards((prev) =>
@@ -436,34 +745,39 @@ export default function ProfilePage() {
     );
   };
 
-  /* ==================================================
+  /* =========================================================
      PAYMENT METHODS
-  ================================================== */
+  ========================================================= */
 
   const paymentOptions = [
     {
       type: "bKash",
-      subtitle: "Mobile Banking",
-      icon: Wallet,
+      subtitle:
+        "Mobile Banking",
+      icon: Smartphone,
     },
     {
       type: "Nagad",
-      subtitle: "Digital Payment",
-      icon: Wallet,
+      subtitle:
+        "Digital Payment",
+      icon: Smartphone,
     },
     {
       type: "Rocket",
-      subtitle: "DBBL Mobile Banking",
-      icon: Wallet,
+      subtitle:
+        "DBBL Mobile Banking",
+      icon: Smartphone,
     },
     {
       type: "Upay",
-      subtitle: "United Commercial Bank",
-      icon: Wallet,
+      subtitle:
+        "United Commercial Bank",
+      icon: Smartphone,
     },
     {
       type: "Bank Account",
-      subtitle: "Add bank account",
+      subtitle:
+        "Add bank account",
       icon: Building2,
     },
   ];
@@ -486,34 +800,37 @@ export default function ProfilePage() {
 
   const handleSavePaymentMethod =
     () => {
+      if (paymentSaving) return;
+
       const cleanNumber =
         paymentNumber.replace(
           /\D/g,
           ""
         );
 
-      if (!selectedPaymentType) {
-        return;
-      }
-
       if (
         selectedPaymentType ===
         "Bank Account"
       ) {
-        if (!cleanNumber) {
+        if (
+          cleanNumber.length <
+          8
+        ) {
           showToast(
-            "Enter bank account number",
+            "Enter a valid bank account number",
             "error"
           );
-
           return;
         }
+
+        setPaymentSaving(true);
 
         const newPayment = {
           id: Date.now(),
           type:
             selectedPaymentType,
-          number: cleanNumber,
+          number:
+            cleanNumber,
           accountName:
             bankAccountName.trim() ||
             "Bank Account",
@@ -533,17 +850,28 @@ export default function ProfilePage() {
           "success"
         );
 
-        return;
-      }
-
-      if (cleanNumber.length < 10) {
-        showToast(
-          `Enter valid ${selectedPaymentType} number`,
-          "error"
+        setTimeout(
+          () =>
+            setPaymentSaving(
+              false
+            ),
+          300
         );
 
         return;
       }
+
+      if (
+        cleanNumber.length < 10
+      ) {
+        showToast(
+          `Enter valid ${selectedPaymentType} number`,
+          "error"
+        );
+        return;
+      }
+
+      setPaymentSaving(true);
 
       const newPayment = {
         id: Date.now(),
@@ -566,9 +894,15 @@ export default function ProfilePage() {
         `${selectedPaymentType} added successfully`,
         "success"
       );
-    };
 
-  /* ================= DELETE PAYMENT ================= */
+      setTimeout(
+        () =>
+          setPaymentSaving(
+            false
+          ),
+        300
+      );
+    };
 
   const deletePaymentMethod =
     (id) => {
@@ -585,8 +919,6 @@ export default function ProfilePage() {
         "success"
       );
     };
-
-  /* ================= PAYMENT MASK ================= */
 
   const maskPaymentNumber = (
     number
@@ -605,32 +937,31 @@ export default function ProfilePage() {
     )}`;
   };
 
-  /* ================= ADDRESS ================= */
+  /* =========================================================
+     ADDRESS
+  ========================================================= */
 
   const useCurrentLocation = () => {
     if (!currentLocation) {
       showToast(
-        "No saved location found. Please set your location first.",
+        "No saved location found",
         "error"
       );
-
       return;
     }
 
-    setAddressData(
-      (prev) => ({
-        ...prev,
-        address:
-          currentLocation,
-      })
-    );
+    setAddressData((prev) => ({
+      ...prev,
+      address:
+        currentLocation,
+    }));
 
     setShowAddressForm(true);
   };
 
-  /* ================= SAVE ADDRESS ================= */
-
   const handleSaveAddress = () => {
+    if (addressSaving) return;
+
     if (
       !addressData.address.trim()
     ) {
@@ -638,22 +969,19 @@ export default function ProfilePage() {
         "Enter an address",
         "error"
       );
-
       return;
     }
 
+    setAddressSaving(true);
+
     const newAddress = {
       id: Date.now(),
-
       label:
         addressData.label,
-
       address:
         addressData.address.trim(),
-
       city:
         addressData.city.trim(),
-
       phone:
         addressData.phone.trim() ||
         formData.phone,
@@ -677,9 +1005,13 @@ export default function ProfilePage() {
       "Address added successfully",
       "success"
     );
-  };
 
-  /* ================= DELETE ADDRESS ================= */
+    setTimeout(
+      () =>
+        setAddressSaving(false),
+      300
+    );
+  };
 
   const deleteAddress = (id) => {
     setAddresses((prev) =>
@@ -695,7 +1027,231 @@ export default function ProfilePage() {
     );
   };
 
-  /* ================= MENUS ================= */
+  /* =========================================================
+     NOTIFICATION HELPERS
+  ========================================================= */
+
+  const unreadNotifications =
+    notifications.filter(
+      (item) => !item.read
+    ).length;
+
+  const notificationIcon = (
+    type
+  ) => {
+    if (
+      type === "order_received" ||
+      type === "order_confirmed"
+    ) {
+      return CircleCheck;
+    }
+
+    if (
+      type === "order_cancelled"
+    ) {
+      return CircleX;
+    }
+
+    if (
+      type === "payment"
+    ) {
+      return CreditCard;
+    }
+
+    if (
+      type === "promo"
+    ) {
+      return Tag;
+    }
+
+    return Bell;
+  };
+
+  const notificationTarget = (
+    item
+  ) => {
+    if (
+      item.target === "order" ||
+      item.type?.startsWith(
+        "order_"
+      )
+    ) {
+      if (item.orderId) {
+        navigate(
+          `/orders/${item.orderId}`
+        );
+      } else {
+        navigate("/orders");
+      }
+
+      return;
+    }
+
+    if (
+      item.target === "payment" ||
+      item.type === "payment"
+    ) {
+      setScreen("payment");
+      return;
+    }
+
+    if (
+      item.target === "promo" ||
+      item.type === "promo"
+    ) {
+      setScreen("promos");
+      return;
+    }
+
+    if (
+      item.target === "profile"
+    ) {
+      setScreen("details");
+      return;
+    }
+  };
+
+  const openNotification = (
+    item
+  ) => {
+    setNotifications((prev) =>
+      prev.map((notification) =>
+        notification.id ===
+        item.id
+          ? {
+              ...notification,
+              read: true,
+            }
+          : notification
+      )
+    );
+
+    notificationTarget(item);
+  };
+
+  const markAllNotificationsRead =
+    () => {
+      setNotifications((prev) =>
+        prev.map((item) => ({
+          ...item,
+          read: true,
+        }))
+      );
+    };
+
+  /* =========================================================
+     PROMOS
+  ========================================================= */
+
+  const allPromos = [
+    ...defaultPromos,
+    ...promoCodes,
+  ];
+
+  const copyPromo = async (
+    code
+  ) => {
+    try {
+      await navigator.clipboard.writeText(
+        code
+      );
+
+      showToast(
+        `${code} copied`,
+        "success"
+      );
+    } catch {
+      showToast(
+        "Promo code copied",
+        "success"
+      );
+    }
+  };
+
+  const savePromo = (promo) => {
+    const exists =
+      promoCodes.some(
+        (item) =>
+          item.code ===
+          promo.code
+      );
+
+    if (exists) {
+      showToast(
+        "Promo already saved",
+        "success"
+      );
+      return;
+    }
+
+    setPromoCodes((prev) => [
+      ...prev,
+      promo,
+    ]);
+
+    showToast(
+      "Promo saved successfully",
+      "success"
+    );
+  };
+
+  const applyPromo = () => {
+    const code =
+      promoInput
+        .trim()
+        .toUpperCase();
+
+    if (!code) {
+      showToast(
+        "Enter a promo code",
+        "error"
+      );
+      return;
+    }
+
+    const promo =
+      allPromos.find(
+        (item) =>
+          item.code === code
+      );
+
+    if (!promo) {
+      showToast(
+        "Promo code not found",
+        "error"
+      );
+      return;
+    }
+
+    localStorage.setItem(
+      "selectedPromoCode",
+      promo.code
+    );
+
+    window.dispatchEvent(
+      new Event("promoChanged")
+    );
+
+    showToast(
+      `${promo.code} applied`,
+      "success"
+    );
+  };
+
+  /* =========================================================
+     BACK
+  ========================================================= */
+
+  const backToProfile = () => {
+    setScreen("profile");
+    setShowCardForm(false);
+    setShowAddressForm(false);
+    closePaymentForm();
+  };
+
+  /* =========================================================
+     MENU
+  ========================================================= */
 
   const mainMenu = [
     [
@@ -723,34 +1279,54 @@ export default function ProfilePage() {
       CreditCard,
       "cards",
     ],
-  ];
-
-  const settingMenu = [
-    ["Notifications", Bell],
-    ["Dark Mode", Moon],
     [
-      "Help & Support",
-      HelpCircle,
+      "Promo & Offers",
+      Tag,
+      "promos",
     ],
   ];
 
-  /* ================= BACK ================= */
+  /* =========================================================
+     THEME CLASSES
+  ========================================================= */
 
-  const backToProfile = () => {
-    setScreen("profile");
+  const pageBackground =
+    theme === "dark"
+      ? "bg-slate-950 text-white"
+      : theme === "ocean"
+      ? "bg-gradient-to-br from-sky-50 via-white to-cyan-50"
+      : theme === "forest"
+      ? "bg-gradient-to-br from-emerald-50 via-white to-lime-50"
+      : theme === "lavender"
+      ? "bg-gradient-to-br from-violet-50 via-white to-pink-50"
+      : theme === "sunset"
+      ? "bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50"
+      : "bg-gradient-to-br from-pink-50 via-gray-50 to-orange-50";
 
-    setShowCardForm(false);
+  const cardBackground =
+    theme === "dark"
+      ? "border border-white/10 bg-slate-900/90"
+      : "border border-white/70 bg-white/85";
 
-    setShowAddressForm(false);
+  const textMain =
+    theme === "dark"
+      ? "text-white"
+      : "text-slate-900";
 
-    closePaymentForm();
-  };
+  const textSecondary =
+    theme === "dark"
+      ? "text-slate-400"
+      : "text-gray-500";
+
+  /* =========================================================
+     RENDER
+  ========================================================= */
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-gray-100 to-orange-100">
-
+    <div
+      className={`min-h-screen transition-colors duration-300 ${pageBackground}`}
+    >
       <div className="min-h-screen overflow-y-auto px-5 pb-40 pt-5">
-
         <div className="mx-auto max-w-md">
 
           {/* ==================================================
@@ -759,14 +1335,12 @@ export default function ProfilePage() {
 
           {screen === "profile" && (
             <>
-              <div className="rounded-[2rem] border border-white/70 bg-white/80 p-5 shadow-xl backdrop-blur-xl">
-
+              <div
+                className={`rounded-[2rem] p-5 shadow-xl backdrop-blur-xl ${cardBackground}`}
+              >
                 <div className="flex items-center justify-between gap-4">
-
                   <div className="flex min-w-0 items-center gap-4">
-
                     <div className="relative shrink-0">
-
                       <img
                         src={
                           profileImage ||
@@ -777,7 +1351,6 @@ export default function ProfilePage() {
                       />
 
                       <label className="absolute bottom-0 right-0 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-orange-500 text-white shadow-lg">
-
                         <Pencil size={13} />
 
                         <input
@@ -788,65 +1361,123 @@ export default function ProfilePage() {
                             handleImage
                           }
                         />
-
                       </label>
-
                     </div>
 
                     <div className="min-w-0">
-
-                      <h2 className="truncate text-lg font-black text-slate-900">
-                        {
-                          formData.fullName
-                        }
+                      <h2
+                        className={`truncate text-lg font-black ${textMain}`}
+                      >
+                        {formData.fullName}
                       </h2>
 
-                      <p className="mt-1 truncate text-sm text-gray-500">
-                        {
-                          formData.email
-                        }
+                      <p
+                        className={`mt-1 truncate text-sm ${textSecondary}`}
+                      >
+                        {formData.email}
                       </p>
 
-                      <p className="mt-1 text-xs font-semibold text-gray-400">
-                        {
-                          formData.phone
-                        }
+                      <p
+                        className={`mt-1 text-xs font-semibold ${textSecondary}`}
+                      >
+                        {formData.phone}
                       </p>
-
                     </div>
-
                   </div>
 
                   <button
                     onClick={() =>
-                      setScreen(
-                        "details"
-                      )
+                      setScreen("details")
                     }
                     className="rounded-xl bg-orange-50 p-3 text-orange-500"
                   >
                     <Pencil size={18} />
                   </button>
-
                 </div>
+              </div>
 
+              {/* QUICK ACTIONS */}
+
+              <div className="mt-5 grid grid-cols-3 gap-3">
+                <button
+                  onClick={() =>
+                    setScreen("notifications")
+                  }
+                  className={`relative rounded-3xl p-4 text-center shadow-md ${cardBackground}`}
+                >
+                  <Bell
+                    size={22}
+                    className="mx-auto text-orange-500"
+                  />
+
+                  <p
+                    className={`mt-2 text-[11px] font-black ${textMain}`}
+                  >
+                    Notifications
+                  </p>
+
+                  {unreadNotifications >
+                    0 && (
+                    <span className="absolute right-3 top-3 flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1 text-[9px] font-black text-white">
+                      {unreadNotifications >
+                      9
+                        ? "9+"
+                        : unreadNotifications}
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  onClick={() =>
+                    setScreen("promos")
+                  }
+                  className={`rounded-3xl p-4 text-center shadow-md ${cardBackground}`}
+                >
+                  <Tag
+                    size={22}
+                    className="mx-auto text-orange-500"
+                  />
+
+                  <p
+                    className={`mt-2 text-[11px] font-black ${textMain}`}
+                  >
+                    Offers
+                  </p>
+                </button>
+
+                <button
+                  onClick={() =>
+                    setScreen("themes")
+                  }
+                  className={`rounded-3xl p-4 text-center shadow-md ${cardBackground}`}
+                >
+                  <Palette
+                    size={22}
+                    className="mx-auto text-orange-500"
+                  />
+
+                  <p
+                    className={`mt-2 text-[11px] font-black ${textMain}`}
+                  >
+                    Themes
+                  </p>
+                </button>
               </div>
 
               {/* MAIN MENU */}
 
-              <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-white/80 p-4 shadow-xl backdrop-blur-xl">
-
+              <div
+                className={`mt-6 overflow-hidden rounded-[2rem] p-4 shadow-xl backdrop-blur-xl ${cardBackground}`}
+              >
                 {mainMenu.map(
                   ([
                     title,
                     Icon,
                     target,
                   ]) => (
-
                     <button
                       key={title}
                       onClick={() => {
-
                         if (
                           target ===
                           "orders"
@@ -854,7 +1485,6 @@ export default function ProfilePage() {
                           navigate(
                             "/orders"
                           );
-
                           return;
                         }
 
@@ -862,105 +1492,161 @@ export default function ProfilePage() {
                           target
                         );
                       }}
-                      className="flex w-full items-center justify-between border-b border-gray-100 py-4 last:border-none"
+                      className={`flex w-full items-center justify-between border-b py-4 last:border-none ${
+                        theme ===
+                        "dark"
+                          ? "border-white/10"
+                          : "border-gray-100"
+                      }`}
                     >
-
                       <div className="flex items-center gap-4">
+                        {/* ORIGINAL ICON COLOUR */}
 
                         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-100">
-
-                          <Icon
-                            size={21}
-                          />
-
+                          <Icon size={21} />
                         </div>
 
-                        <span className="text-sm font-bold text-slate-800">
+                        <span
+                          className={`text-sm font-bold ${textMain}`}
+                        >
                           {title}
                         </span>
-
                       </div>
 
                       <ChevronRight
                         size={19}
                         className="text-gray-400"
                       />
-
                     </button>
-
                   )
                 )}
-
               </div>
 
               {/* SETTINGS */}
 
-              <div className="mt-5 overflow-hidden rounded-[2rem] border border-white/70 bg-white/80 p-4 shadow-xl backdrop-blur-xl">
+              <div
+                className={`mt-5 overflow-hidden rounded-[2rem] p-4 shadow-xl backdrop-blur-xl ${cardBackground}`}
+              >
+                <button
+                  onClick={() =>
+                    setScreen(
+                      "notifications"
+                    )
+                  }
+                  className={`flex w-full items-center justify-between border-b py-4 ${
+                    theme === "dark"
+                      ? "border-white/10"
+                      : "border-gray-100"
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-100">
+                      <Bell size={21} />
+                    </div>
 
-                {settingMenu.map(
-                  ([
-                    title,
-                    Icon,
-                  ]) => (
-
-                    <button
-                      key={title}
-                      className="flex w-full items-center justify-between border-b border-gray-100 py-4 last:border-none"
+                    <span
+                      className={`text-sm font-bold ${textMain}`}
                     >
+                      Notifications
+                    </span>
+                  </div>
 
-                      <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    {unreadNotifications >
+                      0 && (
+                      <span className="rounded-full bg-orange-500 px-2 py-1 text-[9px] font-black text-white">
+                        {
+                          unreadNotifications
+                        }
+                      </span>
+                    )}
 
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-100">
+                    <ChevronRight
+                      size={19}
+                      className="text-gray-400"
+                    />
+                  </div>
+                </button>
 
-                          <Icon
-                            size={21}
-                          />
+                <button
+                  onClick={() =>
+                    setScreen("themes")
+                  }
+                  className={`flex w-full items-center justify-between border-b py-4 ${
+                    theme === "dark"
+                      ? "border-white/10"
+                      : "border-gray-100"
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-100">
+                      {theme ===
+                      "dark" ? (
+                        <Moon size={21} />
+                      ) : (
+                        <Sun size={21} />
+                      )}
+                    </div>
 
-                        </div>
+                    <span
+                      className={`text-sm font-bold ${textMain}`}
+                    >
+                      Themes
+                    </span>
+                  </div>
 
-                        <span className="text-sm font-bold text-slate-800">
-                          {title}
-                        </span>
+                  <ChevronRight
+                    size={19}
+                    className="text-gray-400"
+                  />
+                </button>
 
-                      </div>
-
-                      <ChevronRight
-                        size={19}
-                        className="text-gray-400"
+                <button
+                  onClick={() =>
+                    setScreen(
+                      "help"
+                    )
+                  }
+                  className="flex w-full items-center justify-between py-4"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-100">
+                      <HelpCircle
+                        size={21}
                       />
+                    </div>
 
-                    </button>
+                    <span
+                      className={`text-sm font-bold ${textMain}`}
+                    >
+                      Help & Support
+                    </span>
+                  </div>
 
-                  )
-                )}
-
+                  <ChevronRight
+                    size={19}
+                    className="text-gray-400"
+                  />
+                </button>
               </div>
 
               {/* LOGOUT */}
 
-              <div className="mt-5 rounded-[2rem] border border-red-100 bg-white/80 p-4 shadow-xl backdrop-blur-xl">
-
+              <div className="mt-5 rounded-[2rem] border border-red-100 bg-white/80 p-4 shadow-xl">
                 <button
                   onClick={
                     handleLogout
                   }
                   className="flex w-full items-center gap-4 py-4 text-red-500"
                 >
-
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-50">
-
-                    <LogOut
-                      size={21}
-                    />
-
+                    <LogOut size={21} />
                   </div>
 
                   <span className="text-sm font-black">
                     Logout
                   </span>
-
                 </button>
-
               </div>
             </>
           )}
@@ -971,29 +1657,50 @@ export default function ProfilePage() {
 
           {screen === "details" && (
             <>
-              <div className="mb-5 flex items-center gap-3">
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={
+                      backToProfile
+                    }
+                    className="rounded-xl bg-white p-3 shadow-sm"
+                  >
+                    <ArrowLeft
+                      size={20}
+                    />
+                  </button>
+
+                  <h2
+                    className={`text-xl font-black ${textMain}`}
+                  >
+                    Profile Details
+                  </h2>
+                </div>
+
+                {/* SAVE BUTTON REMOVED -> CHECK */}
 
                 <button
                   onClick={
-                    backToProfile
+                    handleSaveProfile
                   }
-                  className="rounded-xl bg-white p-3 shadow-sm"
+                  disabled={
+                    profileSaving
+                  }
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-orange-500 text-white shadow-lg shadow-orange-200 disabled:opacity-50"
+                  title="Confirm changes"
                 >
-                  <ArrowLeft
-                    size={20}
-                  />
+                  {profileSaving ? (
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  ) : (
+                    <Check size={21} />
+                  )}
                 </button>
-
-                <h2 className="text-xl font-black">
-                  Profile Details
-                </h2>
-
               </div>
 
-              <div className="rounded-[2rem] bg-white/90 p-5 shadow-xl">
-
+              <div
+                className={`rounded-[2rem] p-5 shadow-xl ${cardBackground}`}
+              >
                 <div className="mb-6 flex flex-col items-center">
-
                   <img
                     src={
                       profileImage ||
@@ -1004,11 +1711,7 @@ export default function ProfilePage() {
                   />
 
                   <label className="mt-4 flex cursor-pointer items-center gap-2 font-bold text-orange-500">
-
-                    <Upload
-                      size={18}
-                    />
-
+                    <Upload size={18} />
                     Change Photo
 
                     <input
@@ -1019,9 +1722,7 @@ export default function ProfilePage() {
                         handleImage
                       }
                     />
-
                   </label>
-
                 </div>
 
                 <input
@@ -1081,18 +1782,8 @@ export default function ProfilePage() {
                     handleChange
                   }
                   placeholder="About yourself"
-                  className="mb-4 h-28 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
+                  className="h-28 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                 />
-
-                <button
-                  onClick={
-                    handleSaveProfile
-                  }
-                  className="w-full rounded-2xl bg-orange-500 py-4 font-black text-white shadow-lg shadow-orange-200"
-                >
-                  Save Changes
-                </button>
-
               </div>
             </>
           )}
@@ -1104,7 +1795,6 @@ export default function ProfilePage() {
           {screen === "payment" && (
             <>
               <div className="mb-5 flex items-center gap-3">
-
                 <button
                   onClick={
                     backToProfile
@@ -1116,29 +1806,34 @@ export default function ProfilePage() {
                   />
                 </button>
 
-                <h2 className="text-xl font-black">
+                <h2
+                  className={`text-xl font-black ${textMain}`}
+                >
                   Payment Methods
                 </h2>
-
               </div>
 
-              {/* ADD PAYMENT FORM */}
+              {/* PAYMENT FORM */}
 
               {showPaymentForm && (
-                <div className="mb-5 rounded-[2rem] bg-white/95 p-5 shadow-xl">
-
+                <div
+                  className={`mb-5 rounded-[2rem] p-5 shadow-xl ${cardBackground}`}
+                >
                   <div className="mb-5 flex items-center justify-between">
-
                     <div>
-                      <h3 className="text-lg font-black text-slate-900">
+                      <h3
+                        className={`text-lg font-black ${textMain}`}
+                      >
                         Add{" "}
                         {
                           selectedPaymentType
                         }
                       </h3>
 
-                      <p className="mt-1 text-xs text-gray-500">
-                        Enter your payment account details
+                      <p
+                        className={`mt-1 text-xs ${textSecondary}`}
+                      >
+                        Securely save your payment account
                       </p>
                     </div>
 
@@ -1150,7 +1845,6 @@ export default function ProfilePage() {
                     >
                       <X size={18} />
                     </button>
-
                   </div>
 
                   {selectedPaymentType ===
@@ -1199,33 +1893,33 @@ export default function ProfilePage() {
                     className="mb-4 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-400"
                   />
 
+                  {/* CHECK INSTEAD OF SAVE */}
+
                   <button
                     onClick={
                       handleSavePaymentMethod
                     }
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-300 to-orange-400 py-4 font-black text-white shadow-lg shadow-orange-100"
+                    disabled={
+                      paymentSaving
+                    }
+                    className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-white shadow-lg shadow-orange-200 disabled:opacity-50"
                   >
-                    <Check
-                      size={19}
-                    />
-
-                    Save Payment Method
+                    {paymentSaving ? (
+                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    ) : (
+                      <Check size={21} />
+                    )}
                   </button>
-
                 </div>
               )}
 
-              {/* AVAILABLE PAYMENT METHODS */}
-
               <div className="space-y-3">
-
                 {paymentOptions.map(
                   ({
                     type,
                     subtitle,
                     icon: Icon,
                   }) => (
-
                     <button
                       key={type}
                       onClick={() =>
@@ -1233,52 +1927,42 @@ export default function ProfilePage() {
                           type
                         )
                       }
-                      className="flex w-full items-center justify-between rounded-3xl bg-white/90 p-4 shadow-md transition active:scale-[0.98]"
+                      className={`flex w-full items-center justify-between rounded-3xl p-4 shadow-md transition active:scale-[0.98] ${cardBackground}`}
                     >
-
                       <div className="flex items-center gap-4">
-
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-orange-400">
-
-                          <Icon
-                            size={21}
-                          />
-
+                          <Icon size={21} />
                         </div>
 
                         <div className="text-left">
-
-                          <h3 className="font-black text-slate-800">
+                          <h3
+                            className={`font-black ${textMain}`}
+                          >
                             {type}
                           </h3>
 
-                          <p className="text-xs text-gray-500">
+                          <p
+                            className={`text-xs ${textSecondary}`}
+                          >
                             {subtitle}
                           </p>
-
                         </div>
-
                       </div>
 
                       <Plus
                         size={20}
                         className="text-orange-400"
                       />
-
                     </button>
-
                   )
                 )}
-
               </div>
 
-              {/* SAVED PAYMENT METHODS */}
-
               <div className="mt-7">
-
                 <div className="mb-3 flex items-center justify-between">
-
-                  <h3 className="text-lg font-black text-slate-800">
+                  <h3
+                    className={`text-lg font-black ${textMain}`}
+                  >
                     Your Payment Methods
                   </h3>
 
@@ -1288,66 +1972,53 @@ export default function ProfilePage() {
                     }{" "}
                     saved
                   </span>
-
                 </div>
 
                 {savedPaymentMethods.length ===
                 0 ? (
-                  <div className="rounded-[2rem] bg-white/80 p-7 text-center shadow-md">
-
+                  <div
+                    className={`rounded-[2rem] p-7 text-center shadow-md ${cardBackground}`}
+                  >
                     <CreditCard
                       size={42}
                       className="mx-auto text-gray-300"
                     />
 
-                    <p className="mt-3 text-sm font-bold text-gray-500">
+                    <p
+                      className={`mt-3 text-sm font-bold ${textSecondary}`}
+                    >
                       No payment method added yet
                     </p>
-
-                    <p className="mt-1 text-xs text-gray-400">
-                      Add bKash, Nagad, Rocket, Upay or Bank Account.
-                    </p>
-
                   </div>
                 ) : (
                   <div className="space-y-3">
-
                     {savedPaymentMethods.map(
                       (item) => (
-
                         <div
                           key={
                             item.id
                           }
-                          className="rounded-[1.7rem] bg-white/90 p-4 shadow-md"
+                          className={`rounded-[1.7rem] p-4 shadow-md ${cardBackground}`}
                         >
-
                           <div className="flex items-center justify-between gap-3">
-
                             <div className="flex min-w-0 items-center gap-3">
-
                               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-400">
-
                                 {item.type ===
                                 "Bank Account" ? (
                                   <Building2
-                                    size={
-                                      20
-                                    }
+                                    size={20}
                                   />
                                 ) : (
                                   <Wallet
-                                    size={
-                                      20
-                                    }
+                                    size={20}
                                   />
                                 )}
-
                               </div>
 
                               <div className="min-w-0">
-
-                                <p className="font-black text-slate-800">
+                                <p
+                                  className={`font-black ${textMain}`}
+                                >
                                   {
                                     item.type
                                   }
@@ -1366,9 +2037,7 @@ export default function ProfilePage() {
                                     item.number
                                   )}
                                 </p>
-
                               </div>
-
                             </div>
 
                             <button
@@ -1380,54 +2049,16 @@ export default function ProfilePage() {
                               className="shrink-0 rounded-xl bg-red-50 p-2 text-red-500"
                             >
                               <Trash2
-                                size={
-                                  17
-                                }
+                                size={17}
                               />
                             </button>
-
                           </div>
-
                         </div>
-
                       )
                     )}
-
                   </div>
                 )}
-
               </div>
-
-              {/* CASH ON DELIVERY */}
-
-              <div className="mt-5 rounded-[1.7rem] border border-orange-100 bg-orange-50/80 p-4">
-
-                <div className="flex items-center gap-3">
-
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-orange-400 shadow-sm">
-
-                    <Wallet
-                      size={20}
-                    />
-
-                  </div>
-
-                  <div>
-
-                    <p className="font-black text-slate-800">
-                      Cash on Delivery
-                    </p>
-
-                    <p className="text-xs text-gray-500">
-                      Pay when your order arrives
-                    </p>
-
-                  </div>
-
-                </div>
-
-              </div>
-
             </>
           )}
 
@@ -1438,9 +2069,7 @@ export default function ProfilePage() {
           {screen === "cards" && (
             <>
               <div className="mb-5 flex items-center justify-between">
-
                 <div className="flex items-center gap-3">
-
                   <button
                     onClick={
                       backToProfile
@@ -1452,10 +2081,11 @@ export default function ProfilePage() {
                     />
                   </button>
 
-                  <h2 className="text-xl font-black">
+                  <h2
+                    className={`text-xl font-black ${textMain}`}
+                  >
                     Saved Cards
                   </h2>
-
                 </div>
 
                 <button
@@ -1468,19 +2098,24 @@ export default function ProfilePage() {
                 >
                   <Plus size={21} />
                 </button>
-
               </div>
 
-              {/* ADD CARD */}
-
               {showCardForm && (
-                <div className="mb-6 rounded-[2rem] bg-white p-5 shadow-xl">
-
+                <div
+                  className={`mb-6 rounded-[2rem] p-5 shadow-xl ${cardBackground}`}
+                >
                   <div className="mb-4 flex items-center justify-between">
+                    <div>
+                      <h3
+                        className={`text-lg font-black ${textMain}`}
+                      >
+                        Add New Card
+                      </h3>
 
-                    <h3 className="text-lg font-black">
-                      Add New Card
-                    </h3>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Visa, Mastercard, Amex, Discover & more
+                      </p>
+                    </div>
 
                     <button
                       onClick={() =>
@@ -1492,76 +2127,68 @@ export default function ProfilePage() {
                     >
                       <X size={18} />
                     </button>
-
                   </div>
 
-                  {/* CARD PREVIEW */}
+                  {/* PREMIUM CARD PREVIEW */}
 
-                  <div className="mb-5 overflow-hidden rounded-[1.7rem] bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 p-5 text-white shadow-xl">
+                  <div className="relative mb-5 overflow-hidden rounded-[1.7rem] bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700 p-5 text-white shadow-xl">
+                    <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-white/10" />
+                    <div className="absolute -bottom-16 -left-12 h-40 w-40 rounded-full bg-white/10" />
 
-                    <div className="flex items-start justify-between">
+                    <div className="relative">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-white/70">
+                            Secure Payment
+                          </p>
 
-                      <div className="text-xs font-bold uppercase tracking-widest text-white/60">
-                        {
-                          cardData.type ||
-                          "Card"
-                        }
+                          <p className="mt-1 text-xs font-black">
+                            {cardData.type}
+                          </p>
+                        </div>
+
+                        <CreditCard
+                          size={30}
+                          className="text-white/90"
+                        />
                       </div>
 
-                      <div className="text-xl font-black">
+                      <div className="mt-8 flex items-center gap-3">
+                        <div className="h-7 w-10 rounded-md bg-gradient-to-br from-yellow-100 to-yellow-300" />
 
-                        {cardData.type ===
-                        "Visa"
-                          ? "VISA"
-                          : cardData.type ===
-                            "Mastercard"
-                          ? "mastercard"
-                          : "CARD"}
-
+                        <span className="text-xs text-white/70">
+                          NFC
+                        </span>
                       </div>
 
+                      <p className="mt-5 text-xl font-bold tracking-[0.16em]">
+                        {maskedCardNumber}
+                      </p>
+
+                      <div className="mt-7 flex items-end justify-between">
+                        <div>
+                          <p className="text-[8px] uppercase text-white/60">
+                            Card Holder
+                          </p>
+
+                          <p className="mt-1 text-xs font-black uppercase">
+                            {cardData.holder ||
+                              "YOUR NAME"}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-[8px] uppercase text-white/60">
+                            Expiry
+                          </p>
+
+                          <p className="mt-1 text-xs font-black">
+                            {cardData.expiry ||
+                              "MM/YY"}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-
-                    <div className="mt-8 text-2xl tracking-[0.18em]">
-                      {
-                        maskedCardNumber
-                      }
-                    </div>
-
-                    <div className="mt-7 flex items-end justify-between">
-
-                      <div>
-
-                        <p className="text-[8px] uppercase text-white/50">
-                          Card Holder
-                        </p>
-
-                        <p className="text-sm font-bold uppercase">
-                          {
-                            cardData.holder ||
-                            "YOUR NAME"
-                          }
-                        </p>
-
-                      </div>
-
-                      <div>
-
-                        <p className="text-[8px] uppercase text-white/50">
-                          Expiry
-                        </p>
-
-                        <p className="text-sm font-bold">
-                          {
-                            cardData.expiry ||
-                            "MM/YY"
-                          }
-                        </p>
-
-                      </div>
-
-                    </div>
-
                   </div>
 
                   <input
@@ -1592,11 +2219,21 @@ export default function ProfilePage() {
                     }
                     placeholder="Card Number"
                     inputMode="numeric"
-                    className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
+                    className="mb-2 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                   />
 
-                  <div className="mb-3 grid grid-cols-2 gap-3">
+                  <div className="mb-3 flex items-center gap-2 px-2">
+                    <ShieldCheck
+                      size={14}
+                      className="text-green-500"
+                    />
 
+                    <span className="text-[10px] font-bold text-gray-400">
+                      {cardData.type} detected automatically
+                    </span>
+                  </div>
+
+                  <div className="mb-4 grid grid-cols-2 gap-3">
                     <input
                       value={
                         cardData.expiry
@@ -1625,57 +2262,73 @@ export default function ProfilePage() {
                         setCardData(
                           (prev) => ({
                             ...prev,
-                            cvv: e.target.value
-                              .replace(
-                                /\D/g,
-                                ""
-                              )
-                              .slice(
-                                0,
-                                4
-                              ),
+                            cvv:
+                              e.target.value
+                                .replace(
+                                  /\D/g,
+                                  ""
+                                )
+                                .slice(
+                                  0,
+                                  cardData.type ===
+                                    "American Express"
+                                    ? 4
+                                    : 3
+                                ),
                           })
                         )
                       }
-                      placeholder="CVV"
+                      placeholder={
+                        cardData.type ===
+                        "American Express"
+                          ? "CID"
+                          : "CVV"
+                      }
                       type="password"
                       inputMode="numeric"
                       className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
                     />
-
                   </div>
+
+                  {/* CHECK ONLY */}
 
                   <button
                     onClick={
                       handleSaveCard
                     }
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 py-4 font-black text-white shadow-lg shadow-orange-200"
+                    disabled={
+                      cardSaving
+                    }
+                    className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-white shadow-lg shadow-orange-200 disabled:opacity-50"
                   >
-                    <Check size={19} />
-                    Save Card
+                    {cardSaving ? (
+                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    ) : (
+                      <Check size={21} />
+                    )}
                   </button>
-
                 </div>
               )}
-
-              {/* SAVED CARD LIST */}
 
               {savedCards.length ===
                 0 &&
               !showCardForm ? (
-                <div className="rounded-[2rem] bg-white/90 p-8 text-center shadow-xl">
-
+                <div
+                  className={`rounded-[2rem] p-8 text-center shadow-xl ${cardBackground}`}
+                >
                   <CreditCard
                     size={48}
                     className="mx-auto text-gray-300"
                   />
 
-                  <h3 className="mt-4 font-black text-slate-800">
+                  <h3
+                    className={`mt-4 font-black ${textMain}`}
+                  >
                     No Saved Cards
                   </h3>
 
                   <p className="mt-1 text-sm text-gray-400">
-                    Add your Visa or Mastercard for faster checkout.
+                    Add a card for faster checkout.
                   </p>
 
                   <button
@@ -1688,41 +2341,28 @@ export default function ProfilePage() {
                   >
                     Add Card
                   </button>
-
                 </div>
               ) : (
                 <div className="space-y-4">
-
                   {savedCards.map(
                     (card) => (
-
                       <div
                         key={
                           card.id
                         }
-                        className="rounded-[1.8rem] bg-white p-4 shadow-lg"
+                        className={`rounded-[1.8rem] p-4 shadow-lg ${cardBackground}`}
                       >
-
-                        <div className="rounded-[1.5rem] bg-gradient-to-br from-slate-800 to-slate-700 p-5 text-white">
-
+                        <div className="rounded-[1.5rem] bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700 p-5 text-white">
                           <div className="flex justify-between">
-
-                            <span className="text-xs font-bold uppercase text-white/60">
+                            <span className="text-xs font-bold uppercase text-white/70">
                               {
                                 card.type
                               }
                             </span>
 
-                            <span className="font-black">
-                              {card.type ===
-                              "Visa"
-                                ? "VISA"
-                                : card.type ===
-                                  "Mastercard"
-                                ? "mastercard"
-                                : "CARD"}
-                            </span>
-
+                            <CreditCard
+                              size={22}
+                            />
                           </div>
 
                           <p className="mt-7 text-xl tracking-widest">
@@ -1733,9 +2373,7 @@ export default function ProfilePage() {
                           </p>
 
                           <div className="mt-6 flex justify-between">
-
                             <div>
-
                               <p className="text-[8px] uppercase text-white/50">
                                 Card Holder
                               </p>
@@ -1745,11 +2383,9 @@ export default function ProfilePage() {
                                   card.holder
                                 }
                               </p>
-
                             </div>
 
                             <div>
-
                               <p className="text-[8px] uppercase text-white/50">
                                 Expiry
                               </p>
@@ -1759,23 +2395,16 @@ export default function ProfilePage() {
                                   card.expiry
                                 }
                               </p>
-
                             </div>
-
                           </div>
-
                         </div>
 
                         <div className="mt-3 flex items-center justify-between px-2">
-
                           <div className="flex items-center gap-2 text-xs font-bold text-orange-500">
-
-                            <Check
+                            <ShieldCheck
                               size={15}
                             />
-
-                            Saved Card
-
+                            Securely Saved
                           </div>
 
                           <button
@@ -1790,14 +2419,10 @@ export default function ProfilePage() {
                               size={17}
                             />
                           </button>
-
                         </div>
-
                       </div>
-
                     )
                   )}
-
                 </div>
               )}
             </>
@@ -1810,9 +2435,7 @@ export default function ProfilePage() {
           {screen === "addresses" && (
             <>
               <div className="mb-5 flex items-center justify-between">
-
                 <div className="flex items-center gap-3">
-
                   <button
                     onClick={
                       backToProfile
@@ -1824,10 +2447,11 @@ export default function ProfilePage() {
                     />
                   </button>
 
-                  <h2 className="text-xl font-black">
+                  <h2
+                    className={`text-xl font-black ${textMain}`}
+                  >
                     My Addresses
                   </h2>
-
                 </div>
 
                 <button
@@ -1840,26 +2464,18 @@ export default function ProfilePage() {
                 >
                   <Plus size={21} />
                 </button>
-
               </div>
-
-              {/* CURRENT LOCATION */}
 
               {currentLocation && (
                 <div className="mb-5 rounded-[2rem] border border-orange-100 bg-orange-50 p-5">
-
                   <div className="flex items-start gap-3">
-
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-500 text-white">
-
                       <Navigation
                         size={19}
                       />
-
                     </div>
 
                     <div className="min-w-0">
-
                       <p className="text-xs font-black uppercase tracking-wider text-orange-500">
                         Current Saved Location
                       </p>
@@ -1869,9 +2485,7 @@ export default function ProfilePage() {
                           currentLocation
                         }
                       </p>
-
                     </div>
-
                   </div>
 
                   <button
@@ -1882,18 +2496,17 @@ export default function ProfilePage() {
                   >
                     Use This Address
                   </button>
-
                 </div>
               )}
 
-              {/* ADDRESS FORM */}
-
               {showAddressForm && (
-                <div className="mb-6 rounded-[2rem] bg-white p-5 shadow-xl">
-
+                <div
+                  className={`mb-6 rounded-[2rem] p-5 shadow-xl ${cardBackground}`}
+                >
                   <div className="mb-4 flex items-center justify-between">
-
-                    <h3 className="text-lg font-black">
+                    <h3
+                      className={`text-lg font-black ${textMain}`}
+                    >
                       Add New Address
                     </h3>
 
@@ -1907,16 +2520,11 @@ export default function ProfilePage() {
                     >
                       <X size={18} />
                     </button>
-
                   </div>
 
                   <div className="mb-4 grid grid-cols-3 gap-2">
-
                     {[
-                      [
-                        "Home",
-                        Home,
-                      ],
+                      ["Home", Home],
                       [
                         "Work",
                         Briefcase,
@@ -1930,7 +2538,6 @@ export default function ProfilePage() {
                         label,
                         Icon,
                       ]) => (
-
                         <button
                           key={label}
                           onClick={() =>
@@ -1950,7 +2557,6 @@ export default function ProfilePage() {
                               : "border-gray-200 bg-gray-50 text-gray-500"
                           }`}
                         >
-
                           <Icon
                             size={18}
                           />
@@ -1960,12 +2566,9 @@ export default function ProfilePage() {
                               label
                             }
                           </span>
-
                         </button>
-
                       )
                     )}
-
                   </div>
 
                   <textarea
@@ -2023,33 +2626,36 @@ export default function ProfilePage() {
                     onClick={
                       handleSaveAddress
                     }
-                    className="w-full rounded-2xl bg-orange-500 py-4 font-black text-white shadow-lg shadow-orange-200"
+                    disabled={
+                      addressSaving
+                    }
+                    className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-white shadow-lg disabled:opacity-50"
                   >
-                    Save Address
+                    {addressSaving ? (
+                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    ) : (
+                      <Check size={21} />
+                    )}
                   </button>
-
                 </div>
               )}
-
-              {/* SAVED ADDRESSES */}
 
               {addresses.length ===
                 0 &&
               !showAddressForm ? (
-                <div className="rounded-[2rem] bg-white/90 p-8 text-center shadow-xl">
-
+                <div
+                  className={`rounded-[2rem] p-8 text-center shadow-xl ${cardBackground}`}
+                >
                   <MapPin
                     size={48}
                     className="mx-auto text-gray-300"
                   />
 
-                  <h3 className="mt-4 font-black text-slate-800">
+                  <h3
+                    className={`mt-4 font-black ${textMain}`}
+                  >
                     No Saved Addresses
                   </h3>
-
-                  <p className="mt-1 text-sm text-gray-400">
-                    Add your home, work or another delivery address.
-                  </p>
 
                   <button
                     onClick={() =>
@@ -2061,54 +2667,41 @@ export default function ProfilePage() {
                   >
                     Add Address
                   </button>
-
                 </div>
               ) : (
                 <div className="space-y-4">
-
                   {addresses.map(
                     (item) => (
-
                       <div
                         key={
                           item.id
                         }
-                        className="rounded-[2rem] bg-white p-5 shadow-lg"
+                        className={`rounded-[2rem] p-5 shadow-lg ${cardBackground}`}
                       >
-
                         <div className="flex items-start justify-between gap-4">
-
                           <div className="flex min-w-0 items-start gap-3">
-
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-500">
-
                               {item.label ===
                               "Home" ? (
                                 <Home
-                                  size={
-                                    19
-                                  }
+                                  size={19}
                                 />
                               ) : item.label ===
                                 "Work" ? (
                                 <Briefcase
-                                  size={
-                                    19
-                                  }
+                                  size={19}
                                 />
                               ) : (
                                 <MapPin
-                                  size={
-                                    19
-                                  }
+                                  size={19}
                                 />
                               )}
-
                             </div>
 
                             <div className="min-w-0">
-
-                              <h3 className="font-black text-slate-800">
+                              <h3
+                                className={`font-black ${textMain}`}
+                              >
                                 {
                                   item.label
                                 }
@@ -2129,9 +2722,7 @@ export default function ProfilePage() {
                                   item.phone
                                 }
                               </p>
-
                             </div>
-
                           </div>
 
                           <button
@@ -2143,25 +2734,564 @@ export default function ProfilePage() {
                             className="shrink-0 rounded-xl bg-red-50 p-2 text-red-500"
                           >
                             <Trash2
-                              size={
-                                17
-                              }
+                              size={17}
                             />
                           </button>
-
                         </div>
-
                       </div>
-
                     )
                   )}
-
                 </div>
               )}
-
             </>
           )}
 
+          {/* ==================================================
+              NOTIFICATIONS PAGE
+          ================================================== */}
+
+          {screen ===
+            "notifications" && (
+            <>
+              <div className="mb-5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={
+                      backToProfile
+                    }
+                    className="rounded-xl bg-white p-3 shadow-sm"
+                  >
+                    <ArrowLeft
+                      size={20}
+                    />
+                  </button>
+
+                  <h2
+                    className={`text-xl font-black ${textMain}`}
+                  >
+                    Notifications
+                  </h2>
+                </div>
+
+                {notifications.length >
+                  0 && (
+                  <button
+                    onClick={
+                      markAllNotificationsRead
+                    }
+                    className="text-xs font-black text-orange-500"
+                  >
+                    Mark all read
+                  </button>
+                )}
+              </div>
+
+              {notifications.length ===
+              0 ? (
+                <div
+                  className={`rounded-[2rem] p-10 text-center shadow-xl ${cardBackground}`}
+                >
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-orange-50 text-orange-500">
+                    <Bell size={30} />
+                  </div>
+
+                  <h3
+                    className={`mt-5 text-lg font-black ${textMain}`}
+                  >
+                    You're all caught up
+                  </h3>
+
+                  <p className="mt-2 text-sm text-gray-400">
+                    New order updates, payment alerts and offers will appear here.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {notifications.map(
+                    (item) => {
+                      const Icon =
+                        notificationIcon(
+                          item.type
+                        );
+
+                      return (
+                        <button
+                          key={
+                            item.id
+                          }
+                          onClick={() =>
+                            openNotification(
+                              item
+                            )
+                          }
+                          className={`relative flex w-full gap-4 rounded-[1.7rem] p-4 text-left shadow-md transition active:scale-[0.99] ${cardBackground} ${
+                            !item.read
+                              ? "ring-1 ring-orange-200"
+                              : ""
+                          }`}
+                        >
+                          {!item.read && (
+                            <span className="absolute right-4 top-4 h-2 w-2 rounded-full bg-orange-500" />
+                          )}
+
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-500">
+                            <Icon
+                              size={22}
+                            />
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <h3
+                                className={`text-sm font-black ${textMain}`}
+                              >
+                                {
+                                  item.title
+                                }
+                              </h3>
+
+                              <ChevronRight
+                                size={17}
+                                className="shrink-0 text-gray-400"
+                              />
+                            </div>
+
+                            <p className="mt-1 text-xs leading-5 text-gray-500">
+                              {
+                                item.message
+                              }
+                            </p>
+
+                            <div className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-gray-400">
+                              <Clock3
+                                size={12}
+                              />
+
+                              {
+                                item.time ||
+                                item.createdAt ||
+                                "Recently"
+                              }
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    }
+                  )}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ==================================================
+              PROMO PAGE
+          ================================================== */}
+
+          {screen === "promos" && (
+            <>
+              <div className="mb-5 flex items-center gap-3">
+                <button
+                  onClick={
+                    backToProfile
+                  }
+                  className="rounded-xl bg-white p-3 shadow-sm"
+                >
+                  <ArrowLeft
+                    size={20}
+                  />
+                </button>
+
+                <h2
+                  className={`text-xl font-black ${textMain}`}
+                >
+                  Promo & Offers
+                </h2>
+              </div>
+
+              <div
+                className={`mb-5 rounded-[2rem] p-5 shadow-xl ${cardBackground}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50 text-orange-500">
+                    <TicketPercent
+                      size={21}
+                    />
+                  </div>
+
+                  <div>
+                    <h3
+                      className={`font-black ${textMain}`}
+                    >
+                      Have a promo code?
+                    </h3>
+
+                    <p className="text-xs text-gray-400">
+                      Enter it before checkout.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex gap-2">
+                  <input
+                    value={
+                      promoInput
+                    }
+                    onChange={(e) =>
+                      setPromoInput(
+                        e.target.value.toUpperCase()
+                      )
+                    }
+                    placeholder="ENTER PROMO CODE"
+                    className="min-w-0 flex-1 rounded-2xl border border-gray-200 bg-gray-50 p-4 text-sm font-bold outline-none focus:border-orange-500"
+                  />
+
+                  <button
+                    onClick={
+                      applyPromo
+                    }
+                    className="rounded-2xl bg-orange-500 px-5 font-black text-white"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {allPromos.map(
+                  (promo) => (
+                    <div
+                      key={
+                        promo.id ||
+                        promo.code
+                      }
+                      className={`relative overflow-hidden rounded-[2rem] p-5 shadow-lg ${cardBackground}`}
+                    >
+                      <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-orange-100/70" />
+
+                      <div className="relative">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <Gift
+                                size={20}
+                                className="text-orange-500"
+                              />
+
+                              <h3
+                                className={`font-black ${textMain}`}
+                              >
+                                {
+                                  promo.title
+                                }
+                              </h3>
+                            </div>
+
+                            <p className="mt-2 text-sm text-gray-500">
+                              {
+                                promo.description
+                              }
+                            </p>
+                          </div>
+
+                          <span className="rounded-xl bg-orange-50 px-3 py-2 text-[10px] font-black text-orange-500">
+                            {
+                              promo.discount
+                            }
+                          </span>
+                        </div>
+
+                        <div className="mt-5 flex items-center justify-between rounded-2xl bg-gray-50 p-3">
+                          <div>
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">
+                              Promo Code
+                            </p>
+
+                            <p className="mt-1 font-black tracking-widest text-slate-800">
+                              {
+                                promo.code
+                              }
+                            </p>
+                          </div>
+
+                          <button
+                            onClick={() =>
+                              copyPromo(
+                                promo.code
+                              )
+                            }
+                            className="rounded-xl bg-white p-2 text-orange-500 shadow-sm"
+                          >
+                            <Copy
+                              size={17}
+                            />
+                          </button>
+                        </div>
+
+                        <div className="mt-3 flex items-center justify-between">
+                          <span className="text-[10px] font-semibold text-gray-400">
+                            {
+                              promo.minimum
+                            }
+                          </span>
+
+                          <button
+                            onClick={() =>
+                              savePromo(
+                                promo
+                              )
+                            }
+                            className="rounded-xl bg-orange-500 px-4 py-2 text-xs font-black text-white"
+                          >
+                            Save Offer
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            </>
+          )}
+
+          {/* ==================================================
+              THEMES PAGE
+          ================================================== */}
+
+          {screen === "themes" && (
+            <>
+              <div className="mb-5 flex items-center gap-3">
+                <button
+                  onClick={
+                    backToProfile
+                  }
+                  className="rounded-xl bg-white p-3 shadow-sm"
+                >
+                  <ArrowLeft
+                    size={20}
+                  />
+                </button>
+
+                <h2
+                  className={`text-xl font-black ${textMain}`}
+                >
+                  Themes
+                </h2>
+              </div>
+
+              {/* LIGHT / DARK SWITCH */}
+
+              <div
+                className={`rounded-[2rem] p-5 shadow-xl ${cardBackground}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50 text-orange-500">
+                      {theme ===
+                      "dark" ? (
+                        <Moon size={21} />
+                      ) : (
+                        <Sun size={21} />
+                      )}
+                    </div>
+
+                    <div>
+                      <h3
+                        className={`font-black ${textMain}`}
+                      >
+                        Appearance
+                      </h3>
+
+                      <p className="text-xs text-gray-400">
+                        {theme ===
+                        "dark"
+                          ? "Dark mode"
+                          : "Light mode"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() =>
+                      setTheme(
+                        theme ===
+                          "dark"
+                          ? "light"
+                          : "dark"
+                      )
+                    }
+                    className={`relative h-8 w-14 rounded-full transition ${
+                      theme ===
+                      "dark"
+                        ? "bg-orange-500"
+                        : "bg-gray-200"
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition ${
+                        theme ===
+                        "dark"
+                          ? "left-7"
+                          : "left-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {/* MORE THEMES */}
+
+              <div className="mt-6">
+                <div className="mb-3 flex items-center gap-2">
+                  <Sparkles
+                    size={18}
+                    className="text-orange-500"
+                  />
+
+                  <h3
+                    className={`font-black ${textMain}`}
+                  >
+                    More Themes
+                  </h3>
+                </div>
+
+                <div className="space-y-3">
+                  {themes
+                    .filter(
+                      (item) =>
+                        item.id !==
+                        "light" &&
+                        item.id !==
+                        "dark"
+                    )
+                    .map(
+                      (item) => (
+                        <button
+                          key={
+                            item.id
+                          }
+                          onClick={() =>
+                            setTheme(
+                              item.id
+                            )
+                          }
+                          className={`flex w-full items-center gap-4 rounded-[1.7rem] p-3 shadow-md transition active:scale-[0.99] ${
+                            theme ===
+                            item.id
+                              ? "ring-2 ring-orange-500"
+                              : ""
+                          } ${cardBackground}`}
+                        >
+                          <div
+                            className={`h-16 w-20 shrink-0 rounded-2xl ${item.preview}`}
+                          />
+
+                          <div className="min-w-0 flex-1 text-left">
+                            <h4
+                              className={`font-black ${textMain}`}
+                            >
+                              {
+                                item.name
+                              }
+                            </h4>
+
+                            <p className="mt-1 text-xs text-gray-400">
+                              {
+                                item.description
+                              }
+                            </p>
+                          </div>
+
+                          {theme ===
+                            item.id && (
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-500 text-white">
+                              <Check
+                                size={
+                                  17
+                                }
+                              />
+                            </div>
+                          )}
+                        </button>
+                      )
+                    )}
+                </div>
+              </div>
+
+              {/* DARK THEME */}
+
+              <button
+                onClick={() =>
+                  setTheme("dark")
+                }
+                className={`mt-4 flex w-full items-center gap-4 rounded-[1.7rem] p-4 shadow-md ${
+                  theme ===
+                  "dark"
+                    ? "ring-2 ring-orange-500"
+                    : ""
+                } ${cardBackground}`}
+              >
+                <div className="flex h-16 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-950 to-slate-800">
+                  <Moon
+                    size={26}
+                    className="text-white"
+                  />
+                </div>
+
+                <div className="flex-1 text-left">
+                  <h4
+                    className={`font-black ${textMain}`}
+                  >
+                    Midnight
+                  </h4>
+
+                  <p className="mt-1 text-xs text-gray-400">
+                    Elegant dark experience
+                  </p>
+                </div>
+
+                {theme ===
+                  "dark" && (
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-500 text-white">
+                    <Check
+                      size={17}
+                    />
+                  </div>
+                )}
+              </button>
+            </>
+          )}
+
+          {/* ==================================================
+              HELP & SUPPORT
+              INTENTIONALLY CLEAN / EMPTY
+          ================================================== */}
+
+          {screen === "help" && (
+            <>
+              <div className="mb-5 flex items-center gap-3">
+                <button
+                  onClick={
+                    backToProfile
+                  }
+                  className="rounded-xl bg-white p-3 shadow-sm"
+                >
+                  <ArrowLeft
+                    size={20}
+                  />
+                </button>
+
+                <h2
+                  className={`text-xl font-black ${textMain}`}
+                >
+                  Help & Support
+                </h2>
+              </div>
+
+              <div
+                className={`min-h-[55vh] rounded-[2rem] p-8 shadow-xl ${cardBackground}`}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>
