@@ -1,0 +1,499 @@
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  ChevronLeft,
+  Star,
+  Heart,
+  Share2,
+  Check,
+  Plus,
+  MessageSquare,
+  Settings,
+} from "lucide-react";
+
+import restaurantService from "../../services/restaurantService";
+import FlyToCartAnimation from "../../components/animations/FlyToCartAnimation";
+import { useCart } from "../../context/CartContext";
+import { useToast } from "../../context/ToastContext";
+
+export default function RestaurantDetailsPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const { showToast } = useToast();
+
+  const [restaurant, setRestaurant] = useState(null);
+  const [foods, setFoods] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+
+  const [flyAnimation, setFlyAnimation] = useState(false);
+  const [flyImage, setFlyImage] = useState("");
+  const [flyStart, setFlyStart] = useState({ x: 0, y: 0 });
+  const [addedItems, setAddedItems] = useState({});
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const res = await restaurantService.getRestaurantById(id);
+        const foodRes =
+          await restaurantService.getFoodsByRestaurantId(id);
+
+        setRestaurant(res.restaurant);
+        setFoods(foodRes.foods || []);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [id]);
+
+  const handleAddToCart = (food, event) => {
+    event.stopPropagation();
+
+    const rect =
+      event.currentTarget.getBoundingClientRect();
+
+    setFlyImage(food.image || "");
+
+    setFlyStart({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    });
+
+    setFlyAnimation(true);
+
+    setTimeout(() => {
+      setFlyAnimation(false);
+    }, 1000);
+
+    addToCart({
+      ...food,
+      restaurantId: id,
+      restaurantName: restaurant?.name,
+    });
+
+    setAddedItems((prev) => ({
+      ...prev,
+      [food.id]: true,
+    }));
+
+    setTimeout(() => {
+      setAddedItems((prev) => ({
+        ...prev,
+        [food.id]: false,
+      }));
+    }, 1500);
+
+    showToast("Added to cart 🛒", "success");
+  };
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center text-orange-500 font-bold">
+        Loading...
+      </div>
+    );
+  }
+
+  /*
+   * Create unique categories from restaurant foods.
+   * Example:
+   * Pizza
+   * Beef
+   * Biriyani
+   * Burger
+   */
+  const categories = [
+    ...new Set(
+      foods
+        .map((food) => food.category)
+        .filter(Boolean)
+    ),
+  ];
+
+  /*
+   * Featured items
+   *
+   * Existing food data is used.
+   * First few foods are shown as featured items.
+   */
+  const featuredItems = foods.slice(0, 3);
+
+  return (
+    <div className="min-h-screen bg-[#FDFDFD] pb-10">
+
+      {/* Header Image */}
+      <div className="relative h-72 w-full">
+
+        <img
+          src={restaurant.image}
+          alt=""
+          className="w-full h-full object-cover"
+        />
+
+        <div className="absolute top-6 left-5 right-5 flex justify-between items-center">
+
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 bg-white/30 backdrop-blur-md rounded-full text-white"
+          >
+            <ChevronLeft size={24} />
+          </button>
+
+          <span className="text-white font-bold text-lg">
+            Info
+          </span>
+
+          <button className="p-2 bg-white/30 backdrop-blur-md rounded-full text-white">
+            <Settings size={20} />
+          </button>
+
+        </div>
+      </div>
+
+      <div className="px-5 -mt-20 relative z-10">
+
+        {/* Restaurant Info Card */}
+        <div className="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-gray-100">
+
+          <h1 className="text-2xl font-bold text-slate-800">
+            {restaurant.name}
+          </h1>
+
+          <p className="text-gray-400 text-xs mt-1">
+            {restaurant.address || "Dhaka, Bangladesh"}
+          </p>
+
+          <div className="mt-3">
+
+            <div className="flex items-center gap-1">
+
+              <span className="text-slate-800 font-bold text-sm">
+                {restaurant.rating || "4.5"}
+              </span>
+
+              <div className="flex text-yellow-400">
+                <Star size={14} fill="currentColor" />
+              </div>
+
+              <span className="text-gray-400 text-[11px] ml-1">
+                (187)
+              </span>
+
+            </div>
+
+            <span className="text-orange-500 text-[11px] font-bold mt-1 underline">
+              See Review
+            </span>
+
+          </div>
+
+          <div className="flex justify-between items-end mt-5">
+
+            <div className="flex gap-6">
+
+              <div>
+                <p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">
+                  Delivery
+                </p>
+
+                <p className="text-slate-800 font-bold text-xs">
+                  Free
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">
+                  Opening Hour
+                </p>
+
+                <p className="text-slate-800 font-bold text-xs">
+                  10:00am-11:00pm
+                </p>
+              </div>
+
+            </div>
+
+            <button className="bg-gradient-to-r from-orange-400 to-red-500 text-white px-8 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-orange-100">
+              Book Now
+            </button>
+
+          </div>
+
+          {/* Action Icons */}
+          <div className="flex gap-4 mt-6">
+
+            <button className="p-3 bg-gray-50 rounded-full text-slate-600 hover:bg-gray-100">
+              <Share2 size={18} />
+            </button>
+
+            <button className="p-3 bg-gray-50 rounded-full text-red-500 hover:bg-red-50">
+              <Heart size={18} />
+            </button>
+
+            <button
+              onClick={() => setIsRatingModalOpen(true)}
+              className="p-3 bg-gray-50 rounded-full text-yellow-500 hover:bg-yellow-50"
+            >
+              <Star size={18} />
+            </button>
+
+          </div>
+
+        </div>
+
+        {/* ========================= */}
+        {/* FEATURED ITEMS */}
+        {/* ========================= */}
+
+        <section className="mt-8">
+
+          <div className="flex items-center justify-between mb-5">
+
+            <h2 className="text-xl font-extrabold text-gray-900">
+              Featured Items
+            </h2>
+
+          </div>
+
+          <div className="space-y-4">
+
+            {featuredItems.map((food) => (
+
+              <motion.div
+                key={food.id}
+                whileTap={{ scale: 0.98 }}
+                onClick={() =>
+                  navigate(`/food/${food.id}`, {
+                    state: {
+                      food: {
+                        ...food,
+                        restaurantId: id,
+                        restaurantName: restaurant?.name,
+                      },
+                    },
+                  })
+                }
+                className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4 cursor-pointer"
+              >
+
+                <div className="w-24 h-24 bg-orange-50 rounded-2xl overflow-hidden flex-shrink-0">
+
+                  {food.image ? (
+                    <img
+                      src={food.image}
+                      className="w-full h-full object-cover"
+                      alt={food.name}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-4xl">
+                      🍕
+                    </div>
+                  )}
+
+                </div>
+
+                <div className="flex-1">
+
+                  <div className="flex justify-between items-start gap-2">
+
+                    <h3 className="font-extrabold text-slate-800 text-[15px]">
+                      {food.name}
+                    </h3>
+
+                    <p className="font-bold text-slate-800 text-sm">
+                      ৳ {food.price}
+                    </p>
+
+                  </div>
+
+                  <p className="text-gray-400 text-[10px] mt-1">
+                    {food.description || restaurant.name}
+                  </p>
+
+                  <div className="flex justify-between items-center mt-3">
+
+                    <div className="flex items-center gap-1">
+
+                      <Star
+                        size={12}
+                        className="fill-yellow-400 text-yellow-400"
+                      />
+
+                      <span className="text-[10px] font-bold text-gray-500">
+                        {food.rating || "4.5"}
+                      </span>
+
+                    </div>
+
+                    {/* FEATURED ADD TO CART */}
+                    <button
+                      onClick={(event) =>
+                        handleAddToCart(food, event)
+                      }
+                      className="bg-green-50 text-green-600 text-[10px] font-bold px-4 py-2 rounded-xl hover:bg-green-600 hover:text-white transition-colors"
+                    >
+                      {addedItems[food.id] ? (
+                        <Check size={14} />
+                      ) : (
+                        "Add to Cart"
+                      )}
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </motion.div>
+
+            ))}
+
+          </div>
+
+        </section>
+
+        {/* ========================= */}
+        {/* ALL MENU */}
+        {/* ========================= */}
+
+        <section className="mt-10 mb-20">
+
+          <h2 className="text-xl font-extrabold text-gray-900 mb-5">
+            All Menu
+          </h2>
+
+          <div className="grid grid-cols-2 gap-4">
+
+            {categories.map((category) => {
+
+              const categoryFood = foods.find(
+                (food) => food.category === category
+              );
+
+              return (
+                <motion.div
+                  key={category}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() =>
+                    navigate(
+                      `/restaurants/${id}/category/${encodeURIComponent(
+                        category
+                      )}`
+                    )
+                  }
+                  className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden cursor-pointer"
+                >
+
+                  <div className="h-28 bg-orange-50 overflow-hidden">
+
+                    {categoryFood?.image ? (
+                      <img
+                        src={categoryFood.image}
+                        alt={category}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-5xl">
+                        🍽️
+                      </div>
+                    )}
+
+                  </div>
+
+                  <div className="p-4">
+
+                    <h3 className="font-extrabold text-slate-800 text-sm">
+                      {category}
+                    </h3>
+
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      {foods.filter(
+                        (food) => food.category === category
+                      ).length}{" "}
+                      items
+                    </p>
+
+                  </div>
+
+                </motion.div>
+              );
+
+            })}
+
+          </div>
+
+        </section>
+
+      </div>
+
+      {/* Rating Modal */}
+      <AnimatePresence>
+
+        {isRatingModalOpen && (
+
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm">
+
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl"
+            >
+
+              <h3 className="text-xl font-bold text-center">
+                Give Rating
+              </h3>
+
+              <div className="flex justify-center gap-2 my-8">
+
+                {[1, 2, 3, 4, 5].map((star) => (
+
+                  <Star
+                    key={star}
+                    size={35}
+                    onClick={() => setUserRating(star)}
+                    className={`cursor-pointer transition ${
+                      userRating >= star
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-gray-200"
+                    }`}
+                  />
+
+                ))}
+
+              </div>
+
+              <textarea
+                placeholder="Write review..."
+                className="w-full bg-gray-50 rounded-2xl p-4 text-sm h-28 outline-none"
+              />
+
+              <button
+                onClick={() => setIsRatingModalOpen(false)}
+                className="w-full bg-orange-500 text-white font-bold py-4 rounded-2xl mt-6"
+              >
+                Submit
+              </button>
+
+            </motion.div>
+
+          </div>
+
+        )}
+
+      </AnimatePresence>
+
+      <FlyToCartAnimation
+        show={flyAnimation}
+        image={flyImage}
+        start={flyStart}
+      />
+
+    </div>
+  );
+}
