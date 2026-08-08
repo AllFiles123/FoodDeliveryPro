@@ -17,6 +17,7 @@ import restaurantService from "../../services/restaurantService";
 import FlyToCartAnimation from "../../components/animations/FlyToCartAnimation";
 import { useCart } from "../../context/CartContext";
 import { useToast } from "../../context/ToastContext";
+import { useFavourite } from "../../context/FavouriteContext";
 
 export default function RestaurantDetailsPage() {
   const { id } = useParams();
@@ -25,10 +26,16 @@ export default function RestaurantDetailsPage() {
   const { addToCart, cart } = useCart();
   const { showToast } = useToast();
 
+  const {
+    isItemFavourite,
+    isRestaurantFavourite,
+    toggleItemFavourite,
+    toggleRestaurantFavourite,
+  } = useFavourite();
+
   const [restaurant, setRestaurant] = useState(null);
   const [foods, setFoods] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
 
@@ -42,7 +49,8 @@ export default function RestaurantDetailsPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const res = await restaurantService.getRestaurantById(id);
+        const res =
+          await restaurantService.getRestaurantById(id);
 
         const foodRes =
           await restaurantService.getFoodsByRestaurantId(id);
@@ -59,14 +67,50 @@ export default function RestaurantDetailsPage() {
     loadData();
   }, [id]);
 
-  /*
-   * Check whether food is already inside cart.
-   * As long as the item remains in cart,
-   * the button will stay as ✓.
-   */
   const isFoodInCart = (foodId) => {
     return cart?.some(
-      (item) => String(item.id) === String(foodId)
+      (item) =>
+        String(item.id) === String(foodId)
+    );
+  };
+
+  const handleRestaurantFavourite = (event) => {
+    event.stopPropagation();
+
+    if (!restaurant) return;
+
+    const wasFavourite =
+      isRestaurantFavourite(restaurant.id);
+
+    toggleRestaurantFavourite(restaurant);
+
+    showToast(
+      wasFavourite
+        ? "Restaurant removed from favourites"
+        : "Restaurant added to favourites ❤️",
+      wasFavourite ? "info" : "success"
+    );
+  };
+
+  const handleFoodFavourite = (food, event) => {
+    event.stopPropagation();
+
+    if (!food?.id) return;
+
+    const wasFavourite =
+      isItemFavourite(food.id);
+
+    toggleItemFavourite({
+      ...food,
+      restaurantId: id,
+      restaurantName: restaurant?.name || "",
+    });
+
+    showToast(
+      wasFavourite
+        ? "Removed from favourites"
+        : "Added to favourites ❤️",
+      wasFavourite ? "info" : "success"
     );
   };
 
@@ -105,11 +149,17 @@ export default function RestaurantDetailsPage() {
 
   const handleSubmitReview = () => {
     if (!userRating) {
-      showToast("Please select a rating ⭐", "error");
+      showToast(
+        "Please select a rating ⭐",
+        "error"
+      );
       return;
     }
 
-    showToast("Review submitted successfully ⭐", "success");
+    showToast(
+      "Review submitted successfully ⭐",
+      "success"
+    );
 
     setReviewText("");
     setUserRating(0);
@@ -134,9 +184,9 @@ export default function RestaurantDetailsPage() {
     );
   }
 
-  /*
-   * Create unique food categories.
-   */
+  const restaurantIsFavourite =
+    isRestaurantFavourite(restaurant.id);
+
   const categories = [
     ...new Set(
       foods
@@ -145,15 +195,8 @@ export default function RestaurantDetailsPage() {
     ),
   ];
 
-  /*
-   * First three foods are Featured Items.
-   */
   const featuredItems = foods.slice(0, 3);
 
-  /*
-   * Demo reviews for UI.
-   * Existing restaurant API remains untouched.
-   */
   const reviews = [
     {
       id: 1,
@@ -181,9 +224,7 @@ export default function RestaurantDetailsPage() {
   return (
     <div className="min-h-screen bg-[#FDFDFD] pb-10">
 
-      {/* ========================= */}
       {/* HEADER IMAGE */}
-      {/* ========================= */}
 
       <div className="relative h-72 w-full">
 
@@ -217,19 +258,52 @@ export default function RestaurantDetailsPage() {
 
       <div className="px-5 -mt-20 relative z-10">
 
-        {/* ========================= */}
-        {/* RESTAURANT INFO CARD */}
-        {/* ========================= */}
+        {/* RESTAURANT INFO */}
 
         <div className="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-gray-100">
 
-          <h1 className="text-2xl font-bold text-slate-800">
-            {restaurant.name}
-          </h1>
+          <div className="flex items-start justify-between gap-4">
 
-          <p className="text-gray-400 text-xs mt-1">
-            {restaurant.address || "Dhaka, Bangladesh"}
-          </p>
+            <div className="flex-1">
+
+              <h1 className="text-2xl font-bold text-slate-800">
+                {restaurant.name}
+              </h1>
+
+              <p className="text-gray-400 text-xs mt-1">
+                {restaurant.address ||
+                  "Dhaka, Bangladesh"}
+              </p>
+
+            </div>
+
+            {/* RESTAURANT FAVOURITE */}
+
+            <button
+              type="button"
+              onClick={handleRestaurantFavourite}
+              aria-label={
+                restaurantIsFavourite
+                  ? "Remove restaurant from favourites"
+                  : "Add restaurant to favourites"
+              }
+              className={`h-12 w-12 flex-shrink-0 rounded-full flex items-center justify-center transition-all active:scale-90 ${
+                restaurantIsFavourite
+                  ? "bg-red-50 text-red-500"
+                  : "bg-gray-50 text-gray-500"
+              }`}
+            >
+              <Heart
+                size={21}
+                fill={
+                  restaurantIsFavourite
+                    ? "currentColor"
+                    : "none"
+                }
+              />
+            </button>
+
+          </div>
 
           <div className="mt-3">
 
@@ -240,7 +314,10 @@ export default function RestaurantDetailsPage() {
               </span>
 
               <div className="flex text-yellow-400">
-                <Star size={14} fill="currentColor" />
+                <Star
+                  size={14}
+                  fill="currentColor"
+                />
               </div>
 
               <span className="text-gray-400 text-[11px] ml-1">
@@ -249,10 +326,10 @@ export default function RestaurantDetailsPage() {
 
             </div>
 
-            {/* SEE REVIEW */}
-
             <button
-              onClick={() => setIsReviewModalOpen(true)}
+              onClick={() =>
+                setIsReviewModalOpen(true)
+              }
               className="text-orange-500 text-[11px] font-bold mt-1 underline"
             >
               See Review
@@ -303,15 +380,28 @@ export default function RestaurantDetailsPage() {
             </button>
 
             <button
-              className="p-3 bg-gray-50 rounded-full text-red-500 hover:bg-red-50"
+              type="button"
+              onClick={handleRestaurantFavourite}
+              className={`p-3 rounded-full transition-all active:scale-90 ${
+                restaurantIsFavourite
+                  ? "bg-red-50 text-red-500"
+                  : "bg-gray-50 text-slate-500"
+              }`}
             >
-              <Heart size={18} />
+              <Heart
+                size={18}
+                fill={
+                  restaurantIsFavourite
+                    ? "currentColor"
+                    : "none"
+                }
+              />
             </button>
 
-            {/* RATING */}
-
             <button
-              onClick={() => setIsRatingModalOpen(true)}
+              onClick={() =>
+                setIsRatingModalOpen(true)
+              }
               className="p-3 bg-gray-50 rounded-full text-yellow-500 hover:bg-yellow-50"
             >
               <Star size={18} />
@@ -321,9 +411,7 @@ export default function RestaurantDetailsPage() {
 
         </div>
 
-        {/* ========================= */}
         {/* FEATURED ITEMS */}
-        {/* ========================= */}
 
         <section className="mt-8">
 
@@ -331,114 +419,148 @@ export default function RestaurantDetailsPage() {
             Featured Items
           </h2>
 
-          {/* HORIZONTAL ITEMS */}
-
           <div className="flex gap-4 overflow-x-auto no-scrollbar pb-3 snap-x snap-mandatory">
 
-            {featuredItems.map((food) => (
+            {featuredItems.map((food) => {
 
-              <motion.div
-                key={food.id}
-                whileTap={{ scale: 0.98 }}
-                className="min-w-[245px] snap-start bg-white rounded-[28px] border border-gray-100 shadow-sm overflow-hidden"
-              >
+              const foodIsFavourite =
+                isItemFavourite(food.id);
 
-                {/* FOOD IMAGE */}
-
-                <div
-                  onClick={() =>
-                    navigate(`/food/${food.id}`, {
-                      state: {
-                        food: {
-                          ...food,
-                          restaurantId: id,
-                          restaurantName: restaurant.name,
-                        },
-                      },
-                    })
-                  }
-                  className="h-40 bg-orange-50 overflow-hidden cursor-pointer"
+              return (
+                <motion.div
+                  key={food.id}
+                  whileTap={{ scale: 0.98 }}
+                  className="min-w-[245px] snap-start bg-white rounded-[28px] border border-gray-100 shadow-sm overflow-hidden"
                 >
 
-                  {food.image ? (
-                    <img
-                      src={food.image}
-                      alt={food.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-5xl">
-                      🍕
-                    </div>
-                  )}
+                  {/* FOOD IMAGE */}
 
-                </div>
-
-                <div className="p-4">
-
-                  <div className="flex justify-between items-start gap-2">
-
-                    <h3 className="font-extrabold text-slate-800 text-[15px] line-clamp-1">
-                      {food.name}
-                    </h3>
-
-                    <span className="font-bold text-slate-800 text-sm whitespace-nowrap">
-                      ৳ {food.price}
-                    </span>
-
-                  </div>
-
-                  <div className="flex items-center gap-1 mt-2">
-
-                    <Star
-                      size={12}
-                      className="fill-yellow-400 text-yellow-400"
-                    />
-
-                    <span className="text-[10px] font-bold text-gray-500">
-                      {food.rating || "4.5"}
-                    </span>
-
-                  </div>
-
-                  {/* FEATURED CART BUTTON */}
-
-                  <button
-                    onClick={(event) =>
-                      handleAddToCart(food, event)
+                  <div
+                    onClick={() =>
+                      navigate(
+                        `/food/${food.id}`,
+                        {
+                          state: {
+                            food: {
+                              ...food,
+                              restaurantId: id,
+                              restaurantName:
+                                restaurant.name,
+                            },
+                          },
+                        }
+                      )
                     }
-                    disabled={isFoodInCart(food.id)}
-                    className={`w-full mt-4 py-2.5 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-2 transition-all ${
-                      isFoodInCart(food.id)
-                        ? "bg-green-500 text-white"
-                        : "bg-green-50 text-green-600 hover:bg-green-500 hover:text-white"
-                    }`}
+                    className="relative h-40 bg-orange-50 overflow-hidden cursor-pointer"
                   >
 
-                    {isFoodInCart(food.id) ? (
-                      <>
-                        <Check size={15} strokeWidth={3} />
-                        Added to Cart
-                      </>
+                    {food.image ? (
+                      <img
+                        src={food.image}
+                        alt={food.name}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
-                      "Add to Cart"
+                      <div className="w-full h-full flex items-center justify-center text-5xl">
+                        🍕
+                      </div>
                     )}
 
-                  </button>
+                    {/* FOOD FAVOURITE */}
 
-                </div>
+                    <button
+                      type="button"
+                      onClick={(event) =>
+                        handleFoodFavourite(
+                          food,
+                          event
+                        )
+                      }
+                      className={`absolute right-3 top-3 h-10 w-10 rounded-full bg-white/95 backdrop-blur-sm shadow-md flex items-center justify-center transition-all active:scale-90 ${
+                        foodIsFavourite
+                          ? "text-red-500"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      <Heart
+                        size={18}
+                        fill={
+                          foodIsFavourite
+                            ? "currentColor"
+                            : "none"
+                        }
+                      />
+                    </button>
 
-              </motion.div>
+                  </div>
 
-            ))}
+                  <div className="p-4">
+
+                    <div className="flex justify-between items-start gap-2">
+
+                      <h3 className="font-extrabold text-slate-800 text-[15px] line-clamp-1">
+                        {food.name}
+                      </h3>
+
+                      <span className="font-bold text-slate-800 text-sm whitespace-nowrap">
+                        ৳ {food.price}
+                      </span>
+
+                    </div>
+
+                    <div className="flex items-center gap-1 mt-2">
+
+                      <Star
+                        size={12}
+                        className="fill-yellow-400 text-yellow-400"
+                      />
+
+                      <span className="text-[10px] font-bold text-gray-500">
+                        {food.rating || "4.5"}
+                      </span>
+
+                    </div>
+
+                    <button
+                      onClick={(event) =>
+                        handleAddToCart(
+                          food,
+                          event
+                        )
+                      }
+                      disabled={isFoodInCart(food.id)}
+                      className={`w-full mt-4 py-2.5 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-2 transition-all ${
+                        isFoodInCart(food.id)
+                          ? "bg-green-500 text-white"
+                          : "bg-green-50 text-green-600 hover:bg-green-500 hover:text-white"
+                      }`}
+                    >
+
+                      {isFoodInCart(food.id) ? (
+                        <>
+                          <Check
+                            size={15}
+                            strokeWidth={3}
+                          />
+                          Added to Cart
+                        </>
+                      ) : (
+                        "Add to Cart"
+                      )}
+
+                    </button>
+
+                  </div>
+
+                </motion.div>
+              );
+            })}
 
           </div>
 
         </section>
 
-        {/* ========================= */}
         {/* ALL MENU */}
-        {/* ========================= */}
 
         <section className="mt-10 mb-20">
 
@@ -450,13 +572,17 @@ export default function RestaurantDetailsPage() {
 
             {categories.map((category) => {
 
-              const categoryFood = foods.find(
-                (food) => food.category === category
-              );
+              const categoryFood =
+                foods.find(
+                  (food) =>
+                    food.category === category
+                );
 
-              const categoryCount = foods.filter(
-                (food) => food.category === category
-              ).length;
+              const categoryCount =
+                foods.filter(
+                  (food) =>
+                    food.category === category
+                ).length;
 
               return (
                 <motion.div
@@ -502,7 +628,6 @@ export default function RestaurantDetailsPage() {
 
                 </motion.div>
               );
-
             })}
 
           </div>
@@ -511,24 +636,30 @@ export default function RestaurantDetailsPage() {
 
       </div>
 
-      {/* ================================================= */}
-      {/* SEE REVIEW MODAL */}
-      {/* ================================================= */}
+      {/* REVIEW MODAL */}
 
       <AnimatePresence>
-
         {isReviewModalOpen && (
-
           <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-5">
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.92, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              initial={{
+                opacity: 0,
+                scale: 0.92,
+                y: 20,
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: 0,
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.92,
+                y: 20,
+              }}
               className="bg-white w-full max-w-md max-h-[85vh] overflow-hidden rounded-[2.5rem] shadow-2xl"
             >
-
-              {/* REVIEW HEADER */}
 
               <div className="p-6 border-b border-gray-100 flex items-center justify-between">
 
@@ -558,7 +689,9 @@ export default function RestaurantDetailsPage() {
                 </div>
 
                 <button
-                  onClick={() => setIsReviewModalOpen(false)}
+                  onClick={() =>
+                    setIsReviewModalOpen(false)
+                  }
                   className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"
                 >
                   <X size={20} />
@@ -566,12 +699,9 @@ export default function RestaurantDetailsPage() {
 
               </div>
 
-              {/* REVIEW LIST */}
-
               <div className="p-5 overflow-y-auto max-h-[60vh] space-y-4">
 
                 {reviews.map((review) => (
-
                   <div
                     key={review.id}
                     className="bg-white rounded-[1.8rem] border border-gray-100 p-4 shadow-sm"
@@ -619,12 +749,9 @@ export default function RestaurantDetailsPage() {
                     </p>
 
                   </div>
-
                 ))}
 
               </div>
-
-              {/* REVIEW BUTTON */}
 
               <div className="p-5 border-t border-gray-100">
 
@@ -644,29 +771,33 @@ export default function RestaurantDetailsPage() {
             </motion.div>
 
           </div>
-
         )}
-
       </AnimatePresence>
 
-      {/* ================================================= */}
-      {/* GIVE REVIEW MODAL */}
-      {/* ================================================= */}
+      {/* RATING MODAL */}
 
       <AnimatePresence>
-
         {isRatingModalOpen && (
-
           <div className="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm flex items-center justify-center p-5">
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 25 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 25 }}
+              initial={{
+                opacity: 0,
+                scale: 0.9,
+                y: 25,
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: 0,
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.9,
+                y: 25,
+              }}
               className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden"
             >
-
-              {/* HEADER */}
 
               <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
 
@@ -677,13 +808,16 @@ export default function RestaurantDetailsPage() {
                   </h3>
 
                   <p className="text-xs text-gray-400 mt-1">
-                    How was your experience at {restaurant.name}?
+                    How was your experience at{" "}
+                    {restaurant.name}?
                   </p>
 
                 </div>
 
                 <button
-                  onClick={() => setIsRatingModalOpen(false)}
+                  onClick={() =>
+                    setIsRatingModalOpen(false)
+                  }
                   className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"
                 >
                   <X size={20} />
@@ -692,8 +826,6 @@ export default function RestaurantDetailsPage() {
               </div>
 
               <div className="p-6">
-
-                {/* STAR RATING */}
 
                 <div className="text-center">
 
@@ -707,7 +839,9 @@ export default function RestaurantDetailsPage() {
 
                       <button
                         key={star}
-                        onClick={() => setUserRating(star)}
+                        onClick={() =>
+                          setUserRating(star)
+                        }
                         className="transition-transform active:scale-90"
                       >
 
@@ -744,8 +878,6 @@ export default function RestaurantDetailsPage() {
 
                 </div>
 
-                {/* REVIEW INPUT */}
-
                 <div className="mt-7">
 
                   <label className="text-xs font-extrabold text-slate-700">
@@ -767,8 +899,6 @@ export default function RestaurantDetailsPage() {
 
                 </div>
 
-                {/* SUBMIT */}
-
                 <button
                   onClick={handleSubmitReview}
                   className="w-full mt-5 bg-yellow-500 hover:bg-yellow-600 text-white py-4 rounded-2xl font-extrabold flex items-center justify-center gap-2 shadow-lg shadow-yellow-100 active:scale-[0.98] transition"
@@ -782,9 +912,7 @@ export default function RestaurantDetailsPage() {
             </motion.div>
 
           </div>
-
         )}
-
       </AnimatePresence>
 
       {/* CART ANIMATION */}
@@ -794,8 +922,6 @@ export default function RestaurantDetailsPage() {
         image={flyImage}
         start={flyStart}
       />
-
-      {/* HORIZONTAL SCROLLBAR */}
 
       <style
         dangerouslySetInnerHTML={{
