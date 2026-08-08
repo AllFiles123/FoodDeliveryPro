@@ -1,23 +1,12 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Mail,
-  KeyRound,
-  ArrowRight,
-  ArrowLeft,
-} from "lucide-react";
-
-import PrimaryInput from "../../components/inputs/PrimaryInput";
-import PrimaryButton from "../../components/buttons/PrimaryButton";
+import { ArrowLeft, Mail, KeyRound } from "lucide-react";
 
 import authService from "../../services/authService";
 import { useToast } from "../../context/ToastContext";
-import LoginAnimation from "../../components/LoginAnimation/LoginAnimation";
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
-
   const { showToast } = useToast();
 
   const [email, setEmail] = useState("");
@@ -81,138 +70,135 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#eef2f7] px-4 py-8 sm:px-6">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, y: 35, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.55 }}
-          className="
-            w-full
-            rounded-[34px]
-            bg-[#eef2f7]
-            px-6
-            py-8
-            shadow-[18px_18px_40px_rgba(163,177,198,0.55),-18px_-18px_40px_rgba(255,255,255,0.95)]
-            sm:px-9
-            sm:py-10
-          "
-        >
-          <div className="mb-4 flex items-center justify-center">
-            <div
-              className="
-                flex h-11 w-11 items-center justify-center
-                rounded-2xl
-                bg-[#eef2f7]
-                text-primary
-                shadow-[6px_6px_12px_rgba(163,177,198,0.45),-6px_-6px_12px_rgba(255,255,255,0.9)]
-              "
-            >
-              <KeyRound size={21} />
-            </div>
-          </div>
+    <div className="min-h-screen w-full bg-[#fff8f1] px-4 py-5 sm:px-6 sm:py-8 md:px-8">
 
-          <LoginAnimation />
+      <div className="mx-auto flex min-h-[calc(100vh-2.5rem)] w-full max-w-[440px] items-center justify-center sm:min-h-[calc(100vh-4rem)]">
 
+        <div className="w-full rounded-[28px] bg-[#fffdf9] px-5 py-6 shadow-[0_18px_55px_rgba(194,112,40,0.12)] sm:rounded-[30px] sm:px-8 sm:py-8 md:px-9 md:py-9">
+
+          {/* Brand */}
           <div className="text-center">
-            <h1 className="text-[29px] font-extrabold tracking-tight text-slate-800">
-              Forgot Password?
+
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-orange-500 sm:h-16 sm:w-16">
+              <KeyRound
+                size={25}
+                strokeWidth={2}
+              />
+            </div>
+
+            <h1 className="mt-4 text-xl font-bold tracking-tight text-slate-800 sm:text-2xl">
+              Food Delivery Pro
             </h1>
 
-            <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-slate-500">
-              Enter your registered email and we'll
-              send you an OTP to reset your password.
+            <p className="mt-1 text-xs text-slate-400 sm:text-sm">
+              Delicious food, delivered simply.
             </p>
+
           </div>
 
+          {/* Back to Login */}
+          <Link
+            to="/login"
+            className="mt-6 inline-flex items-center gap-2 rounded-lg py-1 text-sm font-semibold text-slate-500 transition-colors hover:text-orange-500 sm:mt-7"
+          >
+            <ArrowLeft size={17} />
+            Back to login
+          </Link>
+
+          {/* Heading */}
+          <div className="mt-6 sm:mt-7">
+
+            <h2 className="text-xl font-bold text-slate-800 sm:text-2xl">
+              Forgot password?
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-slate-400">
+              Enter the email address linked to your
+              account and we'll send you an OTP to
+              continue.
+            </p>
+
+          </div>
+
+          {/* Form */}
           <form
             onSubmit={handleSubmit}
-            className="mt-7 space-y-4"
+            className="mt-6 space-y-5 sm:mt-7"
           >
-            <div className="relative">
-              <Mail
-                size={18}
-                className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-slate-400"
-              />
 
-              <PrimaryInput
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setError("");
-                }}
-                className="
-                  !rounded-2xl
-                  !border-0
-                  !bg-[#eef2f7]
-                  !py-4
-                  !pl-12
-                  !text-slate-800
-                  !placeholder:text-slate-400
-                  shadow-[inset_6px_6px_12px_rgba(163,177,198,0.38),inset_-6px_-6px_12px_rgba(255,255,255,0.9)]
-                  focus:!ring-2
-                  focus:!ring-primary/20
-                "
-              />
+            <div>
+
+              <label
+                htmlFor="forgot-email"
+                className="mb-2 block text-sm font-semibold text-slate-700"
+              >
+                Email address
+              </label>
+
+              <div className="relative">
+
+                <Mail
+                  size={18}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+
+                <input
+                  id="forgot-email"
+                  type="email"
+                  name="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError("");
+                  }}
+                  onBlur={validateEmail}
+                  placeholder="Enter your email"
+                  autoComplete="email"
+                  inputMode="email"
+                  className={`w-full rounded-2xl border bg-white py-3.5 pl-11 pr-4 text-sm text-slate-800 outline-none transition-all sm:py-4 ${
+                    error
+                      ? "border-red-300 focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                      : "border-orange-100 focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
+                  }`}
+                />
+
+              </div>
+
+              {error && (
+                <p className="mt-2 px-1 text-xs font-medium text-red-500">
+                  {error}
+                </p>
+              )}
+
             </div>
 
-            {error && (
-              <p className="px-2 text-xs font-medium text-red-500">
-                {error}
-              </p>
-            )}
-
-            <PrimaryButton
+            <button
               type="submit"
               disabled={loading}
-              className="
-                !rounded-2xl
-                !border-0
-                !bg-primary
-                !py-4
-                shadow-[8px_8px_16px_rgba(163,177,198,0.45),-5px_-5px_12px_rgba(255,255,255,0.75)]
-              "
+              className="w-full rounded-2xl bg-orange-500 py-3.5 text-sm font-bold text-white shadow-[0_10px_25px_rgba(249,115,22,0.22)] transition-all hover:bg-orange-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:py-4"
             >
-              {loading ? (
-                "Sending OTP..."
-              ) : (
-                <>
-                  Send OTP
-                  <ArrowRight size={18} />
-                </>
-              )}
-            </PrimaryButton>
+              {loading
+                ? "Sending OTP..."
+                : "Send OTP"}
+            </button>
+
           </form>
 
-          <div className="mt-7 flex justify-center">
+          {/* Footer */}
+          <p className="mt-7 text-center text-sm text-slate-500">
+            Remember your password?{" "}
             <Link
               to="/login"
-              className="
-                inline-flex
-                items-center
-                gap-2
-                rounded-2xl
-                bg-[#eef2f7]
-                px-5
-                py-3
-                text-sm
-                font-semibold
-                text-slate-600
-                shadow-[6px_6px_12px_rgba(163,177,198,0.4),-5px_-5px_10px_rgba(255,255,255,0.85)]
-                transition
-                hover:text-primary
-                active:shadow-[inset_4px_4px_8px_rgba(163,177,198,0.35),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]
-              "
+              className="font-bold text-orange-500 transition-colors hover:text-orange-600"
             >
-              <ArrowLeft size={16} />
-              Back to Login
+              Log in
             </Link>
-          </div>
-        </motion.div>
+          </p>
+
+        </div>
+
       </div>
-    </main>
+
+    </div>
   );
 }

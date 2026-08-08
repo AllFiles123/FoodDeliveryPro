@@ -4,174 +4,118 @@ import { motion } from "framer-motion";
 
 import { useAuth } from "../../context/AuthContext";
 
-
 export default function SplashPage() {
-
-
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
-  const {
-    isAuthenticated
-  } = useAuth();
-
-
-
-  useEffect(()=>{
-
-
-    const timer = setTimeout(()=>{
-
-
-      if(isAuthenticated){
-
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (isAuthenticated) {
+        // Logged-in user
         navigate("/home", {
-          replace:true,
+          replace: true,
         });
-
-
-      }
-      else{
-
-
-        navigate("/onboarding", {
-          replace:true,
+      } else {
+        // Logged-out user
+        navigate("/login", {
+          replace: true,
         });
-
-
       }
+    }, 2600);
 
-
-    },3000);
-
-
-
-    return ()=>clearTimeout(timer);
-
-
-
-  },[navigate,isAuthenticated]);
-
-
-
-
+    return () => clearTimeout(timer);
+  }, [navigate, isAuthenticated]);
 
   return (
-
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-primary flex items-center justify-center">
-
-
+    <div className="min-h-screen w-full overflow-hidden bg-[#fff8f1] flex items-center justify-center px-6">
       <motion.div
-
-
         initial={{
-          opacity:0,
-          scale:0.6
+          opacity: 0,
+          scale: 0.88,
         }}
-
-
         animate={{
-          opacity:1,
-          scale:1
+          opacity: 1,
+          scale: 1,
         }}
-
-
         transition={{
-          duration:0.8
+          duration: 0.7,
+          ease: "easeOut",
         }}
-
-
-        className="flex flex-col items-center"
-
-
+        className="flex w-full max-w-sm flex-col items-center text-center"
       >
-
-
-
+        {/* LOGO */}
         <motion.div
-
-
+          initial={{
+            opacity: 0,
+            y: 20,
+          }}
           animate={{
-            rotate:360
+            opacity: 1,
+            y: 0,
           }}
-
-
           transition={{
-
-            duration:8,
-
-            repeat:Infinity,
-
-            ease:"linear",
-
+            duration: 0.7,
           }}
-
-
-          className="w-32 h-32 rounded-full bg-white flex items-center justify-center shadow-2xl"
-
-
+          className="flex h-32 w-32 items-center justify-center rounded-[38px] bg-white shadow-[0_18px_45px_rgba(249,115,22,0.16)]"
         >
-
-
-          <span className="text-5xl">
-            🍔
-          </span>
-
-
+          <span className="text-6xl">🍔</span>
         </motion.div>
 
-
-
-
-        <h1 className="text-white text-4xl font-bold mt-8">
-
-          Food Delivery Pro
-
-        </h1>
-
-
-
-
-        <p className="text-white/80 mt-3">
-
-          Fast • Fresh • Delicious
-
-        </p>
-
-
-
-
-        <motion.div
-
-
+        {/* APP NAME */}
+        <motion.h1
+          initial={{
+            opacity: 0,
+            y: 15,
+          }}
           animate={{
-
-            scale:[1,1.2,1]
-
+            opacity: 1,
+            y: 0,
           }}
-
-
           transition={{
-
-            duration:1,
-
-            repeat:Infinity,
-
+            delay: 0.15,
+            duration: 0.6,
           }}
+          className="mt-8 text-3xl font-extrabold tracking-tight text-slate-800"
+        >
+          Food Delivery Pro
+        </motion.h1>
 
+        {/* TAGLINE */}
+        <motion.p
+          initial={{
+            opacity: 0,
+          }}
+          animate={{
+            opacity: 1,
+          }}
+          transition={{
+            delay: 0.3,
+            duration: 0.6,
+          }}
+          className="mt-3 text-sm font-medium text-slate-400"
+        >
+          Fast • Fresh • Delicious
+        </motion.p>
 
-          className="mt-10 w-5 h-5 rounded-full bg-white"
-
-
-        />
-
-
-
+        {/* LOADING DOTS */}
+        <div className="mt-10 flex items-center gap-2">
+          {[0, 1, 2].map((item) => (
+            <motion.span
+              key={item}
+              animate={{
+                scale: [1, 1.35, 1],
+                opacity: [0.45, 1, 0.45],
+              }}
+              transition={{
+                duration: 1,
+                repeat: Infinity,
+                delay: item * 0.18,
+              }}
+              className="h-2.5 w-2.5 rounded-full bg-orange-400"
+            />
+          ))}
+        </div>
       </motion.div>
-
-
     </div>
-
   );
-
-
 }

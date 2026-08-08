@@ -1,26 +1,23 @@
 import { Outlet, useLocation } from "react-router-dom";
 import BottomNavigation from "../components/BottomNavigation/BottomNavigation";
-import FloatingCart from "../components/FloatingCart/FloatingCart";
 
 export default function MainLayout() {
   const location = useLocation();
 
-  /*
-   * Full-screen pages where bottom navigation
-   * should never appear.
-   */
-  const hideBottomNavigation =
-    location.pathname.startsWith("/checkout") ||
-    location.pathname.startsWith("/profile/details") ||
-    location.pathname.startsWith("/profile/payment");
-
-  /*
-   * Filter sheets / fullscreen overlays can
-   * temporarily hide the bottom navigation.
-   */
-  const filterIsOpen =
-    typeof document !== "undefined" &&
-    document.body.classList.contains("filter-open");
+  const hideBottomNavigation = [
+    "/",
+    "/language",
+    "/cart",
+    "/onboarding",
+    "/login",
+    "/signup",
+    "/forgot-password",
+    "/otp",
+    "/reset-password",
+    "/location",
+    "/profile/details",
+    "/profile/payment",
+  ].includes(location.pathname);
 
   return (
     <div
@@ -30,19 +27,15 @@ export default function MainLayout() {
         from-background
         via-background
         to-background
+        overflow-hidden
       "
     >
-
       <Outlet />
 
-      {/* GLOBAL FLOATING CART */}
-
-      <FloatingCart />
-
-      {!hideBottomNavigation && !filterIsOpen && (
-        <BottomNavigation />
-      )}
-
+      {!hideBottomNavigation &&
+        !document.body.classList.contains("filter-open") && (
+          <BottomNavigation />
+        )}
     </div>
   );
 }

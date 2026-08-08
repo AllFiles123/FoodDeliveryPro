@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Navigation, ArrowRight } from "lucide-react";
+import {
+  ArrowLeft,
+  MapPin,
+  Navigation,
+  Search,
+} from "lucide-react";
 
 export default function LocationPage() {
   const navigate = useNavigate();
@@ -9,10 +14,66 @@ export default function LocationPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const goHome = (location) => {
-    localStorage.setItem("userLocation", location);
+  const saveLocation = (location) => {
+    const cleanLocation = location.trim();
+
+    if (!cleanLocation) return;
+
+    /*
+     * Keep the existing app location system.
+     */
+    localStorage.setItem("userLocation", cleanLocation);
+
+    /*
+     * Save setup address for Profile > Addresses.
+     */
+    const existingAddresses = JSON.parse(
+      localStorage.getItem("savedAddresses") || "[]"
+    );
+
+    const alreadyExists = existingAddresses.some(
+      (item) =>
+        item?.address?.toLowerCase() ===
+        cleanLocation.toLowerCase()
+    );
+
+    if (!alreadyExists) {
+      const newAddress = {
+        id: Date.now(),
+        label: "Home",
+        address: cleanLocation,
+        city: "",
+        phone: "",
+        isDefault: true,
+      };
+
+      const updatedAddresses = [
+        newAddress,
+        ...existingAddresses.map((item) => ({
+          ...item,
+          isDefault: false,
+        })),
+      ];
+
+      localStorage.setItem(
+        "savedAddresses",
+        JSON.stringify(updatedAddresses)
+      );
+    }
+
+    /*
+     * Mark the complete first-login setup.
+     * This prevents Language -> Location from appearing again.
+     */
+    localStorage.setItem("setupCompleted", "true");
+    localStorage.setItem("locationSetupCompleted", "true");
+
     window.dispatchEvent(new Event("locationChanged"));
-    navigate("/home", { replace: true });
+    window.dispatchEvent(new Event("profileUpdated"));
+
+    navigate("/home", {
+      replace: true,
+    });
   };
 
   const handleDeviceLocation = () => {
@@ -27,19 +88,21 @@ export default function LocationPage() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const { latitude, longitude } = position.coords;
+        const { latitude, longitude } =
+          position.coords;
 
         const location = `Location: ${latitude.toFixed(
           5
         )}, ${longitude.toFixed(5)}`;
 
-        goHome(location);
+        saveLocation(location);
       },
       () => {
+        setLoading(false);
+
         setError(
           "Location permission denied. Please enable location or enter manually."
         );
-        setLoading(false);
       },
       {
         enableHighAccuracy: true,
@@ -57,15 +120,30 @@ export default function LocationPage() {
       return;
     }
 
-    goHome(value);
+    saveLocation(value);
   };
 
   return (
-    <div className="min-h-screen bg-white px-5 py-8">
-      <div className="mx-auto flex min-h-[90vh] max-w-md flex-col">
+    <div className="min-h-screen w-full bg-[#fff8f1] text-slate-900">
+      <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col px-5 pb-6 pt-5 sm:px-7">
 
-        <div className="pt-6 text-center">
-          <h1 className="text-4xl font-semibold leading-tight text-slate-900">
+        {/* HEADER */}
+        <div className="flex items-center">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 active:scale-95"
+          >
+            <ArrowLeft
+              size={21}
+              strokeWidth={2.2}
+            />
+          </button>
+        </div>
+
+        {/* TITLE */}
+        <div className="mt-5 text-center">
+          <h1 className="mx-auto max-w-[430px] text-[29px] font-semibold leading-[1.18] tracking-[-0.8px] sm:text-[32px]">
             Set your location to start
             <br />
             exploring
@@ -74,82 +152,123 @@ export default function LocationPage() {
           </h1>
         </div>
 
-        <div className="relative flex flex-1 items-center justify-center py-8">
+        {/* LOCATION ILLUSTRATION */}
+        <div className="relative flex flex-1 items-center justify-center overflow-hidden py-7">
 
-          <div className="absolute inset-x-8 top-20 bottom-12 rounded-[45%] bg-green-50" />
+          {/* soft background shape */}
+          <div className="absolute h-[330px] w-[330px] rounded-full bg-[#fff0e2] sm:h-[390px] sm:w-[390px]" />
 
-          <div className="relative text-center">
+          {/* road/map illustration */}
+          <div className="relative h-[390px] w-full max-w-[420px] sm:h-[440px]">
 
-            <div className="mb-6 text-[110px] leading-none">
-              🏙️
+            {/* roads */}
+            <div className="absolute left-[9%] top-[43%] h-[24px] w-[82%] rotate-[24deg] rounded-full bg-[#f8e6d5]" />
+            <div className="absolute left-[19%] top-[48%] h-[20px] w-[68%] rotate-[-20deg] rounded-full bg-[#f4dfcc]" />
+            <div className="absolute left-[47%] top-[10%] h-[80%] w-[18px] rotate-[16deg] rounded-full bg-[#f8e8d9]" />
+
+            {/* buildings */}
+            <div className="absolute left-[15%] top-[27%] h-16 w-12 rounded-t-xl bg-[#ead8c7] shadow-sm" />
+            <div className="absolute left-[27%] top-[18%] h-24 w-14 rounded-t-xl bg-[#e6d1be] shadow-sm" />
+            <div className="absolute right-[16%] top-[25%] h-20 w-14 rounded-t-xl bg-[#ead9c8] shadow-sm" />
+            <div className="absolute right-[29%] top-[38%] h-14 w-11 rounded-t-xl bg-[#e4ccb7] shadow-sm" />
+
+            {/* windows */}
+            <div className="absolute left-[19%] top-[34%] grid grid-cols-2 gap-1">
+              <i className="h-2 w-2 rounded-sm bg-[#d4bca7]" />
+              <i className="h-2 w-2 rounded-sm bg-[#d4bca7]" />
+              <i className="h-2 w-2 rounded-sm bg-[#d4bca7]" />
+              <i className="h-2 w-2 rounded-sm bg-[#d4bca7]" />
             </div>
 
-            <div className="absolute left-1/2 top-20 -translate-x-1/2">
-              <MapPin
-                size={90}
-                strokeWidth={2.5}
-                className="fill-green-500 text-green-700 drop-shadow-xl"
-              />
+            <div className="absolute left-[31%] top-[25%] grid grid-cols-2 gap-1">
+              <i className="h-2 w-2 rounded-sm bg-[#d1b7a1]" />
+              <i className="h-2 w-2 rounded-sm bg-[#d1b7a1]" />
+              <i className="h-2 w-2 rounded-sm bg-[#d1b7a1]" />
+              <i className="h-2 w-2 rounded-sm bg-[#d1b7a1]" />
             </div>
 
-            <div className="mt-8 flex justify-center gap-8 text-5xl">
-              🍔 🍕
+            {/* restaurants */}
+            <div className="absolute bottom-[17%] left-[16%] flex h-16 w-20 items-center justify-center rounded-xl border border-[#ead5c1] bg-white text-3xl shadow-md">
+              🍔
             </div>
 
-            <div className="mt-8 text-6xl">
-              🏪
+            <div className="absolute right-[13%] top-[39%] flex h-14 w-16 items-center justify-center rounded-xl border border-[#ead5c1] bg-white text-2xl shadow-md">
+              🍕
+            </div>
+
+            <div className="absolute bottom-[8%] left-1/2 flex h-16 w-20 -translate-x-1/2 items-center justify-center rounded-xl border border-[#ead5c1] bg-white text-3xl shadow-md">
+              🍜
+            </div>
+
+            {/* MAIN PIN */}
+            <div className="absolute left-1/2 top-[42%] -translate-x-1/2">
+              <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-[#ffe4cf]">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#f29a52] shadow-[0_12px_28px_rgba(242,154,82,0.28)]">
+                  <MapPin
+                    size={38}
+                    strokeWidth={2.5}
+                    className="text-white"
+                  />
+                </div>
+              </div>
             </div>
 
           </div>
         </div>
 
-        <div className="space-y-4 pb-5">
+        {/* ERROR */}
+        {error && (
+          <p className="mb-3 px-2 text-center text-sm font-semibold text-red-500">
+            {error}
+          </p>
+        )}
+
+        {/* DEVICE LOCATION */}
+        <button
+          type="button"
+          onClick={handleDeviceLocation}
+          disabled={loading}
+          className="flex min-h-[58px] w-full items-center justify-center gap-3 rounded-2xl bg-[#f29a52] px-5 text-[16px] font-bold text-white shadow-[0_10px_25px_rgba(242,154,82,0.20)] transition active:scale-[0.98] disabled:opacity-60 sm:text-lg"
+        >
+          <Navigation size={21} />
+
+          {loading
+            ? "Getting Your Location..."
+            : "Enable Device Location"}
+        </button>
+
+        {/* MANUAL LOCATION */}
+        <div className="mt-4 flex min-h-[58px] items-center rounded-2xl border-2 border-[#f2a56a] bg-white px-4">
+          <Search
+            size={20}
+            className="shrink-0 text-[#df8138]"
+          />
+
+          <input
+            type="text"
+            value={manualLocation}
+            onChange={(e) => {
+              setManualLocation(e.target.value);
+              setError("");
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleManualLocation();
+              }
+            }}
+            placeholder="Enter Your Location Manually"
+            className="ml-3 min-w-0 flex-1 bg-transparent text-center text-[15px] font-semibold text-[#c96f2b] outline-none placeholder:text-[#d98a4b] sm:text-base"
+          />
 
           <button
-            onClick={handleDeviceLocation}
-            disabled={loading}
-            className="flex w-full items-center justify-center gap-3 rounded-2xl bg-green-600 py-5 text-lg font-bold text-white shadow-lg shadow-green-200 transition active:scale-[0.98] disabled:opacity-60"
+            type="button"
+            onClick={handleManualLocation}
+            className="ml-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#fff0e2] text-[#e5863d] active:scale-95"
           >
-            <Navigation size={22} />
-
-            {loading
-              ? "Getting Your Location..."
-              : "Enable Device Location"}
+            <MapPin size={18} />
           </button>
-
-          <div className="rounded-2xl border-2 border-green-600 bg-white p-1">
-            <div className="flex items-center gap-2 px-3">
-              <MapPin
-                size={20}
-                className="shrink-0 text-green-600"
-              />
-
-              <input
-                value={manualLocation}
-                onChange={(e) => {
-                  setManualLocation(e.target.value);
-                  setError("");
-                }}
-                placeholder="Enter Your Location Manually"
-                className="w-full bg-transparent px-2 py-4 text-center text-lg font-semibold text-green-700 outline-none placeholder:text-green-600"
-              />
-
-              <button
-                onClick={handleManualLocation}
-                className="rounded-xl bg-green-600 p-2 text-white"
-              >
-                <ArrowRight size={20} />
-              </button>
-            </div>
-          </div>
-
-          {error && (
-            <p className="text-center text-sm font-semibold text-red-500">
-              {error}
-            </p>
-          )}
-
         </div>
+
       </div>
     </div>
   );
