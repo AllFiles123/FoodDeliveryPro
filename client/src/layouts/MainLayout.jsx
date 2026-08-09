@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import BottomNavigation from "../components/BottomNavigation/BottomNavigation";
+import FloatingCart from "../components/FloatingCart/FloatingCart";
 
 export default function MainLayout() {
   const location = useLocation();
@@ -19,16 +20,20 @@ export default function MainLayout() {
     "/profile/payment",
   ].includes(location.pathname);
 
+  const filterIsOpen =
+    typeof document !== "undefined" &&
+    document.body.classList.contains("filter-open");
+
   return (
     <div className="min-h-screen overflow-hidden bg-[#fffaf5]">
-
       <Outlet />
 
-      {!hideBottomNavigation &&
-        !document.body.classList.contains("filter-open") && (
-          <BottomNavigation />
-        )}
+      {/* GLOBAL FLOATING CART */}
+      <FloatingCart />
 
+      {!hideBottomNavigation && !filterIsOpen && (
+        <BottomNavigation />
+      )}
     </div>
   );
 }
