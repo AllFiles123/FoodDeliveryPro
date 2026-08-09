@@ -39,6 +39,8 @@ import {
   TicketPercent,
   Headphones,
   LockKeyhole,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 import { useLocation, useNavigate } from "react-router-dom";
@@ -114,6 +116,15 @@ export default function ProfilePage() {
     useState(true);
 
   const [cardSaving, setCardSaving] = useState(false);
+
+  const [revealedCards, setRevealedCards] = useState({});
+
+  const toggleCardVisibility = (id) => {
+    setRevealedCards((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   /* =========================================================
      ADDRESSES
@@ -1428,74 +1439,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* QUICK ACTIONS */}
-
-              <div className="mt-5 grid grid-cols-3 gap-3">
-                <button
-                  onClick={() =>
-                    setScreen("notifications")
-                  }
-                  className={`relative rounded-3xl p-4 text-center shadow-md ${cardBackground}`}
-                >
-                  <Bell
-                    size={22}
-                    className="mx-auto text-orange-500"
-                  />
-
-                  <p
-                    className={`mt-2 text-[11px] font-black ${textMain}`}
-                  >
-                    Notifications
-                  </p>
-
-                  {unreadNotifications >
-                    0 && (
-                    <span className="absolute right-3 top-3 flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1 text-[9px] font-black text-white">
-                      {unreadNotifications >
-                      9
-                        ? "9+"
-                        : unreadNotifications}
-                    </span>
-                  )}
-                </button>
-
-                <button
-                  onClick={() =>
-                    setScreen("promos")
-                  }
-                  className={`rounded-3xl p-4 text-center shadow-md ${cardBackground}`}
-                >
-                  <Tag
-                    size={22}
-                    className="mx-auto text-orange-500"
-                  />
-
-                  <p
-                    className={`mt-2 text-[11px] font-black ${textMain}`}
-                  >
-                    Offers
-                  </p>
-                </button>
-
-                <button
-                  onClick={() =>
-                    setScreen("themes")
-                  }
-                  className={`rounded-3xl p-4 text-center shadow-md ${cardBackground}`}
-                >
-                  <Palette
-                    size={22}
-                    className="mx-auto text-orange-500"
-                  />
-
-                  <p
-                    className={`mt-2 text-[11px] font-black ${textMain}`}
-                  >
-                    Themes
-                  </p>
-                </button>
-              </div>
-
               {/* MAIN MENU */}
 
               <div
@@ -1692,14 +1635,13 @@ export default function ProfilePage() {
               <div className="mb-5 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <button
-                    onClick={
-                      backToProfile
+                    onClick={() =>
+                      setShowCardForm(false)
                     }
-                    className="rounded-xl bg-white p-3 shadow-sm"
+                    className="rounded-full bg-gray-100 p-2.5 text-gray-600 transition active:scale-95"
+                    aria-label="Close card form"
                   >
-                    <ArrowLeft
-                      size={20}
-                    />
+                    <X size={20} />
                   </button>
 
                   <h2
@@ -2146,12 +2088,11 @@ export default function ProfilePage() {
 
                   <div className="flex items-center gap-3 px-5 pb-4 pt-5">
                     <button
-                      onClick={() =>
-                        setShowCardForm(false)
-                      }
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-700 active:scale-95"
+                      onClick={() => setShowCardForm(false)}
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-600 transition active:scale-95"
+                      aria-label="Close"
                     >
-                      <ArrowLeft size={19} />
+                      <X size={19} />
                     </button>
 
                     <div className="min-w-0 flex-1">
@@ -2556,104 +2497,170 @@ export default function ProfilePage() {
               ) : (
                 <div className="space-y-4">
 
-                  {savedCards.map((card) => (
-                    <div
-                      key={card.id}
-                      className="overflow-hidden rounded-[1.8rem] bg-white p-4 shadow-lg ring-1 ring-black/[0.03]"
-                    >
+                  {savedCards.map((card) => {
+                    const isRevealed =
+                      !!revealedCards[card.id];
 
-                      <div className="relative h-[185px] overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-[#173d48] via-[#102f38] to-[#071b22] p-5 text-white">
+                    const visibleNumber = isRevealed
+                      ? card.number
+                      : "••••";
 
-                        <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full border-[24px] border-white/[0.035]" />
+                    return (
+                      <div
+                        key={card.id}
+                        className="overflow-hidden rounded-[1.8rem] bg-white p-4 shadow-lg ring-1 ring-black/[0.03]"
+                      >
 
-                        <div className="flex items-start justify-between">
+                        <div className="relative h-[185px] overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-[#173d48] via-[#102f38] to-[#071b22] p-5 text-white">
 
-                          <div className="h-7 w-10 rounded-md bg-gradient-to-br from-[#f7e8b5] to-[#8d7d4e]" />
+                          <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full border-[24px] border-white/[0.035]" />
 
-                          <span className="text-lg font-black italic">
-                            {card.type === "Mastercard"
-                              ? "MC"
-                              : card.type === "American Express"
-                              ? "AMEX"
-                              : card.type === "Discover"
-                              ? "DISCOVER"
-                              : "VISA"}
-                          </span>
+                          <div className="relative flex items-start justify-between">
+
+                            <div className="h-7 w-10 rounded-md bg-gradient-to-br from-[#f7e8b5] via-[#c9b879] to-[#8d7d4e]" />
+
+                            <div className="flex items-center gap-3">
+                              <span className="text-lg font-black italic">
+                                {card.type === "Mastercard"
+                                  ? "MC"
+                                  : card.type === "American Express"
+                                  ? "AMEX"
+                                  : card.type === "Discover"
+                                  ? "DISCOVER"
+                                  : "VISA"}
+                              </span>
+
+                              {/* EYE */}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  toggleCardVisibility(card.id)
+                                }
+                                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition active:scale-90"
+                                aria-label={
+                                  isRevealed
+                                    ? "Hide card details"
+                                    : "Show card details"
+                                }
+                              >
+                                {isRevealed ? (
+                                  <EyeOff size={17} />
+                                ) : (
+                                  <Eye size={17} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="absolute bottom-5 left-5 right-5">
+
+                            <p className="text-lg font-medium tracking-[0.12em]">
+                              {isRevealed
+                                ? `•••• •••• •••• ${visibleNumber}`
+                                : `•••• •••• •••• ${visibleNumber}`}
+                            </p>
+
+                            <div className="mt-4 flex items-end justify-between">
+
+                              <div className="min-w-0">
+                                <p className="text-[7px] uppercase tracking-widest text-white/40">
+                                  Card Holder
+                                </p>
+
+                                <p className="max-w-[190px] truncate text-[11px] font-bold uppercase">
+                                  {card.holder}
+                                </p>
+                              </div>
+
+                              <div className="text-right">
+                                <p className="text-[7px] uppercase tracking-widest text-white/40">
+                                  Expires
+                                </p>
+
+                                <p className="text-[11px] font-bold">
+                                  {isRevealed
+                                    ? card.expiry
+                                    : "••/••"}
+                                </p>
+                              </div>
+
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* CARD DETAILS */}
+
+                        <div className="mt-3 flex items-center justify-between px-1">
+
+                          <div className="flex items-center gap-2 text-xs font-bold text-orange-500">
+                            <ShieldCheck size={15} />
+                            Securely Saved
+                          </div>
+
+                          <button
+                            onClick={() =>
+                              deleteCard(card.id)
+                            }
+                            className="flex items-center gap-1.5 rounded-xl bg-red-50 px-3 py-2 text-xs font-bold text-red-500 transition active:scale-95"
+                          >
+                            <Trash2 size={14} />
+                            Remove
+                          </button>
 
                         </div>
 
-                        <div className="absolute bottom-5 left-5 right-5">
+                        {/* REVEALED DETAILS */}
 
-                          <p className="text-lg font-medium tracking-[0.12em]">
-                            •••• •••• ••••{" "}
-                            {card.number}
-                          </p>
+                        {isRevealed && (
+                          <div className="mt-3 grid grid-cols-2 gap-2 rounded-2xl bg-gray-50 p-3">
 
-                          <div className="mt-4 flex items-end justify-between">
-
-                            <div className="min-w-0">
-                              <p className="text-[7px] uppercase tracking-widest text-white/40">
-                                Card Holder
+                            <div>
+                              <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">
+                                Card Number
                               </p>
 
-                              <p className="max-w-[190px] truncate text-[11px] font-bold uppercase">
-                                {card.holder}
+                              <p className="mt-1 text-xs font-bold tracking-wider text-gray-700">
+                                •••• •••• •••• {card.number}
                               </p>
                             </div>
 
-                            <div className="text-right">
-                              <p className="text-[7px] uppercase tracking-widest text-white/40">
-                                Expires
+                            <div>
+                              <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">
+                                Expiry
                               </p>
 
-                              <p className="text-[11px] font-bold">
+                              <p className="mt-1 text-xs font-bold text-gray-700">
                                 {card.expiry}
                               </p>
                             </div>
 
+                            <div>
+                              <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">
+                                CVV
+                              </p>
+
+                              <p className="mt-1 text-xs font-bold tracking-[0.2em] text-gray-400">
+                                Not stored
+                              </p>
+                            </div>
+
+                            <div>
+                              <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">
+                                Security
+                              </p>
+
+                              <p className="mt-1 flex items-center gap-1 text-xs font-bold text-green-500">
+                                <ShieldCheck size={12} />
+                                Protected
+                              </p>
+                            </div>
+
                           </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between px-1 pt-3">
-
-                        <div className="flex min-w-0 items-center gap-2">
-
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-50">
-                            <ShieldCheck
-                              size={15}
-                              className="text-green-500"
-                            />
-                          </div>
-
-                          <div className="min-w-0">
-                            <p className="text-xs font-black text-gray-800">
-                              Securely Saved
-                            </p>
-
-                            <p className="truncate text-[9px] font-medium text-gray-400">
-                              {card.location ||
-                                "Bangladesh"}
-                              {card.zipCode
-                                ? ` • ${card.zipCode}`
-                                : ""}
-                            </p>
-                          </div>
-
-                        </div>
-
-                        <button
-                          onClick={() =>
-                            deleteCard(card.id)
-                          }
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-500 active:scale-95"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        )}
 
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </>
