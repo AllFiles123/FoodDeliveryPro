@@ -13,14 +13,14 @@ import {
   ArrowLeft,
   ShoppingBag,
   ShieldCheck,
-  X,
   Navigation,
+  Bike,
+  Clock3,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useCart } from "../../context/CartContext";
 import orderService from "../../services/orderService";
-import OrderSuccessAnimation from "../../components/animations/OrderSuccessAnimation";
 
 const dhakaZones = [
   "Uttara",
@@ -50,8 +50,10 @@ const divisions = {
   },
 };
 
-const SOFT_ORANGE = "#FFF3EA";
+const SOFT_ORANGE = "#FFF1E7";
+const LIGHT_ORANGE = "#FFF7F1";
 const ORANGE = "#FF8A4C";
+const DARK_ORANGE = "#F26F32";
 
 const PAYMENT_KEYS = [
   "paymentMethods",
@@ -66,6 +68,349 @@ const DISCOUNT_KEYS = [
   "discount",
   "promo_discount",
 ];
+
+/* =========================================================
+   ORDER CONFIRMATION POPUP
+========================================================= */
+
+function OrderConfirmationPopup({
+  orderDate,
+  total,
+  onBack,
+  onTrack,
+}) {
+  return (
+    <motion.div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/20 px-4 py-6 backdrop-blur-[3px]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        initial={{
+          opacity: 0,
+          scale: 0.92,
+          y: 20,
+        }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          y: 0,
+        }}
+        exit={{
+          opacity: 0,
+          scale: 0.94,
+          y: 15,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 300,
+          damping: 25,
+        }}
+        className="relative w-full max-w-[390px] overflow-hidden rounded-[34px] bg-white shadow-[0_25px_80px_rgba(0,0,0,0.18)]"
+      >
+        {/* TOP */}
+        <div
+          className="relative px-6 pb-5 pt-6"
+          style={{
+            background:
+              "linear-gradient(180deg,#FFF1E7 0%,#FFF8F4 100%)",
+          }}
+        >
+          {/* BACK */}
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label="Go back"
+            className="absolute left-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-sm transition active:scale-90"
+          >
+            <ArrowLeft size={19} />
+          </button>
+
+          {/* SUCCESS ICON */}
+          <div className="flex justify-center pt-2">
+            <motion.div
+              initial={{ scale: 0.5, rotate: -12 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{
+                type: "spring",
+                stiffness: 260,
+                damping: 16,
+              }}
+              className="relative flex h-[78px] w-[78px] items-center justify-center rounded-full"
+              style={{
+                backgroundColor: ORANGE,
+                boxShadow:
+                  "0 12px 30px rgba(255,138,76,0.30)",
+              }}
+            >
+              <div className="flex h-[58px] w-[58px] items-center justify-center rounded-full border-[3px] border-white/80">
+                <Check
+                  size={32}
+                  strokeWidth={3}
+                  className="text-white"
+                />
+              </div>
+            </motion.div>
+          </div>
+
+          <div className="mt-4 text-center">
+            <h2 className="text-[25px] font-black tracking-tight text-gray-900">
+              Order Confirmed
+            </h2>
+
+            <p className="mt-1 text-[13px] font-medium text-gray-500">
+              Your order has been placed successfully
+            </p>
+          </div>
+        </div>
+
+        {/* ORDER INFO */}
+        <div className="px-6 pt-5">
+          <div className="rounded-[24px] border border-orange-100 bg-[#FFF9F5] p-4">
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-11 w-11 items-center justify-center rounded-2xl"
+                style={{
+                  backgroundColor: SOFT_ORANGE,
+                }}
+              >
+                <Clock3
+                  size={20}
+                  style={{
+                    color: ORANGE,
+                  }}
+                />
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                  Order Confirmed
+                </p>
+
+                <p className="mt-0.5 text-sm font-black text-gray-900">
+                  {orderDate}
+                </p>
+              </div>
+            </div>
+
+            <div className="my-4 h-px bg-orange-100" />
+
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-500">
+                Order Status
+              </span>
+
+              <span
+                className="rounded-full px-3 py-1.5 text-[10px] font-black"
+                style={{
+                  backgroundColor: SOFT_ORANGE,
+                  color: DARK_ORANGE,
+                }}
+              >
+                ORDER RECEIVED
+              </span>
+            </div>
+
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-500">
+                Total Amount
+              </span>
+
+              <span className="text-base font-black text-gray-900">
+                ৳ {Number(total || 0).toFixed(2)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* DELIVERY STATUS */}
+        <div className="px-6 pt-5">
+          <div className="rounded-[25px] border border-gray-100 bg-white">
+            <div className="p-4">
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl"
+                  style={{
+                    backgroundColor: SOFT_ORANGE,
+                  }}
+                >
+                  <Truck
+                    size={20}
+                    style={{
+                      color: ORANGE,
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                    Delivery Status
+                  </p>
+
+                  <p className="mt-0.5 text-sm font-black text-gray-900">
+                    Restaurant is preparing your food
+                  </p>
+                </div>
+              </div>
+
+              {/* TRACKING LINE */}
+              <div className="relative mt-6 px-2 pb-1">
+                <div className="absolute left-[13px] right-[13px] top-[7px] h-[3px] rounded-full bg-orange-100" />
+
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: "28%" }}
+                  transition={{
+                    duration: 0.8,
+                    delay: 0.2,
+                  }}
+                  className="absolute left-[13px] top-[7px] h-[3px] rounded-full"
+                  style={{
+                    backgroundColor: ORANGE,
+                  }}
+                />
+
+                <div className="relative flex items-start justify-between">
+                  <div className="flex flex-col items-start">
+                    <div
+                      className="flex h-4 w-4 items-center justify-center rounded-full border-[3px] border-white shadow-sm"
+                      style={{
+                        backgroundColor: ORANGE,
+                      }}
+                    />
+
+                    <span
+                      className="mt-2 text-[9px] font-black"
+                      style={{
+                        color: DARK_ORANGE,
+                      }}
+                    >
+                      Order Received
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col items-center opacity-35">
+                    <div className="h-4 w-4 rounded-full border-2 border-gray-300 bg-white" />
+
+                    <span className="mt-2 text-[9px] font-bold text-gray-400">
+                      Preparing
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col items-end opacity-35">
+                    <div className="h-4 w-4 rounded-full border-2 border-gray-300 bg-white" />
+
+                    <span className="mt-2 text-[9px] font-bold text-gray-400">
+                      Delivered
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* MAP AREA */}
+            <div className="relative h-[105px] overflow-hidden rounded-b-[25px] bg-[#FFF5ED]">
+              {/* ROAD 1 */}
+              <div className="absolute left-[-20px] top-[42px] h-[22px] w-[120%] rotate-[-8deg] bg-white shadow-sm" />
+
+              {/* ROAD 2 */}
+              <div className="absolute left-[20%] top-[-30px] h-[180px] w-[20px] rotate-[24deg] bg-white shadow-sm" />
+
+              {/* ROAD 3 */}
+              <div className="absolute right-[-20px] top-[55px] h-[16px] w-[80%] rotate-[14deg] bg-white shadow-sm" />
+
+              {/* MAP DOTS */}
+              <div className="absolute left-[18%] top-[20px] h-2 w-2 rounded-full bg-orange-200" />
+              <div className="absolute left-[63%] top-[24px] h-2 w-2 rounded-full bg-orange-200" />
+              <div className="absolute right-[18%] bottom-[20px] h-2 w-2 rounded-full bg-orange-200" />
+
+              {/* RESTAURANT */}
+              <div
+                className="absolute left-[18%] top-[31px] flex h-8 w-8 items-center justify-center rounded-full border-[3px] border-white shadow-md"
+                style={{
+                  backgroundColor: ORANGE,
+                }}
+              >
+                <MapPin
+                  size={14}
+                  className="text-white"
+                  fill="currentColor"
+                />
+              </div>
+
+              {/* BIKE */}
+              <motion.div
+                animate={{
+                  x: [0, 4, 0],
+                  y: [0, -2, 0],
+                }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 2,
+                  ease: "easeInOut",
+                }}
+                className="absolute right-[19%] top-[43px] flex h-12 w-12 items-center justify-center rounded-full border-[4px] border-white shadow-lg"
+                style={{
+                  backgroundColor: ORANGE,
+                }}
+              >
+                <Bike
+                  size={23}
+                  strokeWidth={2.5}
+                  className="text-white"
+                />
+              </motion.div>
+
+              {/* SMALL ROUTE DOTS */}
+              <div
+                className="absolute left-[34%] top-[52px] h-2 w-2 rounded-full"
+                style={{
+                  backgroundColor: ORANGE,
+                }}
+              />
+
+              <div
+                className="absolute left-[43%] top-[52px] h-2 w-2 rounded-full"
+                style={{
+                  backgroundColor: "#FFD4BB",
+                }}
+              />
+
+              <div
+                className="absolute left-[52%] top-[52px] h-2 w-2 rounded-full"
+                style={{
+                  backgroundColor: "#FFD4BB",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* BUTTON */}
+        <div className="p-6 pt-5">
+          <button
+            type="button"
+            onClick={onTrack}
+            className="flex w-full items-center justify-center gap-2 rounded-[20px] py-4 text-sm font-black text-white shadow-lg transition active:scale-[0.98]"
+            style={{
+              backgroundColor: ORANGE,
+              boxShadow:
+                "0 12px 25px rgba(255,138,76,0.24)",
+            }}
+          >
+            <Navigation size={18} />
+            Track Your Order
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* =========================================================
+   CHECKOUT PAGE
+========================================================= */
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -91,23 +436,31 @@ export default function CheckoutPage() {
     useState([]);
 
   const [loading, setLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showPaymentHint, setShowPaymentHint] = useState(false);
 
-  /*
-   * Load saved user information.
-   */
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const [showPaymentHint, setShowPaymentHint] =
+    useState(false);
+
+  const [confirmedDate, setConfirmedDate] =
+    useState("");
+
+  const [confirmedTotal, setConfirmedTotal] =
+    useState(0);
+
+  /* =====================================================
+     LOAD PROFILE
+  ===================================================== */
+
   useEffect(() => {
     try {
-      const savedProfile =
-        JSON.parse(
-          localStorage.getItem("profileData") || "null"
-        );
+      const savedProfile = JSON.parse(
+        localStorage.getItem("profileData") || "null"
+      );
 
-      const savedUser =
-        JSON.parse(
-          localStorage.getItem("user") || "null"
-        );
+      const savedUser = JSON.parse(
+        localStorage.getItem("user") || "null"
+      );
 
       const source = savedProfile || savedUser;
 
@@ -127,33 +480,42 @@ export default function CheckoutPage() {
         );
       }
     } catch (error) {
-      console.error("Unable to load profile", error);
+      console.error(
+        "Unable to load profile",
+        error
+      );
     }
   }, []);
 
-  /*
-   * Checkout page setup.
-   */
+  /* =====================================================
+     HIDE BOTTOM NAV
+  ===================================================== */
+
   useEffect(() => {
     document.body.classList.add("checkout-page");
     document.body.style.overflowX = "hidden";
 
     return () => {
-      document.body.classList.remove("checkout-page");
+      document.body.classList.remove(
+        "checkout-page"
+      );
+
       document.body.style.overflowX = "";
     };
   }, []);
 
-  /*
-   * Load saved payment methods.
-   */
+  /* =====================================================
+     PAYMENT METHODS
+  ===================================================== */
+
   useEffect(() => {
     const loadPaymentMethods = () => {
       let found = [];
 
       for (const key of PAYMENT_KEYS) {
         try {
-          const raw = localStorage.getItem(key);
+          const raw =
+            localStorage.getItem(key);
 
           if (!raw) continue;
 
@@ -199,10 +561,10 @@ export default function CheckoutPage() {
     };
   }, []);
 
-  /*
-   * If Profile page sends us back with a payment method,
-   * reload saved methods.
-   */
+  /* =====================================================
+     PAYMENT METHOD FROM PROFILE
+  ===================================================== */
+
   useEffect(() => {
     if (location.state?.paymentMethod) {
       setPaymentMethod(
@@ -217,20 +579,32 @@ export default function CheckoutPage() {
     }
   }, [location.state]);
 
+  /* =====================================================
+     CALCULATIONS
+  ===================================================== */
+
   const deliveryType = insideDhaka
     ? "Dhaka Inside"
     : "Outside Dhaka";
 
-  const deliveryCharge = insideDhaka ? 60 : 120;
+  const deliveryCharge = insideDhaka
+    ? 60
+    : 120;
 
   const vat = 0;
 
   const discount = useMemo(() => {
     for (const key of DISCOUNT_KEYS) {
       try {
-        const raw = localStorage.getItem(key);
+        const raw =
+          localStorage.getItem(key);
 
-        if (raw === null || raw === "") continue;
+        if (
+          raw === null ||
+          raw === ""
+        ) {
+          continue;
+        }
 
         const value = Number(raw);
 
@@ -238,10 +612,13 @@ export default function CheckoutPage() {
           Number.isFinite(value) &&
           value > 0
         ) {
-          return Math.min(value, totalPrice);
+          return Math.min(
+            value,
+            totalPrice
+          );
         }
       } catch {
-        // Ignore invalid local storage values.
+        // Ignore invalid values.
       }
     }
 
@@ -257,17 +634,21 @@ export default function CheckoutPage() {
   );
 
   const districts = division
-    ? Object.keys(divisions[division] || {})
+    ? Object.keys(
+        divisions[division] || {}
+      )
     : [];
 
   const upazilas =
     division && district
-      ? divisions[division]?.[district] || []
+      ? divisions[division]?.[district] ||
+        []
       : [];
 
-  /*
-   * Address toggle.
-   */
+  /* =====================================================
+     ADDRESS
+  ===================================================== */
+
   const handleInsideToggle = () => {
     const next = !insideDhaka;
 
@@ -280,9 +661,10 @@ export default function CheckoutPage() {
     setFullAddress("");
   };
 
-  /*
-   * Go to Profile payment settings.
-   */
+  /* =====================================================
+     PAYMENT SETTINGS
+  ===================================================== */
+
   const goToPaymentSettings = () => {
     navigate("/profile", {
       state: {
@@ -292,7 +674,9 @@ export default function CheckoutPage() {
     });
   };
 
-  const formatPaymentMethod = (method) => {
+  const formatPaymentMethod = (
+    method
+  ) => {
     if (!method) {
       return "Payment Method";
     }
@@ -311,7 +695,9 @@ export default function CheckoutPage() {
     );
   };
 
-  const getPaymentNumber = (method) => {
+  const getPaymentNumber = (
+    method
+  ) => {
     if (
       !method ||
       typeof method === "string"
@@ -330,7 +716,8 @@ export default function CheckoutPage() {
 
     if (!value) return "";
 
-    const stringValue = String(value);
+    const stringValue =
+      String(value);
 
     if (
       method.last4 &&
@@ -342,9 +729,13 @@ export default function CheckoutPage() {
     return stringValue;
   };
 
-  const getPaymentIcon = (method) => {
+  const getPaymentIcon = (
+    method
+  ) => {
     const name =
-      formatPaymentMethod(method).toLowerCase();
+      formatPaymentMethod(
+        method
+      ).toLowerCase();
 
     if (
       name.includes("cash") ||
@@ -369,7 +760,9 @@ export default function CheckoutPage() {
     current,
     method
   ) => {
-    if (current === method) return true;
+    if (current === method) {
+      return true;
+    }
 
     if (
       typeof current === "object" &&
@@ -380,31 +773,46 @@ export default function CheckoutPage() {
       if (
         current.id &&
         method.id &&
-        String(current.id) === String(method.id)
+        String(current.id) ===
+          String(method.id)
       ) {
         return true;
       }
 
       const currentLabel =
-        formatPaymentMethod(current);
+        formatPaymentMethod(
+          current
+        );
 
       const methodLabel =
-        formatPaymentMethod(method);
+        formatPaymentMethod(
+          method
+        );
 
       const currentNumber =
-        getPaymentNumber(current);
+        getPaymentNumber(
+          current
+        );
 
       const methodNumber =
-        getPaymentNumber(method);
+        getPaymentNumber(
+          method
+        );
 
       return (
-        currentLabel === methodLabel &&
-        currentNumber === methodNumber
+        currentLabel ===
+          methodLabel &&
+        currentNumber ===
+          methodNumber
       );
     }
 
     return false;
   };
+
+  /* =====================================================
+     VALIDATION
+  ===================================================== */
 
   const validateCheckout = () => {
     if (cart.length === 0) {
@@ -420,8 +828,10 @@ export default function CheckoutPage() {
     }
 
     if (
-      customerPhone.replace(/\D/g, "").length <
-      10
+      customerPhone.replace(
+        /\D/g,
+        ""
+      ).length < 10
     ) {
       return "Please enter a valid phone number.";
     }
@@ -455,6 +865,71 @@ export default function CheckoutPage() {
     return "";
   };
 
+  /* =====================================================
+     RETURN DESTINATION
+  ===================================================== */
+
+  const getReturnDestination = () => {
+    const stateReturn =
+      location.state?.returnTo;
+
+    if (
+      stateReturn &&
+      stateReturn !== "/cart" &&
+      stateReturn !== "/checkout"
+    ) {
+      return stateReturn;
+    }
+
+    const storedReturn =
+      sessionStorage.getItem(
+        "checkoutReturnPath"
+      );
+
+    if (
+      storedReturn &&
+      storedReturn !== "/cart" &&
+      storedReturn !== "/checkout"
+    ) {
+      return storedReturn;
+    }
+
+    const restaurantId =
+      cart?.[0]?.restaurantId ||
+      cart?.[0]?.restaurant_id;
+
+    if (restaurantId) {
+      return `/restaurant/${restaurantId}`;
+    }
+
+    return "/home";
+  };
+
+  const handleSuccessBack = () => {
+    setShowSuccess(false);
+
+    const destination =
+      getReturnDestination();
+
+    navigate(destination, {
+      replace: true,
+    });
+  };
+
+  const handleTrackOrder = () => {
+    setShowSuccess(false);
+
+    navigate("/map", {
+      state: {
+        fromOrderConfirmation: true,
+      },
+    });
+  };
+
+  /* =====================================================
+     PLACE ORDER
+  ===================================================== */
+
   const handleOrder = async () => {
     if (loading) return;
 
@@ -472,10 +947,13 @@ export default function CheckoutPage() {
       const selectedPayment =
         typeof paymentMethod === "string"
           ? paymentMethod
-          : formatPaymentMethod(paymentMethod);
+          : formatPaymentMethod(
+              paymentMethod
+            );
 
       const paymentStatus =
-        selectedPayment === "Cash on Delivery"
+        selectedPayment ===
+        "Cash on Delivery"
           ? "Pending"
           : "Paid";
 
@@ -484,12 +962,15 @@ export default function CheckoutPage() {
           id: item.id,
           name: item.name,
           image: item.image || "",
-          price: Number(item.price) || 0,
-          quantity: Number(item.qty) || 1,
+          price:
+            Number(item.price) || 0,
+          quantity:
+            Number(item.qty) || 1,
         })),
 
         restaurantName:
-          cart[0]?.restaurantName || "",
+          cart[0]?.restaurantName ||
+          "",
 
         customerName:
           customerName.trim(),
@@ -499,7 +980,9 @@ export default function CheckoutPage() {
 
         deliveryType,
 
-        zone: insideDhaka ? zone : "",
+        zone: insideDhaka
+          ? zone
+          : "",
 
         division: insideDhaka
           ? ""
@@ -519,11 +1002,13 @@ export default function CheckoutPage() {
         address:
           fullAddress.trim(),
 
-        subtotal: Number(totalPrice) || 0,
+        subtotal:
+          Number(totalPrice) || 0,
 
         vat: 0,
 
-        discount: Number(discount) || 0,
+        discount:
+          Number(discount) || 0,
 
         deliveryCharge,
 
@@ -542,11 +1027,50 @@ export default function CheckoutPage() {
         orderPayload
       );
 
+      /*
+       * SAVE CONFIRMATION DATA BEFORE
+       * CLEARING THE CART
+       */
+
+      const now = new Date();
+
+      const formattedDate =
+        now.toLocaleDateString(
+          "en-GB",
+          {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }
+        ) +
+        " • " +
+        now.toLocaleTimeString(
+          "en-US",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+          }
+        );
+
+      setConfirmedDate(
+        formattedDate
+      );
+
+      setConfirmedTotal(
+        Number(grandTotal) || 0
+      );
+
       clearCart();
 
-      DISCOUNT_KEYS.forEach((key) => {
-        localStorage.removeItem(key);
-      });
+      DISCOUNT_KEYS.forEach(
+        (key) => {
+          localStorage.removeItem(key);
+        }
+      );
+
+      /*
+       * SHOW NEW LIGHT ORANGE POPUP
+       */
 
       setShowSuccess(true);
     } catch (error) {
@@ -564,6 +1088,10 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
+  /* =====================================================
+     CHECKOUT BACK
+  ===================================================== */
 
   const handleBack = () => {
     navigate(-1);
@@ -594,17 +1122,24 @@ export default function CheckoutPage() {
         `}
       </style>
 
+      {/* =================================================
+          NEW ORDER CONFIRMATION POPUP
+      ================================================= */}
+
       <AnimatePresence>
         {showSuccess && (
-          <OrderSuccessAnimation
-            onClose={() =>
-              navigate("/orders", {
-                replace: true,
-              })
-            }
+          <OrderConfirmationPopup
+            orderDate={confirmedDate}
+            total={confirmedTotal}
+            onBack={handleSuccessBack}
+            onTrack={handleTrackOrder}
           />
         )}
       </AnimatePresence>
+
+      {/* =================================================
+          CHECKOUT
+      ================================================= */}
 
       <div className="checkout-scroll min-h-screen overflow-y-auto bg-[#F8F8F8] px-4 pb-8 pt-5">
         <motion.div
@@ -622,6 +1157,7 @@ export default function CheckoutPage() {
           className="mx-auto max-w-3xl"
         >
           {/* HEADER */}
+
           <div className="mb-6 flex items-center">
             <button
               type="button"
@@ -646,9 +1182,16 @@ export default function CheckoutPage() {
           </div>
 
           {/* EMPTY CART */}
+
           {cart.length === 0 ? (
             <div className="rounded-[32px] bg-white p-8 text-center shadow-sm">
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-orange-50">
+              <div
+                className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl"
+                style={{
+                  backgroundColor:
+                    SOFT_ORANGE,
+                }}
+              >
                 <ShoppingBag
                   size={36}
                   style={{
@@ -669,7 +1212,7 @@ export default function CheckoutPage() {
               <button
                 type="button"
                 onClick={() =>
-                  navigate("/")
+                  navigate("/home")
                 }
                 className="mt-6 rounded-2xl px-7 py-4 text-sm font-black"
                 style={{
@@ -684,8 +1227,8 @@ export default function CheckoutPage() {
           ) : (
             <div className="overflow-hidden rounded-[32px] bg-white shadow-sm">
               <div className="p-5 sm:p-7">
-
                 {/* CUSTOMER DETAILS */}
+
                 <section>
                   <div className="flex items-center gap-3">
                     <div
@@ -754,6 +1297,7 @@ export default function CheckoutPage() {
                 <div className="my-7 h-px bg-gray-100" />
 
                 {/* DELIVERY ADDRESS */}
+
                 <section>
                   <div className="flex items-center gap-3">
                     <div
@@ -783,6 +1327,7 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* INSIDE / OUTSIDE */}
+
                   <div className="mt-5 flex items-center justify-between rounded-2xl bg-[#FAFAFA] px-4 py-4">
                     <div>
                       <p className="text-sm font-bold text-gray-900">
@@ -819,6 +1364,7 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* INSIDE DHAKA */}
+
                   <AnimatePresence mode="wait">
                     {insideDhaka && (
                       <motion.div
@@ -874,6 +1420,8 @@ export default function CheckoutPage() {
                         </div>
                       </motion.div>
                     )}
+
+                    {/* OUTSIDE DHAKA */}
 
                     {!insideDhaka && (
                       <motion.div
@@ -994,6 +1542,7 @@ export default function CheckoutPage() {
                 <div className="my-7 h-px bg-gray-100" />
 
                 {/* PAYMENT */}
+
                 <section>
                   <div className="flex items-center gap-3">
                     <div
@@ -1023,6 +1572,7 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* ADD PAYMENT */}
+
                   <button
                     type="button"
                     onClick={
@@ -1066,7 +1616,8 @@ export default function CheckoutPage() {
                     </span>
                   </button>
 
-                  {/* CASH ON DELIVERY */}
+                  {/* CASH */}
+
                   <button
                     type="button"
                     onClick={() =>
@@ -1128,6 +1679,7 @@ export default function CheckoutPage() {
                   </button>
 
                   {/* SAVED METHODS */}
+
                   {savedPaymentMethods.length >
                     0 && (
                     <div className="mt-3 space-y-3">
@@ -1224,7 +1776,8 @@ export default function CheckoutPage() {
                     </div>
                   )}
 
-                  {/* NO SAVED PAYMENT */}
+                  {/* NO PAYMENT */}
+
                   {savedPaymentMethods.length ===
                     0 && (
                     <button
@@ -1260,6 +1813,7 @@ export default function CheckoutPage() {
                 <div className="my-7 h-px bg-gray-100" />
 
                 {/* ORDER SUMMARY */}
+
                 <section>
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-black text-gray-900">
@@ -1288,11 +1842,18 @@ export default function CheckoutPage() {
                               className="h-12 w-12 shrink-0 rounded-xl object-cover"
                             />
                           ) : (
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-50">
+                            <div
+                              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
+                              style={{
+                                backgroundColor:
+                                  SOFT_ORANGE,
+                              }}
+                            >
                               <ShoppingBag
                                 size={18}
                                 style={{
-                                  color: ORANGE,
+                                  color:
+                                    ORANGE,
                                 }}
                               />
                             </div>
@@ -1367,7 +1928,9 @@ export default function CheckoutPage() {
                           }}
                         >
                           - ৳{" "}
-                          {discount.toFixed(2)}
+                          {discount.toFixed(
+                            2
+                          )}
                         </span>
                       </div>
                     )}
@@ -1389,6 +1952,7 @@ export default function CheckoutPage() {
               </div>
 
               {/* PLACE ORDER */}
+
               <div className="border-t border-gray-100 p-5 sm:p-7">
                 <motion.button
                   type="button"
@@ -1407,11 +1971,13 @@ export default function CheckoutPage() {
                   {loading ? (
                     <>
                       <span className="h-5 w-5 animate-spin rounded-full border-2 border-orange-200 border-t-orange-500" />
+
                       Placing Order...
                     </>
                   ) : (
                     <>
                       <Truck size={21} />
+
                       Place Order • ৳{" "}
                       {grandTotal.toFixed(2)}
                     </>
@@ -1430,3 +1996,4 @@ export default function CheckoutPage() {
     </>
   );
 }
+
