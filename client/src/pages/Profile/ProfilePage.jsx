@@ -105,8 +105,13 @@ export default function ProfilePage() {
     number: "",
     expiry: "",
     cvv: "",
+    location: "Bangladesh",
+    zipCode: "",
     type: "Credit Card",
   });
+
+  const [saveCardInformation, setSaveCardInformation] =
+    useState(true);
 
   const [cardSaving, setCardSaving] = useState(false);
 
@@ -645,10 +650,7 @@ export default function ProfilePage() {
     if (cardSaving) return;
 
     const cleanNumber =
-      cardData.number.replace(
-        /\D/g,
-        ""
-      );
+      cardData.number.replace(/\D/g, "");
 
     if (!cardData.holder.trim()) {
       showToast(
@@ -680,13 +682,33 @@ export default function ProfilePage() {
 
     if (
       cardData.cvv.length <
-      (cardData.type ===
-      "American Express"
+      (cardData.type === "American Express"
         ? 4
         : 3)
     ) {
       showToast(
         "Enter valid CVV",
+        "error"
+      );
+      return;
+    }
+
+    if (!cardData.location.trim()) {
+      showToast(
+        "Select your location",
+        "error"
+      );
+      return;
+    }
+
+    if (
+      cardData.zipCode &&
+      !/^\d{3,10}$/.test(
+        cardData.zipCode
+      )
+    ) {
+      showToast(
+        "Enter a valid ZIP code",
         "error"
       );
       return;
@@ -704,6 +726,12 @@ export default function ProfilePage() {
         cardData.expiry,
       type:
         cardData.type,
+      location:
+        cardData.location.trim(),
+      zipCode:
+        cardData.zipCode.trim(),
+      savedInformation:
+        saveCardInformation,
     };
 
     setSavedCards((prev) => [
@@ -716,8 +744,12 @@ export default function ProfilePage() {
       number: "",
       expiry: "",
       cvv: "",
+      location: "Bangladesh",
+      zipCode: "",
       type: "Credit Card",
     });
+
+    setSaveCardInformation(true);
 
     setShowCardForm(false);
 
@@ -2068,369 +2100,564 @@ export default function ProfilePage() {
 
           {screen === "cards" && (
             <>
-              <div className="mb-5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={
-                      backToProfile
-                    }
-                    className="rounded-xl bg-white p-3 shadow-sm"
-                  >
-                    <ArrowLeft
-                      size={20}
-                    />
-                  </button>
+              <div className="mb-6 flex items-center gap-3">
+                <button
+                  onClick={backToProfile}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-black/5 active:scale-95"
+                >
+                  <ArrowLeft size={20} />
+                </button>
 
+                <div className="min-w-0 flex-1">
                   <h2
                     className={`text-xl font-black ${textMain}`}
                   >
                     Saved Cards
                   </h2>
+
+                  <p className="mt-0.5 text-xs text-gray-400">
+                    Manage your secure payment cards
+                  </p>
                 </div>
 
                 <button
-                  onClick={() =>
-                    setShowCardForm(
-                      true
-                    )
-                  }
-                  className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-lg"
+                  onClick={() => {
+                    setCardData({
+                      holder: "",
+                      number: "",
+                      expiry: "",
+                      cvv: "",
+                      location: "Bangladesh",
+                      zipCode: "",
+                      type: "Credit Card",
+                    });
+
+                    setSaveCardInformation(true);
+                    setShowCardForm(true);
+                  }}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-lg shadow-orange-200 active:scale-95"
                 >
                   <Plus size={21} />
                 </button>
               </div>
 
               {showCardForm && (
-                <div
-                  className={`mb-6 rounded-[2rem] p-5 shadow-xl ${cardBackground}`}
-                >
-                  <div className="mb-4 flex items-center justify-between">
-                    <div>
-                      <h3
-                        className={`text-lg font-black ${textMain}`}
-                      >
+                <div className="mb-7 overflow-hidden rounded-[2rem] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.08)] ring-1 ring-black/[0.03]">
+
+                  <div className="flex items-center gap-3 px-5 pb-4 pt-5">
+                    <button
+                      onClick={() =>
+                        setShowCardForm(false)
+                      }
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-700 active:scale-95"
+                    >
+                      <ArrowLeft size={19} />
+                    </button>
+
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-lg font-black text-gray-900">
                         Add New Card
                       </h3>
 
-                      <p className="mt-1 text-xs text-gray-400">
-                        Visa, Mastercard, Amex, Discover & more
+                      <p className="mt-0.5 text-[11px] font-medium text-gray-400">
+                        Securely save your payment card
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* CARD PREVIEW */}
+
+                  <div className="px-4">
+                    <div className="relative mx-auto h-[205px] w-full max-w-[390px] overflow-hidden rounded-[1.55rem] bg-gradient-to-br from-[#173d48] via-[#102f38] to-[#071b22] p-5 text-white shadow-xl">
+
+                      <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full border-[30px] border-white/[0.035]" />
+
+                      <div className="pointer-events-none absolute -bottom-24 -left-16 h-48 w-48 rounded-full border-[28px] border-white/[0.025]" />
+
+                      <div className="relative flex h-full flex-col justify-between">
+
+                        <div className="flex items-start justify-between">
+
+                          <div className="h-8 w-11 overflow-hidden rounded-[7px] bg-gradient-to-br from-[#f7e8b5] via-[#c9b879] to-[#8d7d4e]">
+                            <div className="mt-[8px] h-px bg-black/10" />
+                            <div className="mt-1 h-px bg-black/10" />
+                          </div>
+
+                          <div className="text-right">
+                            <p className="text-[22px] font-black italic">
+                              {cardData.type === "Mastercard"
+                                ? "MC"
+                                : cardData.type === "American Express"
+                                ? "AMEX"
+                                : cardData.type === "Discover"
+                                ? "DISCOVER"
+                                : "VISA"}
+                            </p>
+
+                            <p className="text-[7px] font-bold uppercase tracking-[0.18em] text-white/40">
+                              {cardData.type}
+                            </p>
+                          </div>
+
+                        </div>
+
+                        <div>
+                          <p className="whitespace-nowrap text-[18px] font-medium tracking-[0.12em] text-white/90">
+                            {maskedCardNumber}
+                          </p>
+
+                          <div className="mt-4 flex items-end justify-between">
+
+                            <div className="min-w-0">
+                              <p className="text-[7px] uppercase tracking-[0.18em] text-white/40">
+                                Card Holder
+                              </p>
+
+                              <p className="mt-0.5 max-w-[180px] truncate text-[11px] font-bold uppercase tracking-wide">
+                                {cardData.holder ||
+                                  "YOUR NAME"}
+                              </p>
+                            </div>
+
+                            <div className="mr-2 text-right">
+                              <p className="text-[7px] uppercase tracking-[0.18em] text-white/40">
+                                Expires
+                              </p>
+
+                              <p className="mt-0.5 text-[11px] font-bold">
+                                {cardData.expiry ||
+                                  "MM/YY"}
+                              </p>
+                            </div>
+
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-1.5 py-4">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gray-300" />
+                    <span className="h-1.5 w-4 rounded-full bg-gray-900" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-gray-300" />
+                  </div>
+
+                  {/* CARD INFORMATION */}
+
+                  <div className="mx-4 mb-4 rounded-[1.5rem] bg-[#fafafa] p-4 ring-1 ring-black/[0.025]">
+
+                    <div className="mb-4">
+                      <h4 className="text-base font-black text-gray-900">
+                        Card Information
+                      </h4>
+
+                      <p className="mt-0.5 text-[11px] font-medium text-gray-400">
+                        Enter your card details below
                       </p>
                     </div>
 
-                    <button
-                      onClick={() =>
-                        setShowCardForm(
-                          false
-                        )
-                      }
-                      className="rounded-full bg-gray-100 p-2"
-                    >
-                      <X size={18} />
-                    </button>
-                  </div>
+                    {/* CARD NUMBER */}
 
-                  {/* PREMIUM CARD PREVIEW */}
+                    <div className="mb-4">
+                      <label className="mb-1.5 block px-1 text-[11px] font-semibold text-gray-400">
+                        Card Number
+                      </label>
 
-                  <div className="relative mb-5 overflow-hidden rounded-[1.7rem] bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700 p-5 text-white shadow-xl">
-                    <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-16 -left-12 h-40 w-40 rounded-full bg-white/10" />
+                      <div className="flex h-[54px] items-center rounded-xl border border-gray-200 bg-white px-3 transition focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100">
 
-                    <div className="relative">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-white/70">
-                            Secure Payment
-                          </p>
+                        <input
+                          value={cardData.number}
+                          onChange={(e) =>
+                            handleCardNumberChange(
+                              e.target.value
+                            )
+                          }
+                          placeholder="0000 0000 0000 0000"
+                          inputMode="numeric"
+                          autoComplete="cc-number"
+                          className="min-w-0 flex-1 bg-transparent px-1 text-sm font-semibold tracking-wide text-gray-800 outline-none placeholder:text-gray-300"
+                        />
 
-                          <p className="mt-1 text-xs font-black">
-                            {cardData.type}
-                          </p>
-                        </div>
-
-                        <CreditCard
-                          size={30}
-                          className="text-white/90"
+                        <ShieldCheck
+                          size={19}
+                          className="shrink-0 text-gray-400"
                         />
                       </div>
 
-                      <div className="mt-8 flex items-center gap-3">
-                        <div className="h-7 w-10 rounded-md bg-gradient-to-br from-yellow-100 to-yellow-300" />
+                      <div className="mt-1.5 flex items-center gap-1.5 px-1">
+                        <ShieldCheck
+                          size={12}
+                          className="text-green-500"
+                        />
 
-                        <span className="text-xs text-white/70">
-                          NFC
+                        <span className="text-[9px] font-semibold text-gray-400">
+                          {cardData.type} detected automatically
                         </span>
                       </div>
+                    </div>
 
-                      <p className="mt-5 text-xl font-bold tracking-[0.16em]">
-                        {maskedCardNumber}
-                      </p>
+                    {/* HOLDER */}
 
-                      <div className="mt-7 flex items-end justify-between">
-                        <div>
-                          <p className="text-[8px] uppercase text-white/60">
-                            Card Holder
-                          </p>
+                    <div className="mb-4">
+                      <label className="mb-1.5 block px-1 text-[11px] font-semibold text-gray-400">
+                        Account Holder Name
+                      </label>
 
-                          <p className="mt-1 text-xs font-black uppercase">
-                            {cardData.holder ||
-                              "YOUR NAME"}
-                          </p>
-                        </div>
+                      <input
+                        value={cardData.holder}
+                        onChange={(e) =>
+                          setCardData((prev) => ({
+                            ...prev,
+                            holder:
+                              e.target.value,
+                          }))
+                        }
+                        placeholder="Enter card holder name"
+                        autoComplete="cc-name"
+                        className="h-[54px] w-full rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-800 outline-none transition placeholder:text-gray-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                      />
+                    </div>
 
-                        <div>
-                          <p className="text-[8px] uppercase text-white/60">
-                            Expiry
-                          </p>
+                    {/* EXPIRY / CVV */}
 
-                          <p className="mt-1 text-xs font-black">
-                            {cardData.expiry ||
-                              "MM/YY"}
-                          </p>
+                    <div className="mb-4 grid grid-cols-2 gap-3">
+
+                      <div>
+                        <label className="mb-1.5 block px-1 text-[11px] font-semibold text-gray-400">
+                          Expire Date
+                        </label>
+
+                        <input
+                          value={cardData.expiry}
+                          onChange={(e) =>
+                            setCardData((prev) => ({
+                              ...prev,
+                              expiry:
+                                formatExpiry(
+                                  e.target.value
+                                ),
+                            }))
+                          }
+                          placeholder="MM/YY"
+                          inputMode="numeric"
+                          autoComplete="cc-exp"
+                          className="h-[54px] w-full rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-800 outline-none transition placeholder:text-gray-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="mb-1.5 block px-1 text-[11px] font-semibold text-gray-400">
+                          CVV
+                        </label>
+
+                        <input
+                          value={cardData.cvv}
+                          onChange={(e) =>
+                            setCardData((prev) => ({
+                              ...prev,
+                              cvv:
+                                e.target.value
+                                  .replace(
+                                    /\D/g,
+                                    ""
+                                  )
+                                  .slice(
+                                    0,
+                                    cardData.type ===
+                                      "American Express"
+                                      ? 4
+                                      : 3
+                                  ),
+                            }))
+                          }
+                          placeholder={
+                            cardData.type ===
+                            "American Express"
+                              ? "CID"
+                              : "CVV"
+                          }
+                          type="password"
+                          inputMode="numeric"
+                          autoComplete="cc-csc"
+                          className="h-[54px] w-full rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-800 outline-none transition placeholder:text-gray-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                        />
+                      </div>
+
+                    </div>
+
+                    {/* LOCATION / ZIP */}
+
+                    <div className="grid grid-cols-[1.2fr_0.8fr] gap-3">
+
+                      <div>
+                        <label className="mb-1.5 block px-1 text-[11px] font-semibold text-gray-400">
+                          Location
+                        </label>
+
+                        <div className="relative">
+                          <MapPin
+                            size={16}
+                            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                          />
+
+                          <select
+                            value={cardData.location}
+                            onChange={(e) =>
+                              setCardData((prev) => ({
+                                ...prev,
+                                location:
+                                  e.target.value,
+                              }))
+                            }
+                            className="h-[54px] w-full appearance-none rounded-xl border border-gray-200 bg-white pl-9 pr-8 text-sm font-semibold text-gray-800 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                          >
+                            <option value="Bangladesh">
+                              Bangladesh
+                            </option>
+
+                            <option value="Dhaka">
+                              Dhaka
+                            </option>
+
+                            <option value="Chattogram">
+                              Chattogram
+                            </option>
+
+                            <option value="Sylhet">
+                              Sylhet
+                            </option>
+
+                            <option value="Rajshahi">
+                              Rajshahi
+                            </option>
+
+                            <option value="Khulna">
+                              Khulna
+                            </option>
+                          </select>
+
+                          <ChevronDown
+                            size={16}
+                            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                          />
                         </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <input
-                    value={
-                      cardData.holder
-                    }
-                    onChange={(e) =>
-                      setCardData(
-                        (prev) => ({
-                          ...prev,
-                          holder:
-                            e.target.value,
-                        })
-                      )
-                    }
-                    placeholder="Card Holder Name"
-                    className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
-                  />
+                      <div>
+                        <label className="mb-1.5 block px-1 text-[11px] font-semibold text-gray-400">
+                          ZIP Code
+                        </label>
 
-                  <input
-                    value={
-                      cardData.number
-                    }
-                    onChange={(e) =>
-                      handleCardNumberChange(
-                        e.target.value
-                      )
-                    }
-                    placeholder="Card Number"
-                    inputMode="numeric"
-                    className="mb-2 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
-                  />
-
-                  <div className="mb-3 flex items-center gap-2 px-2">
-                    <ShieldCheck
-                      size={14}
-                      className="text-green-500"
-                    />
-
-                    <span className="text-[10px] font-bold text-gray-400">
-                      {cardData.type} detected automatically
-                    </span>
-                  </div>
-
-                  <div className="mb-4 grid grid-cols-2 gap-3">
-                    <input
-                      value={
-                        cardData.expiry
-                      }
-                      onChange={(e) =>
-                        setCardData(
-                          (prev) => ({
-                            ...prev,
-                            expiry:
-                              formatExpiry(
+                        <input
+                          value={cardData.zipCode}
+                          onChange={(e) =>
+                            setCardData((prev) => ({
+                              ...prev,
+                              zipCode:
                                 e.target.value
-                              ),
-                          })
-                        )
-                      }
-                      placeholder="MM/YY"
-                      inputMode="numeric"
-                      className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
-                    />
+                                  .replace(
+                                    /\D/g,
+                                    ""
+                                  )
+                                  .slice(0, 10),
+                            }))
+                          }
+                          placeholder="1207"
+                          inputMode="numeric"
+                          className="h-[54px] w-full rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-800 outline-none transition placeholder:text-gray-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                        />
+                      </div>
 
-                    <input
-                      value={
-                        cardData.cvv
-                      }
-                      onChange={(e) =>
-                        setCardData(
-                          (prev) => ({
-                            ...prev,
-                            cvv:
-                              e.target.value
-                                .replace(
-                                  /\D/g,
-                                  ""
-                                )
-                                .slice(
-                                  0,
-                                  cardData.type ===
-                                    "American Express"
-                                    ? 4
-                                    : 3
-                                ),
-                          })
+                    </div>
+
+                    {/* CHECKBOX */}
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSaveCardInformation(
+                          (prev) => !prev
                         )
                       }
-                      placeholder={
-                        cardData.type ===
-                        "American Express"
-                          ? "CID"
-                          : "CVV"
-                      }
-                      type="password"
-                      inputMode="numeric"
-                      className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
-                    />
+                      className="mt-5 flex w-full items-center gap-3 text-left"
+                    >
+                      <span
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition ${
+                          saveCardInformation
+                            ? "border-orange-500 bg-orange-500 text-white"
+                            : "border-gray-300 bg-white"
+                        }`}
+                      >
+                        {saveCardInformation && (
+                          <Check
+                            size={13}
+                            strokeWidth={3}
+                          />
+                        )}
+                      </span>
+
+                      <span className="text-xs font-semibold text-gray-600">
+                        Save Card Information
+                      </span>
+                    </button>
                   </div>
 
-                  {/* CHECK ONLY */}
+                  {/* ORANGE SAVE */}
 
-                  <button
-                    onClick={
-                      handleSaveCard
-                    }
-                    disabled={
-                      cardSaving
-                    }
-                    className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-white shadow-lg shadow-orange-200 disabled:opacity-50"
-                  >
-                    {cardSaving ? (
-                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    ) : (
-                      <Check size={21} />
-                    )}
-                  </button>
+                  <div className="px-4 pb-5">
+                    <button
+                      onClick={handleSaveCard}
+                      disabled={cardSaving}
+                      className="flex h-[58px] w-full items-center justify-center rounded-[1.2rem] bg-orange-500 text-base font-black text-white shadow-lg shadow-orange-200 transition active:scale-[0.985] hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {cardSaving ? (
+                        <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      ) : (
+                        "Save"
+                      )}
+                    </button>
+                  </div>
                 </div>
               )}
 
-              {savedCards.length ===
-                0 &&
+              {/* EMPTY STATE */}
+
+              {savedCards.length === 0 &&
               !showCardForm ? (
-                <div
-                  className={`rounded-[2rem] p-8 text-center shadow-xl ${cardBackground}`}
-                >
-                  <CreditCard
-                    size={48}
-                    className="mx-auto text-gray-300"
-                  />
+                <div className="rounded-[2rem] bg-white p-7 text-center shadow-lg ring-1 ring-black/[0.03]">
+
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50">
+                    <CreditCard
+                      size={30}
+                      className="text-orange-500"
+                    />
+                  </div>
 
                   <h3
-                    className={`mt-4 font-black ${textMain}`}
+                    className={`mt-4 text-lg font-black ${textMain}`}
                   >
                     No Saved Cards
                   </h3>
 
-                  <p className="mt-1 text-sm text-gray-400">
-                    Add a card for faster checkout.
+                  <p className="mx-auto mt-1 max-w-[250px] text-sm leading-5 text-gray-400">
+                    Save your card securely for a faster and smoother checkout.
                   </p>
 
                   <button
                     onClick={() =>
-                      setShowCardForm(
-                        true
-                      )
+                      setShowCardForm(true)
                     }
-                    className="mt-5 rounded-2xl bg-orange-500 px-6 py-3 font-bold text-white"
+                    className="mt-5 rounded-xl bg-orange-500 px-6 py-3 text-sm font-black text-white shadow-lg shadow-orange-200 active:scale-95"
                   >
                     Add Card
                   </button>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {savedCards.map(
-                    (card) => (
-                      <div
-                        key={
-                          card.id
-                        }
-                        className={`rounded-[1.8rem] p-4 shadow-lg ${cardBackground}`}
-                      >
-                        <div className="rounded-[1.5rem] bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700 p-5 text-white">
-                          <div className="flex justify-between">
-                            <span className="text-xs font-bold uppercase text-white/70">
-                              {
-                                card.type
-                              }
-                            </span>
 
-                            <CreditCard
-                              size={22}
-                            />
-                          </div>
+                  {savedCards.map((card) => (
+                    <div
+                      key={card.id}
+                      className="overflow-hidden rounded-[1.8rem] bg-white p-4 shadow-lg ring-1 ring-black/[0.03]"
+                    >
 
-                          <p className="mt-7 text-xl tracking-widest">
+                      <div className="relative h-[185px] overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-[#173d48] via-[#102f38] to-[#071b22] p-5 text-white">
+
+                        <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full border-[24px] border-white/[0.035]" />
+
+                        <div className="flex items-start justify-between">
+
+                          <div className="h-7 w-10 rounded-md bg-gradient-to-br from-[#f7e8b5] to-[#8d7d4e]" />
+
+                          <span className="text-lg font-black italic">
+                            {card.type === "Mastercard"
+                              ? "MC"
+                              : card.type === "American Express"
+                              ? "AMEX"
+                              : card.type === "Discover"
+                              ? "DISCOVER"
+                              : "VISA"}
+                          </span>
+
+                        </div>
+
+                        <div className="absolute bottom-5 left-5 right-5">
+
+                          <p className="text-lg font-medium tracking-[0.12em]">
                             •••• •••• ••••{" "}
-                            {
-                              card.number
-                            }
+                            {card.number}
                           </p>
 
-                          <div className="mt-6 flex justify-between">
-                            <div>
-                              <p className="text-[8px] uppercase text-white/50">
+                          <div className="mt-4 flex items-end justify-between">
+
+                            <div className="min-w-0">
+                              <p className="text-[7px] uppercase tracking-widest text-white/40">
                                 Card Holder
                               </p>
 
-                              <p className="text-sm font-bold uppercase">
-                                {
-                                  card.holder
-                                }
+                              <p className="max-w-[190px] truncate text-[11px] font-bold uppercase">
+                                {card.holder}
                               </p>
                             </div>
 
-                            <div>
-                              <p className="text-[8px] uppercase text-white/50">
-                                Expiry
+                            <div className="text-right">
+                              <p className="text-[7px] uppercase tracking-widest text-white/40">
+                                Expires
                               </p>
 
-                              <p className="font-bold">
-                                {
-                                  card.expiry
-                                }
+                              <p className="text-[11px] font-bold">
+                                {card.expiry}
                               </p>
                             </div>
-                          </div>
-                        </div>
 
-                        <div className="mt-3 flex items-center justify-between px-2">
-                          <div className="flex items-center gap-2 text-xs font-bold text-orange-500">
-                            <ShieldCheck
-                              size={15}
-                            />
-                            Securely Saved
                           </div>
-
-                          <button
-                            onClick={() =>
-                              deleteCard(
-                                card.id
-                              )
-                            }
-                            className="rounded-xl bg-red-50 p-2 text-red-500"
-                          >
-                            <Trash2
-                              size={17}
-                            />
-                          </button>
                         </div>
                       </div>
-                    )
-                  )}
+
+                      <div className="flex items-center justify-between px-1 pt-3">
+
+                        <div className="flex min-w-0 items-center gap-2">
+
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-50">
+                            <ShieldCheck
+                              size={15}
+                              className="text-green-500"
+                            />
+                          </div>
+
+                          <div className="min-w-0">
+                            <p className="text-xs font-black text-gray-800">
+                              Securely Saved
+                            </p>
+
+                            <p className="truncate text-[9px] font-medium text-gray-400">
+                              {card.location ||
+                                "Bangladesh"}
+                              {card.zipCode
+                                ? ` • ${card.zipCode}`
+                                : ""}
+                            </p>
+                          </div>
+
+                        </div>
+
+                        <button
+                          onClick={() =>
+                            deleteCard(card.id)
+                          }
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-500 active:scale-95"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </>
           )}
-
-          {/* ==================================================
-              ADDRESSES
-          ================================================== */}
 
           {screen === "addresses" && (
             <>
