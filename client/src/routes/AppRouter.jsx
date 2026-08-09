@@ -1,8 +1,11 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 import MainLayout from "../layouts/MainLayout";
 
-import SplashPage from "../pages/Splash/SplashPage";
 import OnboardingPage from "../pages/Onboarding/OnboardingPage";
 
 import LanguagePage from "../pages/Language/LanguagePage";
@@ -39,43 +42,64 @@ import PublicRoute from "./PublicRoute";
 export default function AppRouter() {
   return (
     <Routes>
+
       <Route element={<MainLayout />}>
 
         {/* =====================================================
-            APP STARTUP
-            EVERY APP OPEN STARTS FROM SPLASH
+            APP ENTRY
+
+            Splash permanently removed.
+
+            App now starts from onboarding.
         ===================================================== */}
+
         <Route
           path="/"
-          element={<SplashPage />}
+          element={
+            <Navigate
+              to="/onboarding"
+              replace
+            />
+          }
         />
 
         {/* =====================================================
             ONBOARDING
         ===================================================== */}
+
         <Route
           path="/onboarding"
           element={<OnboardingPage />}
         />
 
         {/* =====================================================
-            FIRST LOGIN SETUP
-            These MUST remain outside ProtectedRoute because
-            they are part of the first-login setup flow.
+            LANGUAGE
         ===================================================== */}
+
         <Route
           path="/language"
           element={<LanguagePage />}
         />
 
+        {/* =====================================================
+            LOCATION
+
+            Language -> Location -> Home
+        ===================================================== */}
+
         <Route
           path="/location"
-          element={<LocationPage />}
+          element={
+            <ProtectedRoute>
+              <LocationPage />
+            </ProtectedRoute>
+          }
         />
 
         {/* =====================================================
-            AUTH
+            LOGIN
         ===================================================== */}
+
         <Route
           path="/login"
           element={
@@ -84,6 +108,10 @@ export default function AppRouter() {
             </PublicRoute>
           }
         />
+
+        {/* =====================================================
+            SIGNUP
+        ===================================================== */}
 
         <Route
           path="/signup"
@@ -94,6 +122,10 @@ export default function AppRouter() {
           }
         />
 
+        {/* =====================================================
+            FORGOT PASSWORD
+        ===================================================== */}
+
         <Route
           path="/forgot-password"
           element={
@@ -103,10 +135,18 @@ export default function AppRouter() {
           }
         />
 
+        {/* =====================================================
+            OTP
+        ===================================================== */}
+
         <Route
           path="/otp"
           element={<OtpVerificationPage />}
         />
+
+        {/* =====================================================
+            RESET PASSWORD
+        ===================================================== */}
 
         <Route
           path="/reset-password"
@@ -116,6 +156,7 @@ export default function AppRouter() {
         {/* =====================================================
             HOME
         ===================================================== */}
+
         <Route
           path="/home"
           element={
@@ -128,6 +169,7 @@ export default function AppRouter() {
         {/* =====================================================
             SEARCH
         ===================================================== */}
+
         <Route
           path="/search"
           element={
@@ -138,8 +180,9 @@ export default function AppRouter() {
         />
 
         {/* =====================================================
-            RESTAURANTS
+            RESTAURANT LIST
         ===================================================== */}
+
         <Route
           path="/restaurants"
           element={
@@ -148,6 +191,36 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+
+        {/* =====================================================
+            RESTAURANT DETAILS
+
+            IMPORTANT:
+            RestaurantListPage uses:
+
+              /restaurants/:id
+
+            So this route MUST use the same path.
+        ===================================================== */}
+
+        <Route
+          path="/restaurants/:id"
+          element={
+            <ProtectedRoute>
+              <RestaurantDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =====================================================
+            BACKWARD COMPATIBILITY
+
+            If any old component still uses:
+
+              /restaurant/:id
+
+            it will still work.
+        ===================================================== */}
 
         <Route
           path="/restaurant/:id"
@@ -159,8 +232,9 @@ export default function AppRouter() {
         />
 
         {/* =====================================================
-            CATEGORY
+            CATEGORY FOODS
         ===================================================== */}
+
         <Route
           path="/category/:category"
           element={
@@ -173,6 +247,7 @@ export default function AppRouter() {
         {/* =====================================================
             FOOD DETAILS
         ===================================================== */}
+
         <Route
           path="/food/:id"
           element={
@@ -185,6 +260,7 @@ export default function AppRouter() {
         {/* =====================================================
             FAVOURITE
         ===================================================== */}
+
         <Route
           path="/favourite"
           element={
@@ -197,6 +273,7 @@ export default function AppRouter() {
         {/* =====================================================
             CART
         ===================================================== */}
+
         <Route
           path="/cart"
           element={
@@ -209,6 +286,7 @@ export default function AppRouter() {
         {/* =====================================================
             CHECKOUT
         ===================================================== */}
+
         <Route
           path="/checkout"
           element={
@@ -221,6 +299,7 @@ export default function AppRouter() {
         {/* =====================================================
             ORDERS
         ===================================================== */}
+
         <Route
           path="/orders"
           element={
@@ -233,6 +312,7 @@ export default function AppRouter() {
         {/* =====================================================
             PROFILE
         ===================================================== */}
+
         <Route
           path="/profile"
           element={
@@ -245,6 +325,7 @@ export default function AppRouter() {
         {/* =====================================================
             MAP
         ===================================================== */}
+
         <Route
           path="/map"
           element={
@@ -256,14 +337,24 @@ export default function AppRouter() {
 
         {/* =====================================================
             UNKNOWN ROUTE
-            NEVER SHOW SPLASH HERE
+
+            NEVER SEND UNKNOWN ROUTES TO SPLASH.
+
+            Send authenticated/normal app users to Home.
         ===================================================== */}
+
         <Route
           path="*"
-          element={<Navigate to="/" replace />}
+          element={
+            <Navigate
+              to="/home"
+              replace
+            />
+          }
         />
 
       </Route>
+
     </Routes>
   );
 }

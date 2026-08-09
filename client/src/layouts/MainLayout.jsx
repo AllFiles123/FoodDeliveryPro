@@ -20,22 +20,15 @@ export default function MainLayout() {
   ].includes(location.pathname);
 
   return (
-    <div
-      className="
-        min-h-screen
-        bg-gradient-to-br
-        from-background
-        via-background
-        to-background
-        overflow-hidden
-      "
-    >
+    <div className="min-h-screen overflow-hidden bg-[#fffaf5]">
+
       <Outlet />
 
       {!hideBottomNavigation &&
         !document.body.classList.contains("filter-open") && (
           <BottomNavigation />
         )}
+
     </div>
   );
 }

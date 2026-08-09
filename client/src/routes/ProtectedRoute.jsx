@@ -1,11 +1,27 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function ProtectedRoute({
-  children,
-}) {
+export default function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
+
+  /*
+   * ProtectedRoute-এর একমাত্র কাজ:
+   * user login করেছে কি না সেটা check করা।
+   *
+   * এখানে Language / Location / setupCompleted
+   * কোনো check করা হবে না।
+   *
+   * কারণ first-login flow:
+   *
+   * Login
+   *   ↓
+   * Language
+   *   ↓
+   * Location
+   *   ↓
+   * Home
+   */
 
   if (!isAuthenticated) {
     return (
@@ -15,25 +31,6 @@ export default function ProtectedRoute({
         state={{
           from: location.pathname,
         }}
-      />
-    );
-  }
-
-  const setupDone =
-    localStorage.getItem("initialSetupComplete") === "true";
-
-  /*
-   * First-login setup must happen before Home.
-   */
-  if (
-    !setupDone &&
-    location.pathname !== "/language" &&
-    location.pathname !== "/location"
-  ) {
-    return (
-      <Navigate
-        to="/language"
-        replace
       />
     );
   }
