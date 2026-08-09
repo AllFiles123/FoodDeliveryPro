@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import MainLayout from "../layouts/MainLayout";
 
@@ -42,13 +42,13 @@ export default function AppRouter() {
       <Route element={<MainLayout />}>
 
         {/* =====================================================
-            SPLASH
+            APP STARTUP
+            EVERY APP OPEN STARTS FROM SPLASH
         ===================================================== */}
         <Route
           path="/"
           element={<SplashPage />}
         />
-
 
         {/* =====================================================
             ONBOARDING
@@ -58,23 +58,24 @@ export default function AppRouter() {
           element={<OnboardingPage />}
         />
 
-
         {/* =====================================================
-            FIRST LOGIN LANGUAGE SELECTION
-            IMPORTANT:
-            Do NOT wrap this with PublicRoute.
+            FIRST LOGIN SETUP
+            These MUST remain outside ProtectedRoute because
+            they are part of the first-login setup flow.
         ===================================================== */}
         <Route
           path="/language"
           element={<LanguagePage />}
         />
 
+        <Route
+          path="/location"
+          element={<LocationPage />}
+        />
 
         {/* =====================================================
             AUTH
         ===================================================== */}
-
-        {/* Login */}
         <Route
           path="/login"
           element={
@@ -84,7 +85,6 @@ export default function AppRouter() {
           }
         />
 
-        {/* Signup */}
         <Route
           path="/signup"
           element={
@@ -94,7 +94,6 @@ export default function AppRouter() {
           }
         />
 
-        {/* Forgot Password */}
         <Route
           path="/forgot-password"
           element={
@@ -104,33 +103,15 @@ export default function AppRouter() {
           }
         />
 
-        {/* OTP */}
         <Route
           path="/otp"
           element={<OtpVerificationPage />}
         />
 
-        {/* Reset Password */}
         <Route
           path="/reset-password"
           element={<ResetPasswordPage />}
         />
-
-
-        {/* =====================================================
-            FIRST LOGIN LOCATION
-            Language select করার পর এখানে আসবে.
-            Location select করার পর সরাসরি Home.
-        ===================================================== */}
-        <Route
-          path="/location"
-          element={
-            <ProtectedRoute>
-              <LocationPage />
-            </ProtectedRoute>
-          }
-        />
-
 
         {/* =====================================================
             HOME
@@ -144,7 +125,6 @@ export default function AppRouter() {
           }
         />
 
-
         {/* =====================================================
             SEARCH
         ===================================================== */}
@@ -157,12 +137,9 @@ export default function AppRouter() {
           }
         />
 
-
         {/* =====================================================
             RESTAURANTS
         ===================================================== */}
-
-        {/* Restaurant List */}
         <Route
           path="/restaurants"
           element={
@@ -172,7 +149,6 @@ export default function AppRouter() {
           }
         />
 
-        {/* Restaurant Details */}
         <Route
           path="/restaurant/:id"
           element={
@@ -182,9 +158,8 @@ export default function AppRouter() {
           }
         />
 
-
         {/* =====================================================
-            CATEGORY FOODS
+            CATEGORY
         ===================================================== */}
         <Route
           path="/category/:category"
@@ -194,7 +169,6 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
-
 
         {/* =====================================================
             FOOD DETAILS
@@ -208,9 +182,8 @@ export default function AppRouter() {
           }
         />
 
-
         {/* =====================================================
-            FAVOURITES
+            FAVOURITE
         ===================================================== */}
         <Route
           path="/favourite"
@@ -220,7 +193,6 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
-
 
         {/* =====================================================
             CART
@@ -234,7 +206,6 @@ export default function AppRouter() {
           }
         />
 
-
         {/* =====================================================
             CHECKOUT
         ===================================================== */}
@@ -246,7 +217,6 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
-
 
         {/* =====================================================
             ORDERS
@@ -260,7 +230,6 @@ export default function AppRouter() {
           }
         />
 
-
         {/* =====================================================
             PROFILE
         ===================================================== */}
@@ -272,7 +241,6 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
-
 
         {/* =====================================================
             MAP
@@ -286,13 +254,13 @@ export default function AppRouter() {
           }
         />
 
-
         {/* =====================================================
-            FALLBACK
+            UNKNOWN ROUTE
+            NEVER SHOW SPLASH HERE
         ===================================================== */}
         <Route
           path="*"
-          element={<SplashPage />}
+          element={<Navigate to="/" replace />}
         />
 
       </Route>

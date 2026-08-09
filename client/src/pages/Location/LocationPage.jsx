@@ -7,8 +7,11 @@ import {
   Search,
 } from "lucide-react";
 
+import { useAuth } from "../../context/AuthContext";
+
 export default function LocationPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [manualLocation, setManualLocation] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,19 +20,32 @@ export default function LocationPage() {
   const saveLocation = (location) => {
     const cleanLocation = location.trim();
 
-    if (!cleanLocation) return;
+    if (!cleanLocation) {
+      setError("Please enter your location.");
+      return;
+    }
 
-    /*
-     * Keep the existing app location system.
-     */
+    /* =====================================================
+       SAVE LOCATION
+    ===================================================== */
     localStorage.setItem("userLocation", cleanLocation);
 
-    /*
-     * Save setup address for Profile > Addresses.
-     */
-    const existingAddresses = JSON.parse(
-      localStorage.getItem("savedAddresses") || "[]"
-    );
+    /* =====================================================
+       SAVE ADDRESS
+    ===================================================== */
+    let existingAddresses = [];
+
+    try {
+      existingAddresses = JSON.parse(
+        localStorage.getItem("savedAddresses") || "[]"
+      );
+
+      if (!Array.isArray(existingAddresses)) {
+        existingAddresses = [];
+      }
+    } catch {
+      existingAddresses = [];
+    }
 
     const alreadyExists = existingAddresses.some(
       (item) =>
@@ -43,7 +59,7 @@ export default function LocationPage() {
         label: "Home",
         address: cleanLocation,
         city: "",
-        phone: "",
+        phone: user?.phone || "",
         isDefault: true,
       };
 
@@ -61,16 +77,56 @@ export default function LocationPage() {
       );
     }
 
+    /* =====================================================
+       SETUP COMPLETED
+    ===================================================== */
+
+    localStorage.setItem(
+      "setupCompleted",
+      "true"
+    );
+
+    localStorage.setItem(
+      "locationSetupCompleted",
+      "true"
+    );
+
     /*
-     * Mark the complete first-login setup.
-     * This prevents Language -> Location from appearing again.
+     * IMPORTANT:
+     * LoginPage checks this USER-SPECIFIC key.
+     * The old LocationPage was not saving it.
+     * That caused:
+     *
+     * Location -> Home -> Language -> Location
+     *
+     * on the next login/startup flow.
      */
-    localStorage.setItem("setupCompleted", "true");
-    localStorage.setItem("locationSetupCompleted", "true");
+    const userKey =
+      user?.id ||
+      user?.email;
 
-    window.dispatchEvent(new Event("locationChanged"));
-    window.dispatchEvent(new Event("profileUpdated"));
+    if (userKey) {
+      localStorage.setItem(
+        `initialSetupCompleted_${userKey}`,
+        "true"
+      );
+    }
 
+    /* =====================================================
+       APP EVENTS
+    ===================================================== */
+    window.dispatchEvent(
+      new Event("locationChanged")
+    );
+
+    window.dispatchEvent(
+      new Event("profileUpdated")
+    );
+
+    /*
+     * IMPORTANT:
+     * Location Continue ALWAYS goes directly to Home.
+     */
     navigate("/home", {
       replace: true,
     });
@@ -80,7 +136,9 @@ export default function LocationPage() {
     setError("");
 
     if (!navigator.geolocation) {
-      setError("Device location is not supported.");
+      setError(
+        "Device location is not supported."
+      );
       return;
     }
 
@@ -88,12 +146,15 @@ export default function LocationPage() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const { latitude, longitude } =
-          position.coords;
+        const {
+          latitude,
+          longitude,
+        } = position.coords;
 
-        const location = `Location: ${latitude.toFixed(
-          5
-        )}, ${longitude.toFixed(5)}`;
+        const location =
+          `Location: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+
+        setLoading(false);
 
         saveLocation(location);
       },
@@ -116,10 +177,13 @@ export default function LocationPage() {
     const value = manualLocation.trim();
 
     if (!value) {
-      setError("Please enter your location.");
+      setError(
+        "Please enter your location."
+      );
       return;
     }
 
+    setLoading(false);
     saveLocation(value);
   };
 
@@ -132,7 +196,8 @@ export default function LocationPage() {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 active:scale-95"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition active:scale-95"
+            aria-label="Back"
           >
             <ArrowLeft
               size={21}
@@ -152,27 +217,30 @@ export default function LocationPage() {
           </h1>
         </div>
 
-        {/* LOCATION ILLUSTRATION */}
+        {/* ILLUSTRATION */}
         <div className="relative flex flex-1 items-center justify-center overflow-hidden py-7">
 
-          {/* soft background shape */}
           <div className="absolute h-[330px] w-[330px] rounded-full bg-[#fff0e2] sm:h-[390px] sm:w-[390px]" />
 
-          {/* road/map illustration */}
           <div className="relative h-[390px] w-full max-w-[420px] sm:h-[440px]">
 
-            {/* roads */}
+            {/* ROADS */}
             <div className="absolute left-[9%] top-[43%] h-[24px] w-[82%] rotate-[24deg] rounded-full bg-[#f8e6d5]" />
+
             <div className="absolute left-[19%] top-[48%] h-[20px] w-[68%] rotate-[-20deg] rounded-full bg-[#f4dfcc]" />
+
             <div className="absolute left-[47%] top-[10%] h-[80%] w-[18px] rotate-[16deg] rounded-full bg-[#f8e8d9]" />
 
-            {/* buildings */}
+            {/* BUILDINGS */}
             <div className="absolute left-[15%] top-[27%] h-16 w-12 rounded-t-xl bg-[#ead8c7] shadow-sm" />
+
             <div className="absolute left-[27%] top-[18%] h-24 w-14 rounded-t-xl bg-[#e6d1be] shadow-sm" />
+
             <div className="absolute right-[16%] top-[25%] h-20 w-14 rounded-t-xl bg-[#ead9c8] shadow-sm" />
+
             <div className="absolute right-[29%] top-[38%] h-14 w-11 rounded-t-xl bg-[#e4ccb7] shadow-sm" />
 
-            {/* windows */}
+            {/* WINDOWS */}
             <div className="absolute left-[19%] top-[34%] grid grid-cols-2 gap-1">
               <i className="h-2 w-2 rounded-sm bg-[#d4bca7]" />
               <i className="h-2 w-2 rounded-sm bg-[#d4bca7]" />
@@ -187,7 +255,7 @@ export default function LocationPage() {
               <i className="h-2 w-2 rounded-sm bg-[#d1b7a1]" />
             </div>
 
-            {/* restaurants */}
+            {/* FOOD PLACES */}
             <div className="absolute bottom-[17%] left-[16%] flex h-16 w-20 items-center justify-center rounded-xl border border-[#ead5c1] bg-white text-3xl shadow-md">
               🍔
             </div>
@@ -200,7 +268,7 @@ export default function LocationPage() {
               🍜
             </div>
 
-            {/* MAIN PIN */}
+            {/* LOCATION PIN */}
             <div className="absolute left-1/2 top-[42%] -translate-x-1/2">
               <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-[#ffe4cf]">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#f29a52] shadow-[0_12px_28px_rgba(242,154,82,0.28)]">
@@ -239,6 +307,7 @@ export default function LocationPage() {
 
         {/* MANUAL LOCATION */}
         <div className="mt-4 flex min-h-[58px] items-center rounded-2xl border-2 border-[#f2a56a] bg-white px-4">
+
           <Search
             size={20}
             className="shrink-0 text-[#df8138]"
@@ -263,10 +332,12 @@ export default function LocationPage() {
           <button
             type="button"
             onClick={handleManualLocation}
-            className="ml-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#fff0e2] text-[#e5863d] active:scale-95"
+            className="ml-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#fff0e2] text-[#e5863d] transition active:scale-95"
+            aria-label="Save location"
           >
             <MapPin size={18} />
           </button>
+
         </div>
 
       </div>
