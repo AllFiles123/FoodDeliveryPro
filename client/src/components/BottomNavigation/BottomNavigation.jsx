@@ -23,7 +23,7 @@ const menus = [
   },
   {
     name: "Favorite",
-    path: "/favorite",
+    path: "/favourite",
     icon: Heart,
   },
   {
