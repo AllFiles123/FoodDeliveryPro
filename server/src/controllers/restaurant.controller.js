@@ -4,142 +4,97 @@ import {
   getRestaurantById,
 } from "../models/restaurant.model.js";
 
+import {
+  getBestSellingFoodsByRestaurantId,
+} from "../models/restaurantStats.model.js";
 
-
-export async function createRestaurantController(req,res){
-
-  try{
-
+export async function createRestaurantController(req, res) {
+  try {
     const restaurant =
       createRestaurant(req.body);
 
-
     return res.status(201).json({
-
-      success:true,
-
-      message:"Restaurant created successfully",
-
+      success: true,
+      message: "Restaurant created successfully",
       restaurant,
-
     });
-
-
-
-  }catch(error){
-
+  } catch (error) {
     console.error(error);
 
-
     return res.status(500).json({
-
-      success:false,
-
-      message:"Failed to create restaurant",
-
+      success: false,
+      message: "Failed to create restaurant",
     });
-
   }
-
 }
 
-
-
-
-export async function getAllRestaurants(req,res){
-
-  try{
-
-
+export async function getAllRestaurants(req, res) {
+  try {
     const restaurants =
       getRestaurants();
 
-
-
     return res.json({
-
-      success:true,
-
+      success: true,
       restaurants,
-
     });
-
-
-
-  }catch(error){
-
-
+  } catch (error) {
     console.error(error);
 
-
     return res.status(500).json({
-
-      success:false,
-
-      message:"Failed to get restaurants",
-
+      success: false,
+      message: "Failed to get restaurants",
     });
-
-
   }
-
 }
 
-
-
-
-
-export async function getSingleRestaurant(req,res){
-
-  try{
-
-
+export async function getSingleRestaurant(req, res) {
+  try {
     const restaurant =
       getRestaurantById(
         req.params.id
       );
 
-
-
-    if(!restaurant){
-
+    if (!restaurant) {
       return res.status(404).json({
-
-        success:false,
-
-        message:"Restaurant not found",
-
+        success: false,
+        message: "Restaurant not found",
       });
-
     }
 
-
-
     return res.json({
-
-      success:true,
-
+      success: true,
       restaurant,
-
     });
-
-
-
-  }catch(error){
-
-
+  } catch (error) {
     console.error(error);
 
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get restaurant",
+    });
+  }
+}
+
+export async function getRestaurantFeaturedFoods(
+  req,
+  res
+) {
+  try {
+    const foods =
+      getBestSellingFoodsByRestaurantId(
+        req.params.id
+      );
+
+    return res.json({
+      success: true,
+      foods,
+    });
+  } catch (error) {
+    console.error(error);
 
     return res.status(500).json({
-
-      success:false,
-
-      message:"Failed to get restaurant",
-
+      success: false,
+      message: "Failed to get featured foods",
     });
-
-
   }
-
 }

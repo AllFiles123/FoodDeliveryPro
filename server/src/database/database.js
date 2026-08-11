@@ -91,163 +91,160 @@ async function connectDatabase() {
 
 function runMigrations(){
 
-
   if(!db) return;
 
-
-
-  const tables = db.exec(`
-
+  const ordersTable = db.exec(`
     PRAGMA table_info(orders)
-
   `);
 
-
-
-  if(!tables.length) return;
-
-
-
-  const existingColumns =
-    tables[0].values.map(
-      row=>row[1]
-    );
-
-
-
-  const newColumns = {
-
-    deliveryAddress:
-    "TEXT DEFAULT ''",
-
-
-
-    customerName:
-    "TEXT DEFAULT ''",
-
-
-    customerPhone:
-    "TEXT DEFAULT ''",
-
-
-    deliveryType:
-    "TEXT DEFAULT ''",
-
-
-    zone:
-    "TEXT DEFAULT ''",
-
-
-    division:
-    "TEXT DEFAULT ''",
-
-
-    district:
-    "TEXT DEFAULT ''",
-
-
-    upazila:
-    "TEXT DEFAULT ''",
-
-
-    area:
-    "TEXT DEFAULT ''",
-
-
-    fullAddress:
-    "TEXT DEFAULT ''",
-
-
-    subtotal:
-    "REAL DEFAULT 0",
-
-
-    vat:
-    "REAL DEFAULT 0",
-
-
-    discount:
-    "REAL DEFAULT 0",
-
-
-    paymentStatus:
-    "TEXT DEFAULT 'Pending'",
-
-
-    orderStatus:
-    "TEXT DEFAULT 'Order Placed'",
-
-
-    orderNumber:
-    "TEXT DEFAULT ''",
-
-
-    restaurantName:
-    "TEXT DEFAULT ''",
-
-
-    trackingStatus:
-    "TEXT DEFAULT 'Order Placed'",
-
-
-    trackingHistory:
-    "TEXT DEFAULT '[]'",
-
-
-    estimatedDeliveryTime:
-    "TEXT DEFAULT '30-45 minutes'",
-
-
-    cancelledAt:
-    "DATETIME DEFAULT NULL",
-
-
-    updatedAt:
-    "DATETIME DEFAULT CURRENT_TIMESTAMP"
-
-
-  };
-
-
-
-
-  Object.entries(newColumns)
-  .forEach(([column,type])=>{
-
-
-    if(
-      !existingColumns.includes(column)
-    ){
-
-
-      db.run(`
-
-        ALTER TABLE orders
-
-        ADD COLUMN ${column}
-
-        ${type}
-
-      `);
-
-
-
-      console.log(
-        `Migration Added: ${column}`
+  if(ordersTable.length){
+
+    const existingColumns =
+      ordersTable[0].values.map(
+        row => row[1]
       );
 
+    const newColumns = {
 
-    }
+      deliveryAddress:
+        "TEXT DEFAULT ''",
 
+      customerName:
+        "TEXT DEFAULT ''",
 
-  });
+      customerPhone:
+        "TEXT DEFAULT ''",
 
+      deliveryType:
+        "TEXT DEFAULT ''",
 
+      zone:
+        "TEXT DEFAULT ''",
+
+      division:
+        "TEXT DEFAULT ''",
+
+      district:
+        "TEXT DEFAULT ''",
+
+      upazila:
+        "TEXT DEFAULT ''",
+
+      area:
+        "TEXT DEFAULT ''",
+
+      fullAddress:
+        "TEXT DEFAULT ''",
+
+      subtotal:
+        "REAL DEFAULT 0",
+
+      vat:
+        "REAL DEFAULT 0",
+
+      discount:
+        "REAL DEFAULT 0",
+
+      paymentStatus:
+        "TEXT DEFAULT 'Pending'",
+
+      orderStatus:
+        "TEXT DEFAULT 'Order Placed'",
+
+      orderNumber:
+        "TEXT DEFAULT ''",
+
+      restaurantName:
+        "TEXT DEFAULT ''",
+
+      trackingStatus:
+        "TEXT DEFAULT 'Order Placed'",
+
+      trackingHistory:
+        "TEXT DEFAULT '[]'",
+
+      estimatedDeliveryTime:
+        "TEXT DEFAULT '30-45 minutes'",
+
+      cancelledAt:
+        "DATETIME DEFAULT NULL",
+
+      updatedAt:
+        "DATETIME DEFAULT CURRENT_TIMESTAMP"
+    };
+
+    Object.entries(newColumns)
+      .forEach(([column, type]) => {
+
+        if(!existingColumns.includes(column)){
+
+          db.run(`
+            ALTER TABLE orders
+            ADD COLUMN ${column}
+            ${type}
+          `);
+
+          console.log(
+            `Migration Added: ${column}`
+          );
+        }
+      });
+  }
+
+  const restaurantsTable = db.exec(`
+    PRAGMA table_info(restaurants)
+  `);
+
+  if(restaurantsTable.length){
+
+    const existingRestaurantColumns =
+      restaurantsTable[0].values.map(
+        row => row[1]
+      );
+
+    const restaurantColumns = {
+
+      openingTime:
+        "TEXT DEFAULT '10:00'",
+
+      closingTime:
+        "TEXT DEFAULT '23:00'"
+    };
+
+    Object.entries(restaurantColumns)
+      .forEach(([column, type]) => {
+
+        if(
+          !existingRestaurantColumns.includes(
+            column
+          )
+        ){
+
+          db.run(`
+            ALTER TABLE restaurants
+            ADD COLUMN ${column}
+            ${type}
+          `);
+
+          console.log(
+            `Migration Added: restaurants.${column}`
+          );
+        }
+      });
+  }
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS search_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId INTEGER,
+      query TEXT NOT NULL,
+      restaurantId INTEGER,
+      foodId INTEGER,
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 
 }
-
-
-
 
 
 

@@ -27,6 +27,10 @@ import RestaurantListPage from "../pages/Restaurant/RestaurantListPage";
 import RestaurantDetailsPage from "../pages/Restaurant/RestaurantDetailsPage";
 
 import CategoryFoodsPage from "../pages/CategoryFoods/CategoryFoodsPage";
+import PopularItemsPage from "../pages/PopularItems/PopularItemsPage";
+import FeaturedItemsPage from "../pages/FeaturedItems/FeaturedItemsPage";
+import BrandsPage from "../pages/Brands/BrandsPage";
+import CategoryExplorePage from "../pages/CategoryExplore/CategoryExplorePage";
 
 import CartPage from "../pages/Cart/CartPage";
 import CheckoutPage from "../pages/Checkout/CheckoutPage";
@@ -246,14 +250,93 @@ export default function AppRouter() {
         />
 
         {/* =====================================================
-            CATEGORY FOODS
+            CATEGORY EXPLORE
         ===================================================== */}
 
         <Route
           path="/category/:category"
           element={
             <ProtectedRoute>
-              <CategoryFoodsPage />
+              <CategoryExplorePage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =====================================================
+            POPULAR ITEMS
+        ===================================================== */}
+
+        <Route
+          path="/popular-items"
+          element={
+            <ProtectedRoute>
+              <PopularItemsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =====================================================
+            FEATURED ITEMS
+        ===================================================== */}
+
+        <Route
+          path="/featured-items"
+          element={
+            <ProtectedRoute>
+              <FeaturedItemsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =====================================================
+            BRANDS
+        ===================================================== */}
+
+        <Route
+          path="/brands"
+          element={
+            <ProtectedRoute>
+              <BrandsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =====================================================
+            HOME DISCOVERY PAGES
+        ===================================================== */}
+
+        <Route
+          path="/category-explore"
+          element={
+            <ProtectedRoute>
+              <CategoryExplorePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/popular-items"
+          element={
+            <ProtectedRoute>
+              <PopularItemsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/featured-items"
+          element={
+            <ProtectedRoute>
+              <FeaturedItemsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/brands"
+          element={
+            <ProtectedRoute>
+              <BrandsPage />
             </ProtectedRoute>
           }
         />

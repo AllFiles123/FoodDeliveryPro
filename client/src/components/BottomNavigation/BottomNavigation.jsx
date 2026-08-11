@@ -1,233 +1,162 @@
-import { NavLink, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-  House,
+  Home,
+  PlayCircle,
   ClipboardList,
-  User,
   Heart,
-  MapPin,
+  Map,
+  UserRound,
 } from "lucide-react";
-
-import { useFavourite } from "../../context/FavouriteContext";
-
-const menus = [
-  {
-    name: "Home",
-    path: "/home",
-    icon: House,
-  },
-  {
-    name: "Orders",
-    path: "/orders",
-    icon: ClipboardList,
-  },
-  {
-    name: "Favorite",
-    path: "/favourite",
-    icon: Heart,
-  },
-  {
-    name: "Map",
-    path: "/map",
-    icon: MapPin,
-  },
-  {
-    name: "Profile",
-    path: "/profile",
-    icon: User,
-  },
-];
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 export default function BottomNavigation() {
+  const navigate = useNavigate();
   const location = useLocation();
-  const {
-    favourites,
-    favouriteVideos,
-  } = useFavourite();
 
-  const favouriteCount =
-    (favourites?.items?.length || 0) +
-    (favourites?.restaurants?.length || 0) +
-    (favouriteVideos?.length || 0);
-
-  /*
-   * Hide navigation on fullscreen pages.
-   */
-  const hiddenPaths = [
-    "/checkout",
-    "/profile/details",
-    "/profile/payment",
+  const navItems = [
+    {
+      id: "home",
+      label: "Home",
+      icon: Home,
+      path: "/home",
+      match: (pathname) => pathname === "/home",
+    },
+    {
+      id: "video",
+      label: "Video",
+      icon: PlayCircle,
+      path: "/explore-reels",
+      match: (pathname) =>
+        pathname === "/explore-reels",
+    },
+    {
+      id: "orders",
+      label: "Orders",
+      icon: ClipboardList,
+      path: "/orders",
+      match: (pathname) =>
+        pathname === "/orders",
+    },
+    {
+      id: "favourite",
+      label: "Favourite",
+      icon: Heart,
+      path: "/favourite",
+      match: (pathname) =>
+        pathname === "/favourite",
+    },
+    {
+      id: "map",
+      label: "Map",
+      icon: Map,
+      path: "/map",
+      match: (pathname) =>
+        pathname === "/map",
+    },
+    {
+      id: "profile",
+      label: "Profile",
+      icon: UserRound,
+      path: "/profile",
+      match: (pathname) =>
+        pathname === "/profile",
+    },
   ];
 
-  const shouldHide = hiddenPaths.some((path) =>
-    location.pathname.startsWith(path)
-  );
-
-  if (shouldHide) {
-    return null;
-  }
-
-  /*
-   * Active menu detection.
-   */
-  const isMenuActive = (path) => {
-    if (path === "/profile") {
-      return location.pathname === "/profile";
-    }
-
-    return location.pathname === path;
-  };
+  const activeItem =
+    navItems.find((item) =>
+      item.match(location.pathname)
+    ) || navItems[0];
 
   return (
-    <div
-      className="
-        pointer-events-none
-        fixed
-        inset-x-0
-        bottom-0
-        z-[9999]
-        flex
-        justify-center
-        px-3
-        pb-[max(0.75rem,env(safe-area-inset-bottom))]
-      "
-    >
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[100] flex justify-center px-3 pb-[12px]">
       <nav
         aria-label="Bottom navigation"
         className="
           pointer-events-auto
           flex
           w-full
-          max-w-md
+          max-w-[430px]
           items-center
           justify-between
           gap-1
-          rounded-[1.75rem]
-          border
-          border-white/10
-          bg-[#1A1D24]/95
-          px-2
-          py-2
-          shadow-[0_15px_45px_rgba(0,0,0,0.45)]
-          backdrop-blur-xl
+          rounded-[34px]
+          border-[5px]
+          border-[#D9D9D9]
+          bg-[#D9D9D9]
+          p-1.5
+          shadow-[0_10px_35px_rgba(0,0,0,0.16)]
         "
       >
-        {menus.map((item) => {
+        {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = isMenuActive(item.path);
+          const isActive =
+            activeItem.id === item.id;
 
           return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              aria-label={item.name}
-              className="
+            <motion.button
+              key={item.id}
+              type="button"
+              whileTap={{ scale: 0.92 }}
+              onClick={() =>
+                navigate(item.path)
+              }
+              className={`
+                relative
                 flex
-                min-w-0
-                flex-1
+                h-[52px]
+                shrink-0
+                items-center
                 justify-center
-                outline-none
-              "
+                overflow-hidden
+                rounded-full
+                transition-all
+                duration-300
+                ${
+                  isActive
+                    ? "min-w-[88px] bg-[#F04438] px-3 text-white shadow-sm"
+                    : "w-[52px] bg-[#F8F8F8] text-[#555555]"
+                }
+              `}
+              aria-label={item.label}
+              aria-current={
+                isActive ? "page" : undefined
+              }
             >
-              <motion.div
-                layout
-                transition={{
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 30,
-                }}
-                className={`
-                  relative
-                  flex
-                  min-h-[44px]
-                  items-center
-                  justify-center
-                  gap-1.5
-                  rounded-full
-                  px-2
-                  sm:px-3
-                  transition-colors
-                  ${
-                    isActive
-                      ? "bg-gradient-to-r from-[#FF3B30] to-[#E60023] text-white shadow-lg shadow-red-600/30"
-                      : "text-gray-400 hover:text-gray-200"
-                  }
-                `}
-              >
-                <div className="relative flex shrink-0 items-center justify-center">
-                  <Icon
-                    size={isActive ? 18 : 21}
-                    strokeWidth={isActive ? 2.5 : 2}
-                  />
+              <Icon
+                size={21}
+                strokeWidth={2.1}
+                className="shrink-0"
+              />
 
-                  {/* FAVORITE BADGE */}
-                  {item.name === "Favorite" &&
-                    favouriteCount > 0 && (
-                      <span
-                        className={`
-                          absolute
-                          -right-2.5
-                          -top-2.5
-                          flex
-                          h-5
-                          min-w-5
-                          items-center
-                          justify-center
-                          rounded-full
-                          px-1
-                          text-[9px]
-                          font-black
-                          leading-none
-                          text-white
-                          ring-2
-                          ${
-                            isActive
-                              ? "bg-[#1A1D24] ring-[#E60023]"
-                              : "bg-[#FF3B30] ring-[#1A1D24]"
-                          }
-                        `}
-                      >
-                        {favouriteCount > 99
-                          ? "99+"
-                          : favouriteCount}
-                      </span>
-                    )}
-                </div>
-
-                {/* ACTIVE LABEL */}
-                <AnimatePresence initial={false}>
-                  {isActive && (
-                    <motion.span
-                      initial={{
-                        opacity: 0,
-                        width: 0,
-                      }}
-                      animate={{
-                        opacity: 1,
-                        width: "auto",
-                      }}
-                      exit={{
-                        opacity: 0,
-                        width: 0,
-                      }}
-                      transition={{
-                        duration: 0.18,
-                      }}
-                      className="
-                        overflow-hidden
-                        whitespace-nowrap
-                        text-[9px]
-                        font-black
-                        uppercase
-                        tracking-[0.08em]
-                      "
-                    >
-                      {item.name}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            </NavLink>
+              {isActive && (
+                <motion.span
+                  initial={{
+                    opacity: 0,
+                    width: 0,
+                    marginLeft: 0,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    width: "auto",
+                    marginLeft: 7,
+                  }}
+                  transition={{
+                    duration: 0.2,
+                  }}
+                  className="
+                    whitespace-nowrap
+                    text-[12px]
+                    font-bold
+                  "
+                >
+                  {item.label}
+                </motion.span>
+              )}
+            </motion.button>
           );
         })}
       </nav>

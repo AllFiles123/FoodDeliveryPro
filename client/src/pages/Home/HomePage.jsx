@@ -12,6 +12,7 @@ import {
   Heart,
   Eye,
   ChevronRight,
+  Play,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -1138,37 +1139,11 @@ export default function HomePage() {
 
       <main className="mx-auto max-w-7xl px-5">
 
-        {/* ======================================================
-            CATEGORY FOOD ORDER CTA
-            Compact Static Rider + Order Now
-            ====================================================== */}
-
-        <section className="relative z-20 -mt-10 mb-[-10px] h-[145px] overflow-visible">
-          <div className="absolute inset-x-0 top-[-8px] flex justify-center">
-            <div className="relative h-[140px] w-full max-w-[320px]">
-
-              <img
-                src="/animations/category-order-rider.png"
-                alt="Order food now"
-                className="absolute left-1/2 top-0 h-[135px] w-[245px] -translate-x-1/2 object-contain"
-              />
-
-              <button
-                type="button"
-                onClick={() => navigate("/category-food")}
-                className="absolute bottom-[2px] left-1/2 h-[40px] w-[175px] -translate-x-1/2 rounded-full"
-                aria-label="Order Now"
-              />
-
-            </div>
-          </div>
-        </section>
-
         {/* ====================================================
             CATEGORY
             ==================================================== */}
 
-        <section className="relative -mt-10 z-20">
+        <section className="relative mt-2 z-20">
 
           <div className="mb-4 flex items-center justify-between px-1">
             <h2 className="text-xl font-extrabold text-gray-900">
@@ -1178,9 +1153,17 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() =>
-                setActiveCategory("All")
+                navigate("/category-explore", {
+                  state: {
+                    category: activeCategory,
+                    popularItems: popularDishes,
+                    featuredItems: featuredItems,
+                    restaurants: visibleRestaurants,
+                    brands: visibleRestaurants,
+                  },
+                })
               }
-              className="text-xs font-bold text-gray-400"
+              className="text-xs font-bold text-[#FF5A00]"
             >
               See All
             </button>
@@ -1248,13 +1231,14 @@ export default function HomePage() {
         </section>
 
         {/* ====================================================
-            ALL CATEGORY ONLY — REELS STYLE
+            EXPLORE — STORY STYLE
             ==================================================== */}
 
         {activeCategory === "All" && (
-          <section className="mt-5">
+          <section className="mt-7">
 
             <div className="mb-4 flex items-center justify-between">
+
               <h2 className="text-xl font-extrabold text-gray-900">
                 Explore
               </h2>
@@ -1268,33 +1252,122 @@ export default function HomePage() {
               >
                 See All
               </button>
+
             </div>
 
-            <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
+            <div className="no-scrollbar flex gap-3 overflow-x-auto pb-3">
 
               {reels.map((item) => (
-                <button
-                  type="button"
+                <motion.button
                   key={item.id}
-                  className="flex w-[72px] shrink-0 flex-col items-center gap-2"
+                  type="button"
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() =>
+                    navigate("/explore-reels", {
+                      state: {
+                        selectedReel: item,
+                      },
+                    })
+                  }
+                  className="
+                    relative
+                    aspect-square
+                    w-[150px]
+                    shrink-0
+                    overflow-hidden
+                    rounded-[20px]
+                    bg-gray-100
+                    shadow-md
+                  "
                 >
-                  <span className="h-[68px] w-[68px] rounded-full bg-gradient-to-br from-[#FF5A00] via-[#FFB800] to-[#FFE2C9] p-[3px]">
-                    <span className="block h-full w-full overflow-hidden rounded-full border-2 border-white">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="h-full w-full object-cover"
+
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="
+                      absolute
+                      inset-0
+                      h-full
+                      w-full
+                      object-cover
+                    "
+                  />
+
+                  <div
+                    className="
+                      absolute
+                      inset-0
+                      bg-gradient-to-b
+                      from-black/10
+                      via-transparent
+                      to-black/75
+                    "
+                  />
+
+                  <div
+                    className="
+                      absolute
+                      left-2.5
+                      right-2.5
+                      top-2.5
+                      flex
+                      items-center
+                      justify-center
+                    "
+                  >
+                    <span
+                      className="
+                        flex
+                        h-7
+                        min-w-7
+                        items-center
+                        justify-center
+                        rounded-full
+                        border-2
+                        border-white
+                        bg-white/20
+                        px-1
+                        text-[10px]
+                        font-black
+                        text-white
+                        backdrop-blur-md
+                      "
+                    >
+                      <Play
+                        size={12}
+                        fill="currentColor"
                       />
                     </span>
-                  </span>
+                  </div>
 
-                  <span className="w-full truncate text-center text-[10px] font-bold text-gray-600">
-                    {item.name}
-                  </span>
-                </button>
+                  <div
+                    className="
+                      absolute
+                      bottom-3
+                      left-2.5
+                      right-2.5
+                      text-left
+                    "
+                  >
+                    <p
+                      className="
+                        line-clamp-2
+                        text-[12px]
+                        font-extrabold
+                        leading-tight
+                        text-white
+                        drop-shadow-md
+                      "
+                    >
+                      {item.name}
+                    </p>
+                  </div>
+
+                </motion.button>
               ))}
 
             </div>
+
           </section>
         )}
 
@@ -1313,7 +1386,12 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() =>
-                navigate("/restaurants")
+                navigate("/popular-items", {
+                  state: {
+                    category: activeCategory,
+                    items: popularDishes,
+                  },
+                })
               }
               className="text-sm font-bold text-[#FF5A00]"
             >
@@ -1355,7 +1433,12 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() =>
-                navigate("/restaurants")
+                navigate("/featured-items", {
+                  state: {
+                    category: activeCategory,
+                    items: featuredItems,
+                  },
+                })
               }
               className="text-sm font-bold text-[#FF5A00]"
             >
@@ -1398,7 +1481,11 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() =>
-                navigate("/restaurants")
+                navigate("/restaurants", {
+                  state: {
+                    category: activeCategory,
+                  },
+                })
               }
               className="text-sm font-bold text-[#FF5A00]"
             >
@@ -1527,8 +1614,6 @@ export default function HomePage() {
 
           </section>
         )}
-
-
 
         {/* ====================================================
             FILTER
