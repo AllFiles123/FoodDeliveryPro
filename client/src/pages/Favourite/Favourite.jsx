@@ -9,10 +9,15 @@ import {
   Store,
   ChevronRight,
   ShoppingBag,
+  Play,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { useFavourite } from "../../context/FavouriteContext";
+import {
+  getFavouriteVideos,
+  removeFavouriteVideo,
+} from "../../utils/favouriteVideoStorage";
 
 const Favourite = () => {
   const navigate = useNavigate();
@@ -25,13 +30,49 @@ const Favourite = () => {
 
   const [activeTab, setActiveTab] = useState("items");
 
+  const [favouriteVideos, setFavouriteVideos] =
+    useState(() =>
+      getFavouriteVideos()
+    );
+
+  React.useEffect(() => {
+    const refreshFavouriteVideos = () => {
+      setFavouriteVideos(
+        getFavouriteVideos()
+      );
+    };
+
+    window.addEventListener(
+      "favourite-videos-updated",
+      refreshFavouriteVideos
+    );
+
+    window.addEventListener(
+      "storage",
+      refreshFavouriteVideos
+    );
+
+    return () => {
+      window.removeEventListener(
+        "favourite-videos-updated",
+        refreshFavouriteVideos
+      );
+
+      window.removeEventListener(
+        "storage",
+        refreshFavouriteVideos
+      );
+    };
+  }, []);
+
   const favouriteItems = favourites?.items || [];
   const favouriteRestaurants =
     favourites?.restaurants || [];
 
   const totalFavourite =
     favouriteItems.length +
-    favouriteRestaurants.length;
+    favouriteRestaurants.length +
+    favouriteVideos.length;
 
   const handleFoodOpen = (item, event) => {
     event?.preventDefault();
@@ -280,6 +321,53 @@ const Favourite = () => {
             </span>
           </button>
 
+          <button
+            type="button"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              setActiveTab("videos");
+            }}
+            className={`
+              flex
+              flex-1
+              items-center
+              justify-center
+              gap-1.5
+              rounded-[15px]
+              py-3
+              text-xs
+              font-extrabold
+              transition-all
+              duration-300
+              ${
+                activeTab === "videos"
+                  ? "bg-[#f29a52] text-white shadow-md"
+                  : "text-gray-400"
+              }
+            `}
+          >
+            <Play size={14} />
+
+            Videos
+
+            <span
+              className={`
+                rounded-full
+                px-1.5
+                py-0.5
+                text-[9px]
+                ${
+                  activeTab === "videos"
+                    ? "bg-white/20 text-white"
+                    : "bg-black/5"
+                }
+              `}
+            >
+              {favouriteVideos.length}
+            </span>
+          </button>
+
         </div>
 
         {/* =====================================================
@@ -429,7 +517,7 @@ const Favourite = () => {
                       justify-center
                       rounded-full
                       bg-white/95
-                      text-red-500
+                      text-[#f29a52]
                       shadow-md
                       backdrop-blur-sm
                       transition
@@ -725,7 +813,7 @@ const Favourite = () => {
                         justify-center
                         rounded-full
                         bg-white/95
-                        text-red-500
+                        text-[#f29a52]
                         shadow-lg
                         backdrop-blur-sm
                         transition

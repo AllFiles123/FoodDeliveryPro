@@ -1,0 +1,250 @@
+    ]);
+
+    setCardData({
+      holder: "",
+      number: "",
+      expiry: "",
+      cvv: "",
+      location: "Bangladesh",
+      zipCode: "",
+      type: "Credit Card",
+    });
+
+    setSaveCardInformation(true);
+
+    setShowCardForm(false);
+
+    setTimeout(() => {
+      setCardSaving(false);
+    }, 300);
+
+    showToast(
+      `${newCard.type} saved successfully`,
+      "success"
+    );
+  };
+
+  const deleteCard = (id) => {
+    setSavedCards((prev) =>
+      prev.filter(
+        (card) =>
+          card.id !== id
+      )
+    );
+
+    showToast(
+      "Card removed",
+      "success"
+    );
+  };
+
+  /* =========================================================
+     PAYMENT METHODS
+  ========================================================= */
+
+  const paymentOptions = [
+    {
+      type: "bKash",
+      subtitle:
+        "Mobile Banking",
+      icon: Smartphone,
+    },
+    {
+      type: "Nagad",
+      subtitle:
+        "Digital Payment",
+      icon: Smartphone,
+    },
+    {
+      type: "Rocket",
+      subtitle:
+        "DBBL Mobile Banking",
+      icon: Smartphone,
+    },
+    {
+      type: "Upay",
+      subtitle:
+        "United Commercial Bank",
+      icon: Smartphone,
+    },
+    {
+      type: "Bank Account",
+      subtitle:
+        "Add bank account",
+      icon: Building2,
+    },
+  ];
+
+  const openPaymentForm = (
+    type
+  ) => {
+    setSelectedPaymentType(type);
+    setPaymentNumber("");
+    setBankAccountName("");
+    setShowPaymentForm(true);
+  };
+
+  const closePaymentForm = () => {
+    setShowPaymentForm(false);
+    setSelectedPaymentType("");
+    setPaymentNumber("");
+    setBankAccountName("");
+  };
+
+  const handleSavePaymentMethod =
+    () => {
+      if (paymentSaving) return;
+
+      const cleanNumber =
+        paymentNumber.replace(
+          /\D/g,
+          ""
+        );
+
+      if (
+        selectedPaymentType ===
+        "Bank Account"
+      ) {
+        if (
+          cleanNumber.length <
+          8
+        ) {
+          showToast(
+            "Enter a valid bank account number",
+            "error"
+          );
+          return;
+        }
+
+        setPaymentSaving(true);
+
+        const newPayment = {
+          id: Date.now(),
+          type:
+            selectedPaymentType,
+          number:
+            cleanNumber,
+          accountName:
+            bankAccountName.trim() ||
+            "Bank Account",
+        };
+
+        setSavedPaymentMethods(
+          (prev) => [
+            newPayment,
+            ...prev,
+          ]
+        );
+
+        closePaymentForm();
+
+        showToast(
+          "Bank account added successfully",
+          "success"
+        );
+
+        setTimeout(
+          () =>
+            setPaymentSaving(
+              false
+            ),
+          300
+        );
+
+        return;
+      }
+
+      if (
+        cleanNumber.length < 10
+      ) {
+        showToast(
+          `Enter valid ${selectedPaymentType} number`,
+          "error"
+        );
+        return;
+      }
+
+      setPaymentSaving(true);
+
+      const newPayment = {
+        id: Date.now(),
+        type:
+          selectedPaymentType,
+        number:
+          cleanNumber,
+      };
+
+      setSavedPaymentMethods(
+        (prev) => [
+          newPayment,
+          ...prev,
+        ]
+      );
+
+      closePaymentForm();
+
+      showToast(
+        `${selectedPaymentType} added successfully`,
+        "success"
+      );
+
+      setTimeout(
+        () =>
+          setPaymentSaving(
+            false
+          ),
+        300
+      );
+    };
+
+  const deletePaymentMethod =
+    (id) => {
+      setSavedPaymentMethods(
+        (prev) =>
+          prev.filter(
+            (item) =>
+              item.id !== id
+          )
+      );
+
+      showToast(
+        "Payment method removed",
+        "success"
+      );
+    };
+
+  const maskPaymentNumber = (
+    number
+  ) => {
+    if (!number) return "";
+
+    const clean =
+      String(number);
+
+    if (clean.length <= 4) {
+      return clean;
+    }
+
+    return `•••• •••• ${clean.slice(
+      -4
+    )}`;
+  };
+
+  /* =========================================================
+     ADDRESS
+  ========================================================= */
+
+  const useCurrentLocation = () => {
+    if (!currentLocation) {
+      showToast(
+        "No saved location found",
+        "error"
+      );
+      return;
+    }
+
+    setAddressData((prev) => ({
+      ...prev,
+      address:
+        currentLocation,
+    }));

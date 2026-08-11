@@ -22,6 +22,7 @@ import ResetPasswordPage from "../pages/Auth/ResetPasswordPage";
 
 import ProfilePage from "../pages/Profile/ProfilePage";
 
+import ExploreReelsPage from "../pages/ExploreReels/ExploreReelsPage";
 import RestaurantListPage from "../pages/Restaurant/RestaurantListPage";
 import RestaurantDetailsPage from "../pages/Restaurant/RestaurantDetailsPage";
 
@@ -162,6 +163,19 @@ export default function AppRouter() {
           element={
             <ProtectedRoute>
               <HomePage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =====================================================
+            EXPLORE REELS
+        ===================================================== */}
+
+        <Route
+          path="/explore-reels"
+          element={
+            <ProtectedRoute>
+              <ExploreReelsPage />
             </ProtectedRoute>
           }
         />

@@ -1,0 +1,250 @@
+
+    setShowAddressForm(true);
+  };
+
+  const handleSaveAddress = () => {
+    if (addressSaving) return;
+
+    if (
+      !addressData.address.trim()
+    ) {
+      showToast(
+        "Enter an address",
+        "error"
+      );
+      return;
+    }
+
+    setAddressSaving(true);
+
+    const newAddress = {
+      id: Date.now(),
+      label:
+        addressData.label,
+      address:
+        addressData.address.trim(),
+      city:
+        addressData.city.trim(),
+      phone:
+        addressData.phone.trim() ||
+        formData.phone,
+    };
+
+    setAddresses((prev) => [
+      newAddress,
+      ...prev,
+    ]);
+
+    setAddressData({
+      label: "Home",
+      address: "",
+      city: "Dhaka",
+      phone: "",
+    });
+
+    setShowAddressForm(false);
+
+    showToast(
+      "Address added successfully",
+      "success"
+    );
+
+    setTimeout(
+      () =>
+        setAddressSaving(false),
+      300
+    );
+  };
+
+  const deleteAddress = (id) => {
+    setAddresses((prev) =>
+      prev.filter(
+        (item) =>
+          item.id !== id
+      )
+    );
+
+    showToast(
+      "Address removed",
+      "success"
+    );
+  };
+
+  /* =========================================================
+     NOTIFICATION HELPERS
+  ========================================================= */
+
+  const unreadNotifications =
+    notifications.filter(
+      (item) => !item.read
+    ).length;
+
+  const notificationIcon = (
+    type
+  ) => {
+    if (
+      type === "order_received" ||
+      type === "order_confirmed"
+    ) {
+      return CircleCheck;
+    }
+
+    if (
+      type === "order_cancelled"
+    ) {
+      return CircleX;
+    }
+
+    if (
+      type === "payment"
+    ) {
+      return CreditCard;
+    }
+
+    if (
+      type === "promo"
+    ) {
+      return Tag;
+    }
+
+    return Bell;
+  };
+
+  const notificationTarget = (
+    item
+  ) => {
+    if (
+      item.target === "order" ||
+      item.type?.startsWith(
+        "order_"
+      )
+    ) {
+      if (item.orderId) {
+        navigate(
+          `/orders/${item.orderId}`
+        );
+      } else {
+        navigate("/orders");
+      }
+
+      return;
+    }
+
+    if (
+      item.target === "payment" ||
+      item.type === "payment"
+    ) {
+      setScreen("payment");
+      return;
+    }
+
+    if (
+      item.target === "promo" ||
+      item.type === "promo"
+    ) {
+      setScreen("promos");
+      return;
+    }
+
+    if (
+      item.target === "profile"
+    ) {
+      setScreen("details");
+      return;
+    }
+  };
+
+  const openNotification = (
+    item
+  ) => {
+    setNotifications((prev) =>
+      prev.map((notification) =>
+        notification.id ===
+        item.id
+          ? {
+              ...notification,
+              read: true,
+            }
+          : notification
+      )
+    );
+
+    notificationTarget(item);
+  };
+
+  const markAllNotificationsRead =
+    () => {
+      setNotifications((prev) =>
+        prev.map((item) => ({
+          ...item,
+          read: true,
+        }))
+      );
+    };
+
+  /* =========================================================
+     PROMOS
+  ========================================================= */
+
+  const allPromos = [
+    ...defaultPromos,
+    ...promoCodes,
+  ];
+
+  const copyPromo = async (
+    code
+  ) => {
+    try {
+      await navigator.clipboard.writeText(
+        code
+      );
+
+      showToast(
+        `${code} copied`,
+        "success"
+      );
+    } catch {
+      showToast(
+        "Promo code copied",
+        "success"
+      );
+    }
+  };
+
+  const savePromo = (promo) => {
+    const exists =
+      promoCodes.some(
+        (item) =>
+          item.code ===
+          promo.code
+      );
+
+    if (exists) {
+      showToast(
+        "Promo already saved",
+        "success"
+      );
+      return;
+    }
+
+    setPromoCodes((prev) => [
+      ...prev,
+      promo,
+    ]);
+
+    showToast(
+      "Promo saved successfully",
+      "success"
+    );
+  };
+
+  const applyPromo = () => {
+    const code =
+      promoInput
+        .trim()
+        .toUpperCase();
+
+    if (!code) {
+      showToast(
+        "Enter a promo code",
+        "error"

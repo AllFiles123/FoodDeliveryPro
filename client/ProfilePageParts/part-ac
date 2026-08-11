@@ -1,0 +1,250 @@
+      String(number || "")
+        .replace(/\D/g, "");
+
+    if (/^4/.test(clean)) {
+      return "Visa";
+    }
+
+    if (
+      /^(5[1-5]|2(2[2-9]|[3-6][0-9]|7[01]|720))/.test(
+        clean
+      )
+    ) {
+      return "Mastercard";
+    }
+
+    if (
+      /^(34|37)/.test(clean)
+    ) {
+      return "American Express";
+    }
+
+    if (
+      /^(6011|65|64[4-9])/.test(
+        clean
+      )
+    ) {
+      return "Discover";
+    }
+
+    if (
+      /^(35)/.test(clean)
+    ) {
+      return "JCB";
+    }
+
+    return "Credit / Debit Card";
+  };
+
+  const luhnCheck = (number) => {
+    const digits =
+      String(number || "")
+        .replace(/\D/g, "");
+
+    if (
+      digits.length < 12 ||
+      digits.length > 19
+    ) {
+      return false;
+    }
+
+    let sum = 0;
+    let shouldDouble = false;
+
+    for (
+      let i = digits.length - 1;
+      i >= 0;
+      i--
+    ) {
+      let digit =
+        Number(digits[i]);
+
+      if (shouldDouble) {
+        digit *= 2;
+
+        if (digit > 9) {
+          digit -= 9;
+        }
+      }
+
+      sum += digit;
+      shouldDouble = !shouldDouble;
+    }
+
+    return sum % 10 === 0;
+  };
+
+  const formatCardNumber = (
+    value
+  ) => {
+    const clean =
+      value
+        .replace(/\D/g, "")
+        .slice(0, 19);
+
+    return clean
+      .replace(/(.{4})/g, "$1 ")
+      .trim();
+  };
+
+  const formatExpiry = (
+    value
+  ) => {
+    const clean =
+      value
+        .replace(/\D/g, "")
+        .slice(0, 4);
+
+    if (clean.length <= 2) {
+      return clean;
+    }
+
+    return `${clean.slice(
+      0,
+      2
+    )}/${clean.slice(2)}`;
+  };
+
+  const handleCardNumberChange =
+    (value) => {
+      const formatted =
+        formatCardNumber(value);
+
+      setCardData((prev) => ({
+        ...prev,
+        number: formatted,
+        type: detectCardType(
+          formatted
+        ),
+      }));
+    };
+
+  const maskedCardNumber =
+    useMemo(() => {
+      const clean =
+        cardData.number.replace(
+          /\D/g,
+          ""
+        );
+
+      if (!clean) {
+        return "•••• •••• •••• ••••";
+      }
+
+      const groups = [];
+
+      for (
+        let i = 0;
+        i < clean.length;
+        i += 4
+      ) {
+        groups.push(
+          clean.slice(i, i + 4)
+        );
+      }
+
+      return groups
+        .map((group, index) => {
+          if (
+            index ===
+            groups.length - 1
+          ) {
+            return group;
+          }
+
+          return "••••";
+        })
+        .join(" ");
+    }, [cardData.number]);
+
+  const handleSaveCard = () => {
+    if (cardSaving) return;
+
+    const cleanNumber =
+      cardData.number.replace(/\D/g, "");
+
+    if (!cardData.holder.trim()) {
+      showToast(
+        "Enter card holder name",
+        "error"
+      );
+      return;
+    }
+
+    if (!luhnCheck(cleanNumber)) {
+      showToast(
+        "Enter a valid card number",
+        "error"
+      );
+      return;
+    }
+
+    if (
+      !/^(0[1-9]|1[0-2])\/\d{2}$/.test(
+        cardData.expiry
+      )
+    ) {
+      showToast(
+        "Enter expiry as MM/YY",
+        "error"
+      );
+      return;
+    }
+
+    if (
+      cardData.cvv.length <
+      (cardData.type === "American Express"
+        ? 4
+        : 3)
+    ) {
+      showToast(
+        "Enter valid CVV",
+        "error"
+      );
+      return;
+    }
+
+    if (!cardData.location.trim()) {
+      showToast(
+        "Select your location",
+        "error"
+      );
+      return;
+    }
+
+    if (
+      cardData.zipCode &&
+      !/^\d{3,10}$/.test(
+        cardData.zipCode
+      )
+    ) {
+      showToast(
+        "Enter a valid ZIP code",
+        "error"
+      );
+      return;
+    }
+
+    setCardSaving(true);
+
+    const newCard = {
+      id: Date.now(),
+      holder:
+        cardData.holder.trim(),
+      number:
+        cleanNumber.slice(-4),
+      expiry:
+        cardData.expiry,
+      type:
+        cardData.type,
+      location:
+        cardData.location.trim(),
+      zipCode:
+        cardData.zipCode.trim(),
+      savedInformation:
+        saveCardInformation,
+    };
+
+    setSavedCards((prev) => [
+      newCard,
+      ...prev,

@@ -1,0 +1,250 @@
+
+              <div
+                className={`mt-5 overflow-hidden rounded-[2rem] p-4 shadow-xl backdrop-blur-xl ${cardBackground}`}
+              >
+                <button
+                  onClick={() =>
+                    setScreen(
+                      "notifications"
+                    )
+                  }
+                  className={`flex w-full items-center justify-between border-b py-4 ${
+                    theme === "dark"
+                      ? "border-white/10"
+                      : "border-gray-100"
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-100">
+                      <Bell size={21} />
+                    </div>
+
+                    <span
+                      className={`text-sm font-bold ${textMain}`}
+                    >
+                      Notifications
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {unreadNotifications >
+                      0 && (
+                      <span className="rounded-full bg-orange-500 px-2 py-1 text-[9px] font-black text-white">
+                        {
+                          unreadNotifications
+                        }
+                      </span>
+                    )}
+
+                    <ChevronRight
+                      size={19}
+                      className="text-gray-400"
+                    />
+                  </div>
+                </button>
+
+                <button
+                  onClick={() =>
+                    setScreen("themes")
+                  }
+                  className={`flex w-full items-center justify-between border-b py-4 ${
+                    theme === "dark"
+                      ? "border-white/10"
+                      : "border-gray-100"
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-100">
+                      {theme ===
+                      "dark" ? (
+                        <Moon size={21} />
+                      ) : (
+                        <Sun size={21} />
+                      )}
+                    </div>
+
+                    <span
+                      className={`text-sm font-bold ${textMain}`}
+                    >
+                      Themes
+                    </span>
+                  </div>
+
+                  <ChevronRight
+                    size={19}
+                    className="text-gray-400"
+                  />
+                </button>
+
+                <button
+                  onClick={() =>
+                    setScreen(
+                      "help"
+                    )
+                  }
+                  className="flex w-full items-center justify-between py-4"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-100">
+                      <HelpCircle
+                        size={21}
+                      />
+                    </div>
+
+                    <span
+                      className={`text-sm font-bold ${textMain}`}
+                    >
+                      Help & Support
+                    </span>
+                  </div>
+
+                  <ChevronRight
+                    size={19}
+                    className="text-gray-400"
+                  />
+                </button>
+              </div>
+
+              {/* LOGOUT */}
+
+              <div className="mt-5 rounded-[2rem] border border-red-100 bg-white/80 p-4 shadow-xl">
+                <button
+                  onClick={
+                    handleLogout
+                  }
+                  className="flex w-full items-center gap-4 py-4 text-red-500"
+                >
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-50">
+                    <LogOut size={21} />
+                  </div>
+
+                  <span className="text-sm font-black">
+                    Logout
+                  </span>
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* ==================================================
+              PROFILE DETAILS
+          ================================================== */}
+
+          {screen === "details" && (
+            <>
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() =>
+                      setShowCardForm(false)
+                    }
+                    className="rounded-full bg-gray-100 p-2.5 text-gray-600 transition active:scale-95"
+                    aria-label="Close card form"
+                  >
+                    <X size={20} />
+                  </button>
+
+                  <h2
+                    className={`text-xl font-black ${textMain}`}
+                  >
+                    Profile Details
+                  </h2>
+                </div>
+
+                {/* SAVE BUTTON REMOVED -> CHECK */}
+
+                <button
+                  onClick={
+                    handleSaveProfile
+                  }
+                  disabled={
+                    profileSaving
+                  }
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-orange-500 text-white shadow-lg shadow-orange-200 disabled:opacity-50"
+                  title="Confirm changes"
+                >
+                  {profileSaving ? (
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  ) : (
+                    <Check size={21} />
+                  )}
+                </button>
+              </div>
+
+              <div
+                className={`rounded-[2rem] p-5 shadow-xl ${cardBackground}`}
+              >
+                <div className="mb-6 flex flex-col items-center">
+                  <img
+                    src={
+                      profileImage ||
+                      "/default-avatar.png"
+                    }
+                    className="h-28 w-28 rounded-full object-cover shadow-lg"
+                    alt="Profile"
+                  />
+
+                  <label className="mt-4 flex cursor-pointer items-center gap-2 font-bold text-orange-500">
+                    <Upload size={18} />
+                    Change Photo
+
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={
+                        handleImage
+                      }
+                    />
+                  </label>
+                </div>
+
+                <input
+                  name="fullName"
+                  value={
+                    formData.fullName
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  placeholder="Full Name"
+                  className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
+                />
+
+                <input
+                  name="email"
+                  value={
+                    formData.email
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  placeholder="Email"
+                  className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
+                />
+
+                <input
+                  name="phone"
+                  value={
+                    formData.phone
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  placeholder="Phone"
+                  className="mb-3 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
+                />
+
+                <textarea
+                  name="address"
+                  value={
+                    formData.address
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  placeholder="Address"
+                  className="mb-3 h-28 w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 outline-none focus:border-orange-500"
+                />
+
+                <textarea

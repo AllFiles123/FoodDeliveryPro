@@ -1,0 +1,250 @@
+                  </button>
+
+                  <h2
+                    className={`text-xl font-black ${textMain}`}
+                  >
+                    Notifications
+                  </h2>
+                </div>
+
+                {notifications.length >
+                  0 && (
+                  <button
+                    onClick={
+                      markAllNotificationsRead
+                    }
+                    className="text-xs font-black text-orange-500"
+                  >
+                    Mark all read
+                  </button>
+                )}
+              </div>
+
+              {notifications.length ===
+              0 ? (
+                <div
+                  className={`rounded-[2rem] p-10 text-center shadow-xl ${cardBackground}`}
+                >
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-orange-50 text-orange-500">
+                    <Bell size={30} />
+                  </div>
+
+                  <h3
+                    className={`mt-5 text-lg font-black ${textMain}`}
+                  >
+                    You're all caught up
+                  </h3>
+
+                  <p className="mt-2 text-sm text-gray-400">
+                    New order updates, payment alerts and offers will appear here.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {notifications.map(
+                    (item) => {
+                      const Icon =
+                        notificationIcon(
+                          item.type
+                        );
+
+                      return (
+                        <button
+                          key={
+                            item.id
+                          }
+                          onClick={() =>
+                            openNotification(
+                              item
+                            )
+                          }
+                          className={`relative flex w-full gap-4 rounded-[1.7rem] p-4 text-left shadow-md transition active:scale-[0.99] ${cardBackground} ${
+                            !item.read
+                              ? "ring-1 ring-orange-200"
+                              : ""
+                          }`}
+                        >
+                          {!item.read && (
+                            <span className="absolute right-4 top-4 h-2 w-2 rounded-full bg-orange-500" />
+                          )}
+
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-500">
+                            <Icon
+                              size={22}
+                            />
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <h3
+                                className={`text-sm font-black ${textMain}`}
+                              >
+                                {
+                                  item.title
+                                }
+                              </h3>
+
+                              <ChevronRight
+                                size={17}
+                                className="shrink-0 text-gray-400"
+                              />
+                            </div>
+
+                            <p className="mt-1 text-xs leading-5 text-gray-500">
+                              {
+                                item.message
+                              }
+                            </p>
+
+                            <div className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-gray-400">
+                              <Clock3
+                                size={12}
+                              />
+
+                              {
+                                item.time ||
+                                item.createdAt ||
+                                "Recently"
+                              }
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    }
+                  )}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ==================================================
+              PROMO PAGE
+          ================================================== */}
+
+          {screen === "promos" && (
+            <>
+              <div className="mb-5 flex items-center gap-3">
+                <button
+                  onClick={
+                    backToProfile
+                  }
+                  className="rounded-xl bg-white p-3 shadow-sm"
+                >
+                  <ArrowLeft
+                    size={20}
+                  />
+                </button>
+
+                <h2
+                  className={`text-xl font-black ${textMain}`}
+                >
+                  Promo & Offers
+                </h2>
+              </div>
+
+              <div
+                className={`mb-5 rounded-[2rem] p-5 shadow-xl ${cardBackground}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50 text-orange-500">
+                    <TicketPercent
+                      size={21}
+                    />
+                  </div>
+
+                  <div>
+                    <h3
+                      className={`font-black ${textMain}`}
+                    >
+                      Have a promo code?
+                    </h3>
+
+                    <p className="text-xs text-gray-400">
+                      Enter it before checkout.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex gap-2">
+                  <input
+                    value={
+                      promoInput
+                    }
+                    onChange={(e) =>
+                      setPromoInput(
+                        e.target.value.toUpperCase()
+                      )
+                    }
+                    placeholder="ENTER PROMO CODE"
+                    className="min-w-0 flex-1 rounded-2xl border border-gray-200 bg-gray-50 p-4 text-sm font-bold outline-none focus:border-orange-500"
+                  />
+
+                  <button
+                    onClick={
+                      applyPromo
+                    }
+                    className="rounded-2xl bg-orange-500 px-5 font-black text-white"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {allPromos.map(
+                  (promo) => (
+                    <div
+                      key={
+                        promo.id ||
+                        promo.code
+                      }
+                      className={`relative overflow-hidden rounded-[2rem] p-5 shadow-lg ${cardBackground}`}
+                    >
+                      <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-orange-100/70" />
+
+                      <div className="relative">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <Gift
+                                size={20}
+                                className="text-orange-500"
+                              />
+
+                              <h3
+                                className={`font-black ${textMain}`}
+                              >
+                                {
+                                  promo.title
+                                }
+                              </h3>
+                            </div>
+
+                            <p className="mt-2 text-sm text-gray-500">
+                              {
+                                promo.description
+                              }
+                            </p>
+                          </div>
+
+                          <span className="rounded-xl bg-orange-50 px-3 py-2 text-[10px] font-black text-orange-500">
+                            {
+                              promo.discount
+                            }
+                          </span>
+                        </div>
+
+                        <div className="mt-5 flex items-center justify-between rounded-2xl bg-gray-50 p-3">
+                          <div>
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">
+                              Promo Code
+                            </p>
+
+                            <p className="mt-1 font-black tracking-widest text-slate-800">
+                              {
+                                promo.code
+                              }
+                            </p>
+                          </div>
+
+                          <button

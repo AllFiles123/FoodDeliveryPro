@@ -1,0 +1,250 @@
+                            onClick={() =>
+                              copyPromo(
+                                promo.code
+                              )
+                            }
+                            className="rounded-xl bg-white p-2 text-orange-500 shadow-sm"
+                          >
+                            <Copy
+                              size={17}
+                            />
+                          </button>
+                        </div>
+
+                        <div className="mt-3 flex items-center justify-between">
+                          <span className="text-[10px] font-semibold text-gray-400">
+                            {
+                              promo.minimum
+                            }
+                          </span>
+
+                          <button
+                            onClick={() =>
+                              savePromo(
+                                promo
+                              )
+                            }
+                            className="rounded-xl bg-orange-500 px-4 py-2 text-xs font-black text-white"
+                          >
+                            Save Offer
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            </>
+          )}
+
+          {/* ==================================================
+              THEMES PAGE
+          ================================================== */}
+
+          {screen === "themes" && (
+            <>
+              <div className="mb-5 flex items-center gap-3">
+                <button
+                  onClick={
+                    backToProfile
+                  }
+                  className="rounded-xl bg-white p-3 shadow-sm"
+                >
+                  <ArrowLeft
+                    size={20}
+                  />
+                </button>
+
+                <h2
+                  className={`text-xl font-black ${textMain}`}
+                >
+                  Themes
+                </h2>
+              </div>
+
+              {/* LIGHT / DARK SWITCH */}
+
+              <div
+                className={`rounded-[2rem] p-5 shadow-xl ${cardBackground}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50 text-orange-500">
+                      {theme ===
+                      "dark" ? (
+                        <Moon size={21} />
+                      ) : (
+                        <Sun size={21} />
+                      )}
+                    </div>
+
+                    <div>
+                      <h3
+                        className={`font-black ${textMain}`}
+                      >
+                        Appearance
+                      </h3>
+
+                      <p className="text-xs text-gray-400">
+                        {theme ===
+                        "dark"
+                          ? "Dark mode"
+                          : "Light mode"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() =>
+                      setTheme(
+                        theme ===
+                          "dark"
+                          ? "light"
+                          : "dark"
+                      )
+                    }
+                    className={`relative h-8 w-14 rounded-full transition ${
+                      theme ===
+                      "dark"
+                        ? "bg-orange-500"
+                        : "bg-gray-200"
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition ${
+                        theme ===
+                        "dark"
+                          ? "left-7"
+                          : "left-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {/* MORE THEMES */}
+
+              <div className="mt-6">
+                <div className="mb-3 flex items-center gap-2">
+                  <Sparkles
+                    size={18}
+                    className="text-orange-500"
+                  />
+
+                  <h3
+                    className={`font-black ${textMain}`}
+                  >
+                    More Themes
+                  </h3>
+                </div>
+
+                <div className="space-y-3">
+                  {themes
+                    .filter(
+                      (item) =>
+                        item.id !==
+                        "light" &&
+                        item.id !==
+                        "dark"
+                    )
+                    .map(
+                      (item) => (
+                        <button
+                          key={
+                            item.id
+                          }
+                          onClick={() =>
+                            setTheme(
+                              item.id
+                            )
+                          }
+                          className={`flex w-full items-center gap-4 rounded-[1.7rem] p-3 shadow-md transition active:scale-[0.99] ${
+                            theme ===
+                            item.id
+                              ? "ring-2 ring-orange-500"
+                              : ""
+                          } ${cardBackground}`}
+                        >
+                          <div
+                            className={`h-16 w-20 shrink-0 rounded-2xl ${item.preview}`}
+                          />
+
+                          <div className="min-w-0 flex-1 text-left">
+                            <h4
+                              className={`font-black ${textMain}`}
+                            >
+                              {
+                                item.name
+                              }
+                            </h4>
+
+                            <p className="mt-1 text-xs text-gray-400">
+                              {
+                                item.description
+                              }
+                            </p>
+                          </div>
+
+                          {theme ===
+                            item.id && (
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-500 text-white">
+                              <Check
+                                size={
+                                  17
+                                }
+                              />
+                            </div>
+                          )}
+                        </button>
+                      )
+                    )}
+                </div>
+              </div>
+
+              {/* DARK THEME */}
+
+              <button
+                onClick={() =>
+                  setTheme("dark")
+                }
+                className={`mt-4 flex w-full items-center gap-4 rounded-[1.7rem] p-4 shadow-md ${
+                  theme ===
+                  "dark"
+                    ? "ring-2 ring-orange-500"
+                    : ""
+                } ${cardBackground}`}
+              >
+                <div className="flex h-16 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-950 to-slate-800">
+                  <Moon
+                    size={26}
+                    className="text-white"
+                  />
+                </div>
+
+                <div className="flex-1 text-left">
+                  <h4
+                    className={`font-black ${textMain}`}
+                  >
+                    Midnight
+                  </h4>
+
+                  <p className="mt-1 text-xs text-gray-400">
+                    Elegant dark experience
+                  </p>
+                </div>
+
+                {theme ===
+                  "dark" && (
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-500 text-white">
+                    <Check
+                      size={17}
+                    />
+                  </div>
+                )}
+              </button>
+            </>
+          )}
+
+          {/* ==================================================
+              HELP & SUPPORT
+              INTENTIONALLY CLEAN / EMPTY

@@ -1,0 +1,250 @@
+import { useEffect, useMemo, useState } from "react";
+import {
+  ArrowLeft,
+  Pencil,
+  User,
+  Package,
+  MapPin,
+  CreditCard,
+  Bell,
+  Moon,
+  Sun,
+  HelpCircle,
+  LogOut,
+  ChevronRight,
+  Wallet,
+  Building2,
+  Upload,
+  Plus,
+  Trash2,
+  X,
+  Check,
+  Navigation,
+  Home,
+  Briefcase,
+  Tag,
+  Gift,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
+  Settings,
+  Copy,
+  Clock3,
+  CircleCheck,
+  CircleX,
+  ShoppingBag,
+  Receipt,
+  Palette,
+  ChevronDown,
+  TicketPercent,
+  Headphones,
+  LockKeyhole,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
+import profileService from "../../services/profileService";
+
+export default function ProfilePage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const { user, logout } = useAuth();
+  const { showToast } = useToast();
+
+  const [screen, setScreen] = useState("profile");
+
+  /* =========================================================
+     PROFILE IMAGE
+  ========================================================= */
+
+  const [profileImage, setProfileImage] = useState(
+    localStorage.getItem("profileImage") ||
+      user?.profileImage ||
+      ""
+  );
+
+  /* =========================================================
+     PROFILE DATA
+  ========================================================= */
+
+  const [formData, setFormData] = useState({
+    fullName: user?.fullName || "David Warner",
+    email: user?.email || "davidwarner@gmail.com",
+    phone: user?.phone || "+8801XXXXXXXXX",
+    address: "",
+    about: "",
+  });
+
+  /* =========================================================
+     PROFILE CONFIRM STATE
+  ========================================================= */
+
+  const [profileSaving, setProfileSaving] = useState(false);
+
+  /* =========================================================
+     SAVED CARDS
+  ========================================================= */
+
+  const [savedCards, setSavedCards] = useState(() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("savedCards") || "[]"
+      );
+    } catch {
+      return [];
+    }
+  });
+
+  const [showCardForm, setShowCardForm] = useState(false);
+
+  const [cardData, setCardData] = useState({
+    holder: "",
+    number: "",
+    expiry: "",
+    cvv: "",
+    location: "Bangladesh",
+    zipCode: "",
+    type: "Credit Card",
+  });
+
+  const [saveCardInformation, setSaveCardInformation] =
+    useState(true);
+
+  const [cardSaving, setCardSaving] = useState(false);
+
+  const [revealedCards, setRevealedCards] = useState({});
+
+  const toggleCardVisibility = (id) => {
+    setRevealedCards((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  /* =========================================================
+     ADDRESSES
+  ========================================================= */
+
+  const [addresses, setAddresses] = useState(() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("savedAddresses") || "[]"
+      );
+    } catch {
+      return [];
+    }
+  });
+
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [addressSaving, setAddressSaving] = useState(false);
+
+  const [addressData, setAddressData] = useState({
+    label: "Home",
+    address: "",
+    city: "Dhaka",
+    phone: "",
+  });
+
+  /* =========================================================
+     PAYMENT METHODS
+  ========================================================= */
+
+  const [savedPaymentMethods, setSavedPaymentMethods] =
+    useState(() => {
+      try {
+        return JSON.parse(
+          localStorage.getItem(
+            "savedPaymentMethods"
+          ) || "[]"
+        );
+      } catch {
+        return [];
+      }
+    });
+
+  const [showPaymentForm, setShowPaymentForm] =
+    useState(false);
+
+  const [selectedPaymentType, setSelectedPaymentType] =
+    useState("");
+
+  const [paymentNumber, setPaymentNumber] =
+    useState("");
+
+  const [bankAccountName, setBankAccountName] =
+    useState("");
+
+  const [paymentSaving, setPaymentSaving] =
+    useState(false);
+
+  /* =========================================================
+     NOTIFICATIONS
+  ========================================================= */
+
+  const [notifications, setNotifications] =
+    useState(() => {
+      try {
+        return JSON.parse(
+          localStorage.getItem(
+            "notifications"
+          ) || "[]"
+        );
+      } catch {
+        return [];
+      }
+    });
+
+  /* =========================================================
+     PROMOS
+  ========================================================= */
+
+  const [promoCodes, setPromoCodes] = useState(() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem(
+          "savedPromoCodes"
+        ) || "[]"
+      );
+    } catch {
+      return [];
+    }
+  });
+
+  const [promoInput, setPromoInput] = useState("");
+
+  const defaultPromos = [
+    {
+      id: "WELCOME20",
+      code: "WELCOME20",
+      title: "Welcome Offer",
+      description:
+        "Get 20% off on your next food order.",
+      discount: "20% OFF",
+      minimum: "Minimum order ৳499",
+      active: true,
+    },
+    {
+      id: "FOOD50",
+      code: "FOOD50",
+      title: "Foodie Special",
+      description:
+        "Save ৳50 on selected restaurants.",
+      discount: "৳50 OFF",
+      minimum: "Minimum order ৳399",
+      active: true,
+    },
+    {
+      id: "FREEDEL",
+      code: "FREEDEL",
+      title: "Free Delivery",
+      description:
+        "Enjoy free delivery on eligible orders.",
+      discount: "FREE DELIVERY",
+      minimum: "Selected restaurants",
+      active: true,
+    },

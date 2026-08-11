@@ -1,0 +1,250 @@
+  ];
+
+  /* =========================================================
+     THEMES
+  ========================================================= */
+
+  const [theme, setTheme] = useState(() => {
+    return (
+      localStorage.getItem("appTheme") ||
+      "light"
+    );
+  });
+
+  const themes = [
+    {
+      id: "light",
+      name: "Classic Light",
+      description:
+        "Clean and bright experience",
+      preview:
+        "bg-gradient-to-br from-white via-orange-50 to-orange-100",
+    },
+    {
+      id: "dark",
+      name: "Midnight",
+      description:
+        "Elegant dark experience",
+      preview:
+        "bg-gradient-to-br from-slate-950 via-slate-900 to-orange-950",
+    },
+    {
+      id: "sunset",
+      name: "Sunset",
+      description:
+        "Warm food-delivery inspired look",
+      preview:
+        "bg-gradient-to-br from-orange-300 via-amber-200 to-rose-200",
+    },
+    {
+      id: "ocean",
+      name: "Ocean",
+      description:
+        "Fresh and modern interface",
+      preview:
+        "bg-gradient-to-br from-cyan-300 via-sky-200 to-blue-300",
+    },
+    {
+      id: "forest",
+      name: "Forest",
+      description:
+        "Calm natural interface",
+      preview:
+        "bg-gradient-to-br from-emerald-300 via-green-200 to-lime-200",
+    },
+    {
+      id: "lavender",
+      name: "Lavender",
+      description:
+        "Soft premium appearance",
+      preview:
+        "bg-gradient-to-br from-purple-300 via-violet-200 to-pink-200",
+    },
+  ];
+
+  /* =========================================================
+     CHECKOUT -> PROFILE PAYMENT
+  ========================================================= */
+
+  useEffect(() => {
+    if (location.state?.openPaymentMethods) {
+      setScreen("payment");
+
+      navigate(location.pathname, {
+        replace: true,
+        state: {},
+      });
+    }
+  }, [
+    location.state,
+    location.pathname,
+    navigate,
+  ]);
+
+  /* =========================================================
+     PROFILE IMAGE
+  ========================================================= */
+
+  useEffect(() => {
+    const storedImage =
+      localStorage.getItem("profileImage");
+
+    if (storedImage) {
+      setProfileImage(storedImage);
+    }
+  }, []);
+
+  /* =========================================================
+     LOCAL STORAGE
+  ========================================================= */
+
+  useEffect(() => {
+    localStorage.setItem(
+      "savedCards",
+      JSON.stringify(savedCards)
+    );
+  }, [savedCards]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "savedAddresses",
+      JSON.stringify(addresses)
+    );
+  }, [addresses]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "savedPaymentMethods",
+      JSON.stringify(savedPaymentMethods)
+    );
+
+    window.dispatchEvent(
+      new Event("paymentMethodsChanged")
+    );
+  }, [savedPaymentMethods]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "notifications",
+      JSON.stringify(notifications)
+    );
+  }, [notifications]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "savedPromoCodes",
+      JSON.stringify(promoCodes)
+    );
+  }, [promoCodes]);
+
+  /* =========================================================
+     THEME
+  ========================================================= */
+
+  useEffect(() => {
+    localStorage.setItem(
+      "appTheme",
+      theme
+    );
+
+    document.documentElement.dataset.theme =
+      theme;
+
+    document.documentElement.classList.toggle(
+      "dark",
+      theme === "dark"
+    );
+  }, [theme]);
+
+  /* =========================================================
+     CURRENT LOCATION
+  ========================================================= */
+
+  const currentLocation =
+    localStorage.getItem(
+      "userLocation"
+    ) || "";
+
+  /* =========================================================
+     IMAGE
+  ========================================================= */
+
+  const handleImage = (event) => {
+    const file =
+      event.target.files?.[0];
+
+    if (!file) return;
+
+    const url =
+      URL.createObjectURL(file);
+
+    setProfileImage(url);
+
+    localStorage.setItem(
+      "profileImage",
+      url
+    );
+
+    showToast(
+      "Profile photo updated",
+      "success"
+    );
+  };
+
+  /* =========================================================
+     PROFILE
+  ========================================================= */
+
+  const handleChange = (event) => {
+    setFormData((prev) => ({
+      ...prev,
+      [event.target.name]:
+        event.target.value,
+    }));
+  };
+
+  const handleSaveProfile =
+    async () => {
+      if (profileSaving) return;
+
+      try {
+        setProfileSaving(true);
+
+        await profileService.updateProfile(
+          formData
+        );
+
+        showToast(
+          "Profile updated successfully",
+          "success"
+        );
+      } catch (error) {
+        console.error(error);
+
+        showToast(
+          "Profile saved locally",
+          "success"
+        );
+      } finally {
+        setProfileSaving(false);
+      }
+    };
+
+  /* =========================================================
+     LOGOUT
+  ========================================================= */
+
+  const handleLogout = () => {
+    logout();
+
+    navigate("/login", {
+      replace: true,
+    });
+  };
+
+  /* =========================================================
+     CARD DETECTION
+  ========================================================= */
+
+  const detectCardType = (number) => {
+    const clean =

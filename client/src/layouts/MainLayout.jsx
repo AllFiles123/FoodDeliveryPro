@@ -1,37 +1,42 @@
 import { Outlet, useLocation } from "react-router-dom";
 import BottomNavigation from "../components/BottomNavigation/BottomNavigation";
-import FloatingCart from "../components/FloatingCart/FloatingCart";
 
 export default function MainLayout() {
   const location = useLocation();
 
-  const hideBottomNavigation = [
-    "/",
-    "/language",
-    "/cart",
-    "/onboarding",
-    "/login",
-    "/signup",
-    "/forgot-password",
-    "/otp",
-    "/reset-password",
-    "/location",
-    "/profile/details",
-    "/profile/payment",
-  ].includes(location.pathname);
+  const path = location.pathname;
 
-  const filterIsOpen =
+  const isFoodDetailsPage =
+    path.startsWith("/food/") ||
+    path.startsWith("/foods/") ||
+    path.startsWith("/food-details/") ||
+    path.startsWith("/fooddetails/");
+
+  const hideBottomNavigation =
+    path === "/profile/details" ||
+    path === "/profile/payment" ||
+    path === "/checkout" ||
+    path === "/explore-reels" ||
+    isFoodDetailsPage;
+
+  const filterOpen =
     typeof document !== "undefined" &&
     document.body.classList.contains("filter-open");
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#fffaf5]">
+    <div
+      className="
+        min-h-screen
+        bg-gradient-to-br
+        from-background
+        via-background
+        to-background
+        overflow-hidden
+      "
+    >
       <Outlet />
 
-      {/* GLOBAL FLOATING CART */}
-      <FloatingCart />
-
-      {!hideBottomNavigation && !filterIsOpen && (
+      {!hideBottomNavigation && !filterOpen && (
         <BottomNavigation />
       )}
     </div>

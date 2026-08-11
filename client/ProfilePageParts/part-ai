@@ -1,0 +1,250 @@
+                                {item.accountName && (
+                                  <p className="text-xs font-semibold text-gray-500">
+                                    {
+                                      item.accountName
+                                    }
+                                  </p>
+                                )}
+
+                                <p className="mt-0.5 text-sm font-bold tracking-wide text-gray-600">
+                                  {maskPaymentNumber(
+                                    item.number
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() =>
+                                deletePaymentMethod(
+                                  item.id
+                                )
+                              }
+                              className="shrink-0 rounded-xl bg-red-50 p-2 text-red-500"
+                            >
+                              <Trash2
+                                size={17}
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* ==================================================
+              SAVED CARDS
+          ================================================== */}
+
+          {screen === "cards" && (
+            <>
+              <div className="mb-6 flex items-center gap-3">
+                <button
+                  onClick={backToProfile}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-black/5 active:scale-95"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+
+                <div className="min-w-0 flex-1">
+                  <h2
+                    className={`text-xl font-black ${textMain}`}
+                  >
+                    Saved Cards
+                  </h2>
+
+                  <p className="mt-0.5 text-xs text-gray-400">
+                    Manage your secure payment cards
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setCardData({
+                      holder: "",
+                      number: "",
+                      expiry: "",
+                      cvv: "",
+                      location: "Bangladesh",
+                      zipCode: "",
+                      type: "Credit Card",
+                    });
+
+                    setSaveCardInformation(true);
+                    setShowCardForm(true);
+                  }}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-lg shadow-orange-200 active:scale-95"
+                >
+                  <Plus size={21} />
+                </button>
+              </div>
+
+              {showCardForm && (
+                <div className="mb-7 overflow-hidden rounded-[2rem] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.08)] ring-1 ring-black/[0.03]">
+
+                  <div className="flex items-center gap-3 px-5 pb-4 pt-5">
+                    <button
+                      onClick={() => setShowCardForm(false)}
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-600 transition active:scale-95"
+                      aria-label="Close"
+                    >
+                      <X size={19} />
+                    </button>
+
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-lg font-black text-gray-900">
+                        Add New Card
+                      </h3>
+
+                      <p className="mt-0.5 text-[11px] font-medium text-gray-400">
+                        Securely save your payment card
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* CARD PREVIEW */}
+
+                  <div className="px-4">
+                    <div className="relative mx-auto h-[205px] w-full max-w-[390px] overflow-hidden rounded-[1.55rem] bg-gradient-to-br from-[#173d48] via-[#102f38] to-[#071b22] p-5 text-white shadow-xl">
+
+                      <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full border-[30px] border-white/[0.035]" />
+
+                      <div className="pointer-events-none absolute -bottom-24 -left-16 h-48 w-48 rounded-full border-[28px] border-white/[0.025]" />
+
+                      <div className="relative flex h-full flex-col justify-between">
+
+                        <div className="flex items-start justify-between">
+
+                          <div className="h-8 w-11 overflow-hidden rounded-[7px] bg-gradient-to-br from-[#f7e8b5] via-[#c9b879] to-[#8d7d4e]">
+                            <div className="mt-[8px] h-px bg-black/10" />
+                            <div className="mt-1 h-px bg-black/10" />
+                          </div>
+
+                          <div className="text-right">
+                            <p className="text-[22px] font-black italic">
+                              {cardData.type === "Mastercard"
+                                ? "MC"
+                                : cardData.type === "American Express"
+                                ? "AMEX"
+                                : cardData.type === "Discover"
+                                ? "DISCOVER"
+                                : "VISA"}
+                            </p>
+
+                            <p className="text-[7px] font-bold uppercase tracking-[0.18em] text-white/40">
+                              {cardData.type}
+                            </p>
+                          </div>
+
+                        </div>
+
+                        <div>
+                          <p className="whitespace-nowrap text-[18px] font-medium tracking-[0.12em] text-white/90">
+                            {maskedCardNumber}
+                          </p>
+
+                          <div className="mt-4 flex items-end justify-between">
+
+                            <div className="min-w-0">
+                              <p className="text-[7px] uppercase tracking-[0.18em] text-white/40">
+                                Card Holder
+                              </p>
+
+                              <p className="mt-0.5 max-w-[180px] truncate text-[11px] font-bold uppercase tracking-wide">
+                                {cardData.holder ||
+                                  "YOUR NAME"}
+                              </p>
+                            </div>
+
+                            <div className="mr-2 text-right">
+                              <p className="text-[7px] uppercase tracking-[0.18em] text-white/40">
+                                Expires
+                              </p>
+
+                              <p className="mt-0.5 text-[11px] font-bold">
+                                {cardData.expiry ||
+                                  "MM/YY"}
+                              </p>
+                            </div>
+
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-1.5 py-4">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gray-300" />
+                    <span className="h-1.5 w-4 rounded-full bg-gray-900" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-gray-300" />
+                  </div>
+
+                  {/* CARD INFORMATION */}
+
+                  <div className="mx-4 mb-4 rounded-[1.5rem] bg-[#fafafa] p-4 ring-1 ring-black/[0.025]">
+
+                    <div className="mb-4">
+                      <h4 className="text-base font-black text-gray-900">
+                        Card Information
+                      </h4>
+
+                      <p className="mt-0.5 text-[11px] font-medium text-gray-400">
+                        Enter your card details below
+                      </p>
+                    </div>
+
+                    {/* CARD NUMBER */}
+
+                    <div className="mb-4">
+                      <label className="mb-1.5 block px-1 text-[11px] font-semibold text-gray-400">
+                        Card Number
+                      </label>
+
+                      <div className="flex h-[54px] items-center rounded-xl border border-gray-200 bg-white px-3 transition focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100">
+
+                        <input
+                          value={cardData.number}
+                          onChange={(e) =>
+                            handleCardNumberChange(
+                              e.target.value
+                            )
+                          }
+                          placeholder="0000 0000 0000 0000"
+                          inputMode="numeric"
+                          autoComplete="cc-number"
+                          className="min-w-0 flex-1 bg-transparent px-1 text-sm font-semibold tracking-wide text-gray-800 outline-none placeholder:text-gray-300"
+                        />
+
+                        <ShieldCheck
+                          size={19}
+                          className="shrink-0 text-gray-400"
+                        />
+                      </div>
+
+                      <div className="mt-1.5 flex items-center gap-1.5 px-1">
+                        <ShieldCheck
+                          size={12}
+                          className="text-green-500"
+                        />
+
+                        <span className="text-[9px] font-semibold text-gray-400">
+                          {cardData.type} detected automatically
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* HOLDER */}
+
+                    <div className="mb-4">
+                      <label className="mb-1.5 block px-1 text-[11px] font-semibold text-gray-400">
+                        Account Holder Name
+                      </label>
+
+                      <input
+                        value={cardData.holder}
+                        onChange={(e) =>

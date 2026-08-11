@@ -1,0 +1,33 @@
+          ================================================== */}
+
+          {screen === "help" && (
+            <>
+              <div className="mb-5 flex items-center gap-3">
+                <button
+                  onClick={
+                    backToProfile
+                  }
+                  className="rounded-xl bg-white p-3 shadow-sm"
+                >
+                  <ArrowLeft
+                    size={20}
+                  />
+                </button>
+
+                <h2
+                  className={`text-xl font-black ${textMain}`}
+                >
+                  Help & Support
+                </h2>
+              </div>
+
+              <div
+                className={`min-h-[55vh] rounded-[2rem] p-8 shadow-xl ${cardBackground}`}
+              />
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

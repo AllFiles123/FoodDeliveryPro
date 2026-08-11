@@ -36,22 +36,11 @@ export default function FloatingCart() {
     removeFromCart,
   } = useCart();
 
-  /*
-   * IMPORTANT:
-   * Cart NEVER opens automatically when an item is added.
-   * It only opens after the user taps the floating cart.
-   */
   const [open, setOpen] = React.useState(false);
 
-  /*
-   * Floating cart position
-   */
   const [position, setPosition] = React.useState(() => {
     if (typeof window === "undefined") {
-      return {
-        x: 16,
-        y: 600,
-      };
+      return { x: 16, y: 600 };
     }
 
     try {
@@ -83,11 +72,18 @@ export default function FloatingCart() {
     };
   });
 
-  const dragStartRef = React.useRef(null);
+  const dragRef = React.useRef({
+    active: false,
+    moved: false,
+    pointerId: null,
+    startX: 0,
+    startY: 0,
+    originalX: 0,
+    originalY: 0,
+  });
 
-  /*
-   * Pages where Floating Cart should not appear
-   */
+  const suppressClickRef = React.useRef(false);
+
   const hidden =
     location.pathname.startsWith("/cart") ||
     location.pathname.startsWith("/checkout") ||
@@ -100,7 +96,7 @@ export default function FloatingCart() {
     location.pathname.startsWith("/onboarding");
 
   /*
-   * Keep floating cart inside viewport
+   * Keep floating cart inside viewport.
    */
   React.useEffect(() => {
     if (typeof window === "undefined") return;
@@ -159,31 +155,19 @@ export default function FloatingCart() {
   }, []);
 
   /*
-   * Lock background scrolling while expanded
-   */
-  React.useEffect(() => {
-    if (!open) {
-      document.body.style.overflow = "";
-      return;
-    }
-
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
-
-  /*
-   * Close floating cart if route changes
+   * Close floating cart when route changes.
    */
   React.useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
 
   /*
-   * Helpers
+   * Do NOT lock body scrolling.
+   *
+   * Locking body overflow was causing unnecessary
+   * open/close interaction issues on mobile browsers.
    */
+
   const getItemName = (item) =>
     item?.name ||
     item?.title ||
@@ -199,10 +183,9 @@ export default function FloatingCart() {
   const getItemPrice = (item) =>
     Number(item?.price || 0);
 
-  /*
-   * Discount calculation
-   */
-  const safeTotalPrice = Number(totalPrice || 0);
+  const safeTotalPrice = Number(
+    totalPrice || 0
+  );
 
   const remainingAmount = Math.max(
     TARGET_AMOUNT - safeTotalPrice,
@@ -223,7 +206,7 @@ export default function FloatingCart() {
     safeTotalPrice - discountAmount;
 
   /*
-   * Proceed to Cart
+   * Proceed to Cart.
    */
   const handleProceedToCart = () => {
     setOpen(false);
@@ -231,32 +214,41 @@ export default function FloatingCart() {
   };
 
   /*
-   * DRAG START
+   * Start drag.
    */
-  const handleDragStart = (event) => {
+  const handlePointerDown = (event) => {
     if (open) return;
 
-    dragStartRef.current = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
+    const point = event.touches?.[0] || event;
+
+    dragRef.current = {
+      active: true,
+      moved: false,
+      pointerId: event.pointerId ?? null,
+      startX: point.clientX,
+      startY: point.clientY,
       originalX: position.x,
       originalY: position.y,
-      moved: false,
     };
 
-    event.currentTarget.setPointerCapture?.(
-      event.pointerId
-    );
+    suppressClickRef.current = false;
+
+    try {
+      event.currentTarget.setPointerCapture?.(
+        event.pointerId
+      );
+    } catch {
+      // Ignore pointer capture errors
+    }
   };
 
   /*
-   * DRAG MOVE
+   * Drag movement.
    */
-  const handleDragMove = (event) => {
-    const drag = dragStartRef.current;
+  const handlePointerMove = (event) => {
+    const drag = dragRef.current;
 
-    if (!drag || open) return;
+    if (!drag.active || open) return;
 
     const deltaX =
       event.clientX - drag.startX;
@@ -265,10 +257,11 @@ export default function FloatingCart() {
       event.clientY - drag.startY;
 
     if (
-      Math.abs(deltaX) > 5 ||
-      Math.abs(deltaY) > 5
+      Math.abs(deltaX) > 6 ||
+      Math.abs(deltaY) > 6
     ) {
       drag.moved = true;
+      suppressClickRef.current = true;
     }
 
     if (!drag.moved) return;
@@ -310,26 +303,22 @@ export default function FloatingCart() {
   };
 
   /*
-   * DRAG END
+   * End drag.
    */
-  const handleDragEnd = (event) => {
-    const drag = dragStartRef.current;
+  const handlePointerUp = (event) => {
+    const drag = dragRef.current;
 
-    if (!drag) return;
+    if (!drag.active) return;
 
     try {
       event.currentTarget.releasePointerCapture?.(
-        drag.pointerId
+        event.pointerId
       );
     } catch {
       // Ignore pointer release errors
     }
 
     if (drag.moved) {
-      /*
-       * Save the latest position directly from state
-       * after drag.
-       */
       setPosition((current) => {
         try {
           localStorage.setItem(
@@ -342,33 +331,38 @@ export default function FloatingCart() {
 
         return current;
       });
+
+      /*
+       * Keep click suppressed for this pointer cycle.
+       */
+      suppressClickRef.current = true;
     }
 
+    dragRef.current.active = false;
+
     /*
-     * Keep the drag state alive until click is finished.
-     * This prevents drag -> accidental open.
+     * Reset after browser click event has completed.
      */
     window.setTimeout(() => {
-      dragStartRef.current = null;
-    }, 0);
+      dragRef.current.moved = false;
+      suppressClickRef.current = false;
+    }, 80);
   };
 
   /*
-   * FLOATING CART CLICK
+   * The floating cart opens ONLY from a genuine tap.
    *
-   * This is the ONLY place where setOpen(true)
-   * happens.
-   *
-   * Therefore adding an item cannot automatically
-   * open the cart.
+   * Adding products never changes `open`.
    */
   const handleFloatingClick = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const drag = dragStartRef.current;
+    if (suppressClickRef.current) {
+      return;
+    }
 
-    if (drag?.moved) {
+    if (dragRef.current.moved) {
       return;
     }
 
@@ -376,8 +370,15 @@ export default function FloatingCart() {
   };
 
   /*
-   * Do not render when hidden / empty
+   * Close safely.
    */
+  const closeCart = (event) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+
+    setOpen(false);
+  };
+
   if (hidden || cart.length === 0) {
     return null;
   }
@@ -391,10 +392,14 @@ export default function FloatingCart() {
       <AnimatePresence>
         {open && (
           <motion.div
+            key="floating-cart-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
+            transition={{
+              duration: 0.16,
+              ease: "easeOut",
+            }}
             className="
               fixed
               inset-0
@@ -402,22 +407,23 @@ export default function FloatingCart() {
               bg-black/20
               backdrop-blur-[2px]
             "
-            onClick={() => setOpen(false)}
+            onClick={closeCart}
           />
         )}
       </AnimatePresence>
 
       {/* =====================================================
-          EXPANDED CART PANEL
+          EXPANDED CART
       ====================================================== */}
 
       <AnimatePresence>
         {open && (
           <motion.div
+            key="floating-cart-panel"
             initial={{
               opacity: 0,
-              y: 28,
-              scale: 0.97,
+              y: 20,
+              scale: 0.985,
             }}
             animate={{
               opacity: 1,
@@ -426,14 +432,12 @@ export default function FloatingCart() {
             }}
             exit={{
               opacity: 0,
-              y: 28,
-              scale: 0.97,
+              y: 20,
+              scale: 0.985,
             }}
             transition={{
-              type: "spring",
-              stiffness: 360,
-              damping: 30,
-              mass: 0.8,
+              duration: 0.2,
+              ease: [0.22, 1, 0.36, 1],
             }}
             onClick={(event) =>
               event.stopPropagation()
@@ -455,11 +459,10 @@ export default function FloatingCart() {
               p-3
               text-white
               shadow-[0_20px_70px_rgba(249,115,22,0.28)]
+              will-change-transform
             "
           >
-            {/* =================================================
-                HEADER
-            ================================================== */}
+            {/* HEADER */}
 
             <div className="flex items-center justify-between px-3 py-2">
 
@@ -516,9 +519,7 @@ export default function FloatingCart() {
 
               <button
                 type="button"
-                onClick={() =>
-                  setOpen(false)
-                }
+                onClick={closeCart}
                 className="
                   flex
                   h-9
@@ -537,9 +538,7 @@ export default function FloatingCart() {
 
             </div>
 
-            {/* =================================================
-                ITEMS
-            ================================================== */}
+            {/* ITEMS */}
 
             <div
               className="
@@ -571,7 +570,7 @@ export default function FloatingCart() {
                     key={item.id}
                     transition={{
                       layout: {
-                        duration: 0.2,
+                        duration: 0.18,
                       },
                     }}
                     className="
@@ -585,7 +584,6 @@ export default function FloatingCart() {
                       p-2
                     "
                   >
-                    {/* IMAGE */}
 
                     <div
                       className="
@@ -600,20 +598,18 @@ export default function FloatingCart() {
                       <img
                         src={itemImage}
                         alt={itemName}
+                        draggable="false"
                         className="
                           h-full
                           w-full
                           object-cover
                         "
-                        draggable="false"
                         onError={(event) => {
                           event.currentTarget.src =
                             fallbackImage;
                         }}
                       />
                     </div>
-
-                    {/* DETAILS */}
 
                     <div className="min-w-0 flex-1">
 
@@ -624,8 +620,6 @@ export default function FloatingCart() {
                       <p className="mt-0.5 text-[10px] text-white/70">
                         ৳{itemPrice.toFixed(2)} each
                       </p>
-
-                      {/* QUANTITY */}
 
                       <div className="mt-1.5 flex items-center">
 
@@ -688,8 +682,6 @@ export default function FloatingCart() {
 
                     </div>
 
-                    {/* PRICE + REMOVE */}
-
                     <div className="flex flex-col items-end">
 
                       <p className="text-[11px] font-black">
@@ -728,9 +720,7 @@ export default function FloatingCart() {
 
             </div>
 
-            {/* =================================================
-                DISCOUNT PROGRESS
-            ================================================== */}
+            {/* DISCOUNT */}
 
             <div
               className="
@@ -763,15 +753,11 @@ export default function FloatingCart() {
                     safeTotalPrice,
                     TARGET_AMOUNT
                   ).toFixed(0)}
-
-                  /
-                  {TARGET_AMOUNT}
+                  /{TARGET_AMOUNT}
 
                 </span>
 
               </div>
-
-              {/* PROGRESS BAR */}
 
               <div
                 className="
@@ -784,14 +770,12 @@ export default function FloatingCart() {
               >
 
                 <motion.div
-                  initial={{
-                    width: 0,
-                  }}
+                  initial={{ width: 0 }}
                   animate={{
                     width: `${progressPercent}%`,
                   }}
                   transition={{
-                    duration: 0.45,
+                    duration: 0.4,
                     ease: "easeOut",
                   }}
                   className="
@@ -815,9 +799,7 @@ export default function FloatingCart() {
 
             </div>
 
-            {/* =================================================
-                SUBTOTAL
-            ================================================== */}
+            {/* SUBTOTAL */}
 
             <div className="mt-3 flex items-center justify-between px-2">
 
@@ -830,10 +812,6 @@ export default function FloatingCart() {
               </span>
 
             </div>
-
-            {/* =================================================
-                DISCOUNT
-            ================================================== */}
 
             {discountAmount > 0 && (
               <div className="mt-1 flex items-center justify-between px-2">
@@ -849,9 +827,7 @@ export default function FloatingCart() {
               </div>
             )}
 
-            {/* =================================================
-                PROCEED TO CART
-            ================================================== */}
+            {/* PROCEED TO CART */}
 
             <button
               type="button"
@@ -894,8 +870,8 @@ export default function FloatingCart() {
       </AnimatePresence>
 
       {/* =====================================================
-          SMALL DRAGGABLE FLOATING CART
-          NEVER VISIBLE WHEN CART IS OPEN
+          CLOSED FLOATING CART
+          SAME SIZE / ORANGE DESIGN
       ====================================================== */}
 
       {!open && (
@@ -903,7 +879,7 @@ export default function FloatingCart() {
           type="button"
           initial={{
             opacity: 0,
-            scale: 0.94,
+            scale: 0.96,
           }}
           animate={{
             opacity: 1,
@@ -913,14 +889,14 @@ export default function FloatingCart() {
           }}
           transition={{
             type: "spring",
-            stiffness: 380,
-            damping: 30,
-            mass: 0.7,
+            stiffness: 360,
+            damping: 28,
+            mass: 0.75,
           }}
-          onPointerDown={handleDragStart}
-          onPointerMove={handleDragMove}
-          onPointerUp={handleDragEnd}
-          onPointerCancel={handleDragEnd}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
           onClick={handleFloatingClick}
           className="
             fixed
@@ -945,6 +921,7 @@ export default function FloatingCart() {
             ring-white/80
             transition-transform
             active:scale-[0.97]
+            will-change-transform
           "
           aria-label="Open cart"
         >
@@ -958,9 +935,7 @@ export default function FloatingCart() {
             View Cart
           </span>
 
-          {/* =================================================
-              BADGE — TOP, NOT SIDE
-          ================================================== */}
+          {/* TOP BADGE */}
 
           <span
             className="

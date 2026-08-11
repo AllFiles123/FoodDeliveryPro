@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import {
   MapContainer,
   TileLayer,
@@ -10,16 +11,21 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+
 import {
   ChevronLeft,
   MoreVertical,
   MessageCircle,
   Phone,
   Truck,
-  Navigation,
   MapPin,
   Clock3,
   CheckCircle2,
+  Navigation,
+  ChevronUp,
+  ChevronDown,
+  Star,
+  ShieldCheck,
 } from "lucide-react";
 
 /* =========================
@@ -29,7 +35,6 @@ import {
 const START_RIDER = [23.8103, 90.4125];
 const CUSTOMER_LOCATION = [23.7949, 90.4043];
 
-/* Road-like route between rider and customer */
 const ROUTE_POINTS = [
   [23.8103, 90.4125],
   [23.8089, 90.4118],
@@ -52,46 +57,47 @@ const riderIcon = L.divIcon({
   className: "",
   html: `
     <div style="
-      width:42px;
-      height:42px;
+      width:46px;
+      height:46px;
       border-radius:50%;
       background:linear-gradient(135deg,#fb923c,#f97316);
       border:4px solid white;
-      box-shadow:0 5px 18px rgba(249,115,22,.35);
+      box-shadow:0 6px 22px rgba(249,115,22,.40);
       display:flex;
       align-items:center;
       justify-content:center;
       color:white;
-      font-size:19px;
+      font-size:20px;
     ">
       🚴
     </div>
   `,
-  iconSize: [42, 42],
-  iconAnchor: [21, 21],
+  iconSize: [46, 46],
+  iconAnchor: [23, 23],
 });
 
 const customerIcon = L.divIcon({
   className: "",
   html: `
     <div style="
-      width:42px;
-      height:42px;
+      width:44px;
+      height:44px;
       border-radius:50%;
       background:white;
       border:4px solid #f97316;
-      box-shadow:0 5px 18px rgba(249,115,22,.25);
+      box-shadow:0 6px 22px rgba(249,115,22,.28);
       display:flex;
       align-items:center;
       justify-content:center;
       color:#f97316;
       font-size:20px;
+      font-weight:900;
     ">
       ●
     </div>
   `,
-  iconSize: [42, 42],
-  iconAnchor: [21, 21],
+  iconSize: [44, 44],
+  iconAnchor: [22, 22],
 });
 
 /* =========================
@@ -105,7 +111,7 @@ function RouteView({ riderPos, customerPos }) {
     const bounds = L.latLngBounds([riderPos, customerPos]);
 
     map.fitBounds(bounds, {
-      padding: [55, 55],
+      padding: [80, 80],
       maxZoom: 15,
       animate: true,
     });
@@ -120,8 +126,13 @@ function RouteView({ riderPos, customerPos }) {
 
 const Map = () => {
   const [routeIndex, setRouteIndex] = useState(0);
+  const [sheetExpanded, setSheetExpanded] = useState(false);
 
   const riderPos = ROUTE_POINTS[routeIndex];
+
+  /* =========================
+     RIDER MOVEMENT
+  ========================= */
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -136,6 +147,10 @@ const Map = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  /* =========================
+     DELIVERY CALCULATIONS
+  ========================= */
 
   const remainingRoute = useMemo(() => {
     return ROUTE_POINTS.slice(routeIndex);
@@ -155,14 +170,41 @@ const Map = () => {
     Number((2.4 - (progress * 2.1) / 100).toFixed(1))
   );
 
+  /* =========================
+     SHEET SNAP
+  ========================= */
+
+  const handleSheetDragEnd = (_, info) => {
+    const offsetY = info.offset.y;
+    const velocityY = info.velocity.y;
+
+    if (offsetY < -80 || velocityY < -500) {
+      setSheetExpanded(true);
+      return;
+    }
+
+    if (offsetY > 80 || velocityY > 500) {
+      setSheetExpanded(false);
+      return;
+    }
+
+    if (sheetExpanded && offsetY > 20) {
+      setSheetExpanded(false);
+    } else if (!sheetExpanded && offsetY < -20) {
+      setSheetExpanded(true);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#F4F4F4] font-sans">
+    <div className="min-h-screen bg-black font-sans">
 
-      <div className="mx-auto flex min-h-screen max-w-md flex-col overflow-hidden bg-[#F4F4F4]">
+      <div className="relative mx-auto h-[100dvh] w-full max-w-md overflow-hidden bg-[#f4f4f4]">
 
-        {/* ================= MAP ================= */}
+        {/* =====================================================
+            FULL SCREEN MAP
+        ===================================================== */}
 
-        <div className="relative h-[44vh] min-h-[340px] w-full shrink-0">
+        <div className="absolute inset-0 z-0">
 
           <MapContainer
             center={CUSTOMER_LOCATION}
@@ -185,39 +227,46 @@ const Map = () => {
               customerPos={CUSTOMER_LOCATION}
             />
 
-            {/* Soft route shadow */}
+            {/* Route shadow */}
+
             <Polyline
               positions={remainingRoute}
               color="#ffffff"
-              weight={9}
+              weight={10}
               opacity={0.9}
               lineCap="round"
               lineJoin="round"
             />
 
-            {/* Main orange route */}
+            {/* Active route */}
+
             <Polyline
               positions={remainingRoute}
               color="#f97316"
               weight={5}
-              opacity={0.95}
+              opacity={0.96}
               lineCap="round"
               lineJoin="round"
             />
 
             {/* Completed route */}
+
             {routeIndex > 0 && (
               <Polyline
                 positions={ROUTE_POINTS.slice(0, routeIndex + 1)}
-                color="#d1d5db"
+                color="#cbd5e1"
                 weight={4}
-                opacity={0.75}
+                opacity={0.8}
                 lineCap="round"
               />
             )}
 
             {/* Rider */}
-            <Marker position={riderPos} icon={riderIcon}>
+
+            <Marker
+              position={riderPos}
+              icon={riderIcon}
+            >
               <Popup>
                 <strong>David Warner</strong>
                 <br />
@@ -226,6 +275,7 @@ const Map = () => {
             </Marker>
 
             {/* Customer */}
+
             <Marker
               position={CUSTOMER_LOCATION}
               icon={customerIcon}
@@ -237,7 +287,8 @@ const Map = () => {
               </Popup>
             </Marker>
 
-            {/* Customer location accuracy ring */}
+            {/* Customer accuracy ring */}
+
             <CircleMarker
               center={CUSTOMER_LOCATION}
               radius={24}
@@ -251,212 +302,382 @@ const Map = () => {
 
           </MapContainer>
 
-          {/* ================= MAP HEADER ================= */}
+        </div>
 
-          <div className="absolute left-0 right-0 top-0 z-[1000] flex items-center justify-between p-4">
+        {/* =====================================================
+            TOP MAP HEADER
+        ===================================================== */}
+
+        <div className="absolute left-0 right-0 top-0 z-[1000]">
+
+          <div className="flex items-center justify-between px-4 pt-4">
+
+            {/* Back */}
 
             <button
+              type="button"
               onClick={() => window.history.back()}
-              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/60 bg-white/90 shadow-lg backdrop-blur-md active:scale-95"
+              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/70 bg-white/95 text-slate-700 shadow-lg backdrop-blur-xl transition active:scale-95"
             >
-              <ChevronLeft
-                size={21}
-                className="text-slate-700"
-              />
+              <ChevronLeft size={22} />
             </button>
 
-            <div className="rounded-full border border-white/70 bg-white/90 px-5 py-2.5 shadow-lg backdrop-blur-md">
-              <p className="text-sm font-black text-slate-800">
-                Live Tracking
-              </p>
+            {/* Title */}
+
+            <div className="rounded-full border border-white/70 bg-white/95 px-5 py-2.5 shadow-lg backdrop-blur-xl">
+
+              <div className="flex items-center gap-2">
+
+                <span className="h-2 w-2 animate-pulse rounded-full bg-orange-500" />
+
+                <p className="text-[13px] font-black text-slate-800">
+                  Live Tracking
+                </p>
+
+              </div>
+
             </div>
+
+            {/* More */}
 
             <button
-              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/60 bg-white/90 shadow-lg backdrop-blur-md"
+              type="button"
+              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/70 bg-white/95 text-slate-700 shadow-lg backdrop-blur-xl transition active:scale-95"
             >
-              <MoreVertical
-                size={20}
-                className="text-slate-700"
-              />
+              <MoreVertical size={20} />
             </button>
-
-          </div>
-
-          {/* ETA floating badge */}
-
-          <div className="absolute bottom-4 left-4 right-4 z-[1000]">
-
-            <div className="flex items-center justify-between rounded-2xl border border-white/70 bg-white/95 px-4 py-3 shadow-xl backdrop-blur-md">
-
-              <div className="flex items-center gap-3">
-
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
-                  <Clock3 size={19} />
-                </div>
-
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">
-                    Arriving in
-                  </p>
-
-                  <p className="text-sm font-black text-slate-800">
-                    {remainingMinutes} minutes
-                  </p>
-                </div>
-
-              </div>
-
-              <div className="text-right">
-                <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">
-                  Distance
-                </p>
-
-                <p className="text-sm font-black text-orange-500">
-                  {distance} km
-                </p>
-              </div>
-
-            </div>
 
           </div>
 
         </div>
 
-        {/* ================= BOTTOM CONTENT ================= */}
+        {/* =====================================================
+            DRAGGABLE BOTTOM SHEET
+        ===================================================== */}
 
-        <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-32 pt-5">
+        <motion.div
+          className="absolute bottom-0 left-0 right-0 z-[1100] max-h-[82dvh] min-h-[190px] overflow-hidden rounded-t-[34px] border-t border-white/80 bg-white shadow-[0_-12px_45px_rgba(15,23,42,0.18)]"
+          initial={{
+            y: "calc(100% - 190px)",
+          }}
+          animate={{
+            y: sheetExpanded
+              ? 0
+              : "calc(100% - 190px)",
+          }}
+          transition={{
+            type: "spring",
+            stiffness: 340,
+            damping: 34,
+            mass: 0.8,
+          }}
+          drag="y"
+          dragConstraints={{
+            top: 0,
+            bottom: 0,
+          }}
+          dragElastic={0.08}
+          onDragEnd={handleSheetDragEnd}
+        >
 
-          {/* RIDER CARD */}
+          {/* ===================================================
+              DRAG HANDLE
+          =================================================== */}
 
-          <div className="rounded-[30px] border border-gray-100 bg-white p-4 shadow-xl">
+          <div
+            className="flex h-[58px] cursor-grab touch-none items-center justify-center active:cursor-grabbing"
+            onClick={() => setSheetExpanded((prev) => !prev)}
+          >
+
+            <div className="h-1.5 w-12 rounded-full bg-slate-300" />
+
+          </div>
+
+          {/* ===================================================
+              COLLAPSED PREVIEW
+          =================================================== */}
+
+          <div className="px-5 pb-5">
 
             <div className="flex items-center justify-between">
 
               <div className="flex min-w-0 items-center gap-3">
 
-                <div className="relative">
+                <div className="relative shrink-0">
 
                   <img
                     src="https://i.pravatar.cc/150?u=david"
-                    className="h-14 w-14 rounded-full border-2 border-orange-400 object-cover"
+                    className="h-12 w-12 rounded-full border-2 border-orange-400 object-cover"
                     alt="David Warner"
                   />
 
-                  <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-orange-500" />
+                  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-orange-500" />
 
                 </div>
 
                 <div className="min-w-0">
 
-                  <h4 className="truncate text-sm font-black text-slate-800">
-                    David Warner
-                  </h4>
+                  <div className="flex items-center gap-2">
 
-                  <p className="mt-0.5 text-[10px] text-gray-400">
-                    Delivery Rider • ID: 12345678
-                  </p>
+                    <h3 className="truncate text-sm font-black text-slate-800">
+                      David Warner
+                    </h3>
 
-                  <div className="mt-1 flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
-                    <span className="text-[9px] font-bold text-orange-500">
-                      On the way
+                    <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[8px] font-black text-orange-500">
+                      RIDER
                     </span>
+
                   </div>
+
+                  <p className="mt-0.5 text-[10px] font-medium text-gray-400">
+                    Your rider is on the way
+                  </p>
 
                 </div>
 
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
 
                 <a
                   href="sms:+880123456789"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500 transition-all active:scale-95"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500 transition active:scale-95"
+                  aria-label="Message rider"
                 >
-                  <MessageCircle size={19} />
+                  <MessageCircle size={18} />
                 </a>
 
                 <a
                   href="tel:+880123456789"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-200 transition-all active:scale-95"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-200 transition active:scale-95"
+                  aria-label="Call rider"
                 >
-                  <Phone size={18} />
+                  <Phone size={17} />
                 </a>
 
               </div>
+
+            </div>
+
+            <div className="mt-4 flex items-center justify-between rounded-2xl bg-orange-50/70 px-4 py-3">
+
+              <div className="flex items-center gap-2">
+
+                <Clock3
+                  size={16}
+                  className="text-orange-500"
+                />
+
+                <span className="text-xs font-black text-slate-700">
+                  {remainingMinutes} min away
+                </span>
+
+              </div>
+
+              <div className="flex items-center gap-1">
+
+                <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+
+                <span className="text-[9px] font-black uppercase tracking-wider text-orange-500">
+                  Live
+                </span>
+
+              </div>
+
+            </div>
+
+            <div className="mt-4 flex items-center justify-center gap-1.5 text-gray-400">
+
+              {sheetExpanded ? (
+                <>
+                  <ChevronDown size={15} />
+                  <span className="text-[9px] font-bold">
+                    Swipe down to see map
+                  </span>
+                </>
+              ) : (
+                <>
+                  <ChevronUp size={15} />
+                  <span className="text-[9px] font-bold">
+                    Swipe up for delivery details
+                  </span>
+                </>
+              )}
 
             </div>
 
           </div>
 
-          {/* DELIVERY STATUS */}
+          {/* ===================================================
+              EXPANDED CONTENT
+          =================================================== */}
 
-          <div className="rounded-[35px] border border-gray-50 bg-white p-6 shadow-xl">
+          <div
+            className="map-sheet-scroll max-h-[calc(82dvh-58px)] overflow-y-auto overscroll-contain px-5 pb-8"
+            style={{
+              scrollbarWidth: "thin",
+              scrollbarColor: "#f97316 #f1f5f9",
+            }}
+          >
 
-            <div className="mb-7 flex items-center justify-between">
+            {/* Rider profile */}
 
-              <div className="flex items-center gap-3">
+            <div className="mb-4 rounded-[26px] border border-gray-100 bg-white p-4 shadow-sm">
 
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50 text-orange-500">
-                  <Truck size={21} />
+              <div className="flex items-center justify-between">
+
+                <div className="flex items-center gap-3">
+
+                  <div className="relative">
+
+                    <img
+                      src="https://i.pravatar.cc/150?u=david"
+                      className="h-14 w-14 rounded-full border-2 border-orange-400 object-cover"
+                      alt="David Warner"
+                    />
+
+                    <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white bg-orange-500">
+                      <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                    </span>
+
+                  </div>
+
+                  <div>
+
+                    <h4 className="text-sm font-black text-slate-800">
+                      David Warner
+                    </h4>
+
+                    <p className="mt-0.5 text-[10px] text-gray-400">
+                      Delivery Rider • ID: 12345678
+                    </p>
+
+                    <div className="mt-1 flex items-center gap-1.5">
+
+                      <Star
+                        size={11}
+                        fill="currentColor"
+                        className="text-orange-400"
+                      />
+
+                      <span className="text-[10px] font-black text-slate-600">
+                        4.9
+                      </span>
+
+                      <span className="text-[9px] text-gray-400">
+                        • Excellent rider
+                      </span>
+
+                    </div>
+
+                  </div>
+
                 </div>
 
-                <div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
+                  <ShieldCheck size={18} />
+                </div>
 
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">
-                    Estimated Delivery
-                  </p>
+              </div>
 
-                  <p className="mt-0.5 text-sm font-black text-slate-800">
-                    {remainingMinutes} - {remainingMinutes + 5} Minutes
-                  </p>
+            </div>
+
+            {/* Delivery progress */}
+
+            <div className="mb-4 rounded-[28px] border border-gray-100 bg-white p-5 shadow-sm">
+
+              <div className="mb-5 flex items-center justify-between">
+
+                <div className="flex items-center gap-3">
+
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
+                    <Truck size={19} />
+                  </div>
+
+                  <div>
+
+                    <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                      Estimated Delivery
+                    </p>
+
+                    <p className="mt-0.5 text-sm font-black text-slate-800">
+                      {remainingMinutes} - {remainingMinutes + 5} Minutes
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div className="rounded-full bg-orange-50 px-3 py-1.5">
+
+                  <span className="text-[9px] font-black text-orange-500">
+                    {progress}% COMPLETE
+                  </span>
 
                 </div>
 
               </div>
 
-              <div className="rounded-full bg-orange-50 px-3 py-1.5">
-                <span className="text-[9px] font-black text-orange-500">
-                  {progress}% COMPLETE
-                </span>
+              {/* Progress bar */}
+
+              <div className="mb-6">
+
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-orange-100">
+
+                  <motion.div
+                    className="h-full rounded-full bg-gradient-to-r from-orange-400 to-orange-500"
+                    animate={{
+                      width: `${Math.max(progress, 5)}%`,
+                    }}
+                    transition={{
+                      duration: 0.5,
+                    }}
+                  />
+
+                </div>
+
+              </div>
+
+              {/* Status timeline */}
+
+              <div className="space-y-1">
+
+                <StatusItem
+                  title="Order Confirmed"
+                  time="10:30 PM"
+                  active
+                  completed
+                />
+
+                <StatusItem
+                  title="Preparing Food"
+                  time="10:45 PM"
+                  active
+                  completed
+                />
+
+                <StatusItem
+                  title="Food on the Way"
+                  time="11:50 PM"
+                  active
+                  pulse
+                />
+
+                <StatusItem
+                  title="Delivered to you"
+                  time="12:30 PM"
+                  last
+                />
+
               </div>
 
             </div>
 
-            <div className="space-y-1">
+            {/* Destination */}
 
-              <StatusItem
-                title="Order Confirmed"
-                time="10:30 PM"
-                active
-                completed
-              />
-
-              <StatusItem
-                title="Preparing Food"
-                time="10:45 PM"
-                active
-                completed
-              />
-
-              <StatusItem
-                title="Food on the Way"
-                time="11:50 PM"
-                active
-                pulse
-              />
-
-              <StatusItem
-                title="Delivered to you"
-                time="12:30 PM"
-                last
-              />
-
-            </div>
-
-            {/* DELIVERY DESTINATION */}
-
-            <div className="mt-7 rounded-2xl border border-orange-100 bg-orange-50/60 p-4">
+            <div className="mb-4 rounded-[26px] border border-orange-100 bg-orange-50/60 p-4">
 
               <div className="flex items-start gap-3">
 
@@ -464,18 +685,27 @@ const Map = () => {
                   <MapPin size={18} />
                 </div>
 
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
 
-                  <p className="text-[9px] font-black uppercase tracking-wider text-orange-500">
-                    Delivery Destination
-                  </p>
+                  <div className="flex items-center justify-between">
 
-                  <p className="mt-1 text-xs font-bold leading-5 text-slate-700">
+                    <p className="text-[9px] font-black uppercase tracking-[0.12em] text-orange-500">
+                      Delivery Destination
+                    </p>
+
+                    <Navigation
+                      size={15}
+                      className="text-orange-400"
+                    />
+
+                  </div>
+
+                  <p className="mt-1 text-xs font-black leading-5 text-slate-700">
                     Your saved delivery location
                   </p>
 
-                  <p className="mt-1 text-[10px] text-gray-400">
-                    Rider is following the delivery route
+                  <p className="mt-1 text-[10px] leading-4 text-gray-400">
+                    Rider is following the live delivery route to your location.
                   </p>
 
                 </div>
@@ -484,44 +714,37 @@ const Map = () => {
 
             </div>
 
-            <button
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-400 to-orange-500 py-4 text-base font-black text-white shadow-xl shadow-orange-200 transition-all active:scale-[0.98]"
-            >
-              <Navigation size={18} />
-              Track Rider
-            </button>
+            {/* Live status */}
 
-          </div>
+            <div className="rounded-[24px] border border-gray-100 bg-white p-4 shadow-sm">
 
-          {/* LIVE STATUS */}
+              <div className="flex items-center gap-3">
 
-          <div className="rounded-3xl border border-orange-100 bg-white p-4 shadow-md">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
+                  <CheckCircle2 size={19} />
+                </div>
 
-            <div className="flex items-center gap-3">
+                <div className="flex-1">
 
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
-                <CheckCircle2 size={19} />
-              </div>
+                  <p className="text-xs font-black text-slate-800">
+                    Rider is moving toward you
+                  </p>
 
-              <div className="flex-1">
+                  <p className="mt-0.5 text-[10px] leading-4 text-gray-400">
+                    Location updates automatically every few seconds.
+                  </p>
 
-                <p className="text-xs font-black text-slate-800">
-                  Rider is moving toward you
-                </p>
+                </div>
 
-                <p className="mt-0.5 text-[10px] text-gray-400">
-                  Location updates automatically every few seconds
-                </p>
+                <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-orange-500" />
 
               </div>
-
-              <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-orange-500" />
 
             </div>
 
           </div>
 
-        </div>
+        </motion.div>
 
       </div>
 
@@ -546,7 +769,7 @@ const StatusItem = ({
     <div className="flex flex-col items-center">
 
       <div
-        className={`relative flex h-4 w-4 items-center justify-center rounded-full ${
+        className={`relative flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
           active
             ? "bg-orange-500"
             : "bg-gray-200"
