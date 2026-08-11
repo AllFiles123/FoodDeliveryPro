@@ -117,7 +117,7 @@ const Favourite = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fffaf6] pb-28">
+    <div className="min-h-screen bg-white pb-28">
 
       <div className="mx-auto w-full max-w-md px-4">
 
@@ -135,7 +135,7 @@ const Favourite = () => {
             h-40
             w-40
             rounded-full
-            bg-orange-100/60
+            bg-orange-100/40
             blur-3xl
           " />
 
@@ -154,8 +154,8 @@ const Favourite = () => {
                     items-center
                     justify-center
                     rounded-2xl
-                    bg-orange-50
-                    text-[#f29a52]
+                    bg-orange-100
+                    text-orange-500
                   ">
                     <Heart
                       size={21}
@@ -204,7 +204,7 @@ const Favourite = () => {
 
                 <Heart
                   size={13}
-                  className="text-[#f29a52]"
+                  className="text-orange-500"
                   fill="currentColor"
                 />
 
@@ -260,8 +260,8 @@ const Favourite = () => {
               duration-300
               ${
                 activeTab === "items"
-                  ? "bg-[#f29a52] text-white shadow-md"
-                  : "text-gray-400"
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md shadow-orange-200"
+                  : "text-orange-500"
               }
             `}
           >
@@ -271,7 +271,8 @@ const Favourite = () => {
 
             <span className="
               rounded-full
-              bg-black/5
+              bg-orange-50
+              text-orange-500
               px-1.5
               py-0.5
               text-[9px]
@@ -301,8 +302,8 @@ const Favourite = () => {
               duration-300
               ${
                 activeTab === "restaurants"
-                  ? "bg-[#f29a52] text-white shadow-md"
-                  : "text-gray-400"
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md shadow-orange-200"
+                  : "text-orange-500"
               }
             `}
           >
@@ -312,7 +313,8 @@ const Favourite = () => {
 
             <span className="
               rounded-full
-              bg-black/5
+              bg-orange-50
+              text-orange-500
               px-1.5
               py-0.5
               text-[9px]
@@ -342,8 +344,8 @@ const Favourite = () => {
               duration-300
               ${
                 activeTab === "videos"
-                  ? "bg-[#f29a52] text-white shadow-md"
-                  : "text-gray-400"
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md shadow-orange-200"
+                  : "text-orange-500"
               }
             `}
           >
@@ -360,7 +362,7 @@ const Favourite = () => {
                 ${
                   activeTab === "videos"
                     ? "bg-white/20 text-white"
-                    : "bg-black/5"
+                    : "bg-orange-50 text-orange-500"
                 }
               `}
             >
@@ -517,7 +519,7 @@ const Favourite = () => {
                       justify-center
                       rounded-full
                       bg-white/95
-                      text-[#f29a52]
+                      text-orange-500
                       shadow-md
                       backdrop-blur-sm
                       transition
@@ -612,7 +614,7 @@ const Favourite = () => {
                       <span className="
                         text-sm
                         font-black
-                        text-[#f29a52]
+                        text-orange-500
                       ">
                         ৳ {item.price ?? "0"}
                       </span>
@@ -813,7 +815,7 @@ const Favourite = () => {
                         justify-center
                         rounded-full
                         bg-white/95
-                        text-[#f29a52]
+                        text-orange-500
                         shadow-lg
                         backdrop-blur-sm
                         transition
@@ -996,7 +998,7 @@ const Favourite = () => {
                           justify-center
                           gap-2
                           rounded-full
-                          bg-[#f29a52]
+                          bg-gradient-to-r from-orange-400 to-orange-500
                           py-3
                           text-xs
                           font-extrabold
@@ -1076,7 +1078,7 @@ function EmptyState({
         justify-center
         rounded-full
         bg-orange-50
-        text-[#f29a52]
+        text-orange-500
       ">
         {icon}
       </div>

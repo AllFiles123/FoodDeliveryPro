@@ -1,10 +1,27 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  getFavouriteVideos,
+} from "../utils/favouriteVideoStorage";
 
 const FavouriteContext = createContext();
 
 const STORAGE_KEY = "foodDeliveryProFavourites";
 
 export function FavouriteProvider({ children }) {
+  const [favouriteVideos, setFavouriteVideos] = useState(() => {
+    try {
+      return getFavouriteVideos() || [];
+    } catch {
+      return [];
+    }
+  });
+
   const [favourites, setFavourites] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -22,6 +39,43 @@ export function FavouriteProvider({ children }) {
       JSON.stringify(favourites)
     );
   }, [favourites]);
+
+  /*
+   * Keep video favourites synced with Explore Reels.
+   */
+  useEffect(() => {
+    const refreshFavouriteVideos = () => {
+      try {
+        setFavouriteVideos(
+          getFavouriteVideos() || []
+        );
+      } catch {
+        setFavouriteVideos([]);
+      }
+    };
+
+    window.addEventListener(
+      "favourite-videos-updated",
+      refreshFavouriteVideos
+    );
+
+    window.addEventListener(
+      "storage",
+      refreshFavouriteVideos
+    );
+
+    return () => {
+      window.removeEventListener(
+        "favourite-videos-updated",
+        refreshFavouriteVideos
+      );
+
+      window.removeEventListener(
+        "storage",
+        refreshFavouriteVideos
+      );
+    };
+  }, []);
 
   const isItemFavourite = (id) =>
     favourites.items.some(
@@ -101,6 +155,7 @@ export function FavouriteProvider({ children }) {
     <FavouriteContext.Provider
       value={{
         favourites,
+        favouriteVideos,
         isItemFavourite,
         isRestaurantFavourite,
         toggleItemFavourite,

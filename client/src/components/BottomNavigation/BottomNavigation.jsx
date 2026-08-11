@@ -40,11 +40,15 @@ const menus = [
 
 export default function BottomNavigation() {
   const location = useLocation();
-  const { favourites } = useFavourite();
+  const {
+    favourites,
+    favouriteVideos,
+  } = useFavourite();
 
   const favouriteCount =
     (favourites?.items?.length || 0) +
-    (favourites?.restaurants?.length || 0);
+    (favourites?.restaurants?.length || 0) +
+    (favouriteVideos?.length || 0);
 
   /*
    * Hide navigation on fullscreen pages.
