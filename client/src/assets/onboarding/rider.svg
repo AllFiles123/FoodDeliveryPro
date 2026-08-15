@@ -1,0 +1,60 @@
+<svg width="700" height="700" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffad32"/>
+      <stop offset="100%" stop-color="#f4511e"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="350" cy="610" rx="235" ry="38" fill="#d8c8b9" opacity=".3"/>
+
+  <!-- scooter -->
+  <circle cx="210" cy="540" r="55" fill="#26364a"/>
+  <circle cx="490" cy="540" r="55" fill="#26364a"/>
+  <circle cx="210" cy="540" r="27" fill="#dce4ec"/>
+  <circle cx="490" cy="540" r="27" fill="#dce4ec"/>
+
+  <path d="M215 525h170l65-90h70l-30 105H300l-55-55z"
+        fill="#f4511e"/>
+  <path d="M385 435h75l35-65" fill="none"
+        stroke="#26364a" stroke-width="18" stroke-linecap="round"/>
+
+  <!-- rider legs -->
+  <path d="M330 470l-40 105" stroke="#26364a" stroke-width="30" stroke-linecap="round"/>
+  <path d="M390 470l65 90" stroke="#26364a" stroke-width="30" stroke-linecap="round"/>
+
+  <!-- body -->
+  <path d="M285 250c35-35 105-35 140 0l45 190c-50 35-145 35-200 0z"
+        fill="url(#shirt)"/>
+
+  <!-- delivery bag -->
+  <rect x="420" y="285" width="115" height="125" rx="16" fill="#183b67"/>
+  <path d="M445 285c0-45 65-45 65 0"
+        fill="none" stroke="#183b67" stroke-width="16"/>
+  <text x="477" y="360" text-anchor="middle"
+        font-family="Arial" font-size="20" font-weight="800"
+        fill="white">FOOD</text>
+
+  <!-- head -->
+  <circle cx="355" cy="195" r="62" fill="#d98b61"/>
+
+  <!-- helmet -->
+  <path d="M290 185c0-85 135-95 145 5z" fill="#183b67"/>
+  <path d="M300 178c30-45 85-45 125 0"
+        fill="none" stroke="#ffb52e" stroke-width="15"/>
+
+  <!-- face -->
+  <circle cx="335" cy="200" r="5" fill="#26364a"/>
+  <circle cx="378" cy="200" r="5" fill="#26364a"/>
+  <path d="M345 225c14 10 28 10 40 0"
+        fill="none" stroke="#7a3f32" stroke-width="6"
+        stroke-linecap="round"/>
+
+  <!-- arms -->
+  <path d="M300 285l-90 110" stroke="#d98b61" stroke-width="27" stroke-linecap="round"/>
+  <path d="M420 285l80 100" stroke="#d98b61" stroke-width="27" stroke-linecap="round"/>
+
+  <text x="350" y="665" text-anchor="middle"
+        font-family="Arial" font-size="30" font-weight="800"
+        fill="#183b67">FAST DELIVERY</text>
+</svg>

@@ -69,7 +69,7 @@ const FoodDetails = () => {
         setLoading(true);
 
         const response =
-          await restaurantService.getAllRestaurants();
+          await restaurantService.getRestaurants();
 
         const restaurants =
           response?.restaurants || [];

@@ -7,6 +7,8 @@ import {
 import MainLayout from "../layouts/MainLayout";
 
 import OnboardingPage from "../pages/Onboarding/OnboardingPage";
+import LoginChoicePage from "../pages/LoginChoice/LoginChoicePage";
+import RiderLoginPlaceholder from "../pages/Auth/RiderLoginPlaceholder";
 
 import LanguagePage from "../pages/Language/LanguagePage";
 import LocationPage from "../pages/Location/LocationPage";
@@ -16,6 +18,8 @@ import SearchPage from "../pages/Search/SearchPage";
 
 import LoginPage from "../pages/Auth/LoginPage";
 import SignupPage from "../pages/Auth/SignupPage";
+import MobileSignupPage from "../pages/Auth/MobileSignupPage";
+import MobileOtpPage from "../pages/Auth/MobileOtpPage";
 import ForgotPasswordPage from "../pages/Auth/ForgotPasswordPage";
 import OtpVerificationPage from "../pages/Auth/OtpVerificationPage";
 import ResetPasswordPage from "../pages/Auth/ResetPasswordPage";
@@ -102,6 +106,25 @@ export default function AppRouter() {
         />
 
         {/* =====================================================
+            LOGIN CHOICE
+        ===================================================== */}
+
+        <Route
+          path="/login-choice"
+          element={<LoginChoicePage />}
+        />
+
+        {/* =====================================================
+            RIDER LOGIN
+            Temporary route — Rider Login page will be added later.
+        ===================================================== */}
+
+        <Route
+          path="/rider-login"
+          element={<RiderLoginPlaceholder />}
+        />
+
+        {/* =====================================================
             LOGIN
         ===================================================== */}
 
@@ -123,6 +146,24 @@ export default function AppRouter() {
           element={
             <PublicRoute>
               <SignupPage />
+            </PublicRoute>
+          }
+        />
+
+        <Route
+          path="/signup/mobile"
+          element={
+            <PublicRoute>
+              <MobileSignupPage />
+            </PublicRoute>
+          }
+        />
+
+        <Route
+          path="/signup/mobile/otp"
+          element={
+            <PublicRoute>
+              <MobileOtpPage />
             </PublicRoute>
           }
         />
@@ -223,6 +264,15 @@ export default function AppRouter() {
 
         <Route
           path="/restaurants/:id"
+          element={
+            <ProtectedRoute>
+              <RestaurantDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/restaurants/:id/category/:category"
           element={
             <ProtectedRoute>
               <RestaurantDetailsPage />

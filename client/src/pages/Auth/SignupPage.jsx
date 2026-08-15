@@ -6,7 +6,6 @@ import {
   Mail,
   LockKeyhole,
   UserRound,
-  Phone,
 } from "lucide-react";
 
 import authService from "../../services/authService";
@@ -48,7 +47,6 @@ export default function SignupPage() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -90,10 +88,6 @@ export default function SignupPage() {
       newErrors.email = "Please enter a valid email";
     }
 
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required";
-    }
-
     if (!formData.password.trim()) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
@@ -127,7 +121,6 @@ export default function SignupPage() {
       const response = await authService.signup({
         fullName: formData.fullName,
         email: formData.email,
-        phone: formData.phone,
         password: formData.password,
       });
 
@@ -135,8 +128,7 @@ export default function SignupPage() {
         response.user || {
           fullName: formData.fullName,
           email: formData.email,
-          phone: formData.phone,
-        },
+          },
         response.token
       );
 
@@ -272,33 +264,36 @@ export default function SignupPage() {
               )}
             </div>
 
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-700">
-                Phone number
-              </label>
 
-              <div className="relative">
-                <Phone
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                />
+            <button
+              type="button"
+              onClick={() => navigate("/signup/mobile")}
+              className="group flex w-full items-center gap-3 rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-50 to-white px-4 py-3.5 text-left transition hover:border-orange-400 hover:shadow-[0_8px_22px_rgba(249,115,22,0.12)] active:scale-[0.98]"
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-500 text-white shadow-sm">
+                <span className="text-lg">📱</span>
+              </span>
 
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="Enter your phone number"
-                  autoComplete="tel"
-                  className="w-full rounded-2xl border border-orange-100 bg-white py-4 pl-11 pr-4 text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
-                />
-              </div>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-bold text-slate-800">
+                  Sign up with Mobile Number
+                </span>
+                <span className="mt-0.5 block text-xs text-slate-400">
+                  Use your phone number to create an account
+                </span>
+              </span>
 
-              {errors.phone && (
-                <p className="mt-2 px-1 text-xs text-red-500">
-                  {errors.phone}
-                </p>
-              )}
+              <span className="text-lg font-bold text-orange-500 transition group-hover:translate-x-0.5">
+                →
+              </span>
+            </button>
+
+            <div className="my-1 flex items-center gap-3">
+              <div className="h-px flex-1 bg-orange-100" />
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                Or continue with email
+              </span>
+              <div className="h-px flex-1 bg-orange-100" />
             </div>
 
             <div>

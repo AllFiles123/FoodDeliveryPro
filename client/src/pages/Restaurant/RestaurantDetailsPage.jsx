@@ -20,7 +20,7 @@ import { useToast } from "../../context/ToastContext";
 import { useFavourite } from "../../context/FavouriteContext";
 
 export default function RestaurantDetailsPage() {
-  const { id } = useParams();
+  const { id, category } = useParams();
   const navigate = useNavigate();
 
   const { addToCart, cart } = useCart();
@@ -196,6 +196,15 @@ export default function RestaurantDetailsPage() {
   ];
 
   const featuredItems = foods.slice(0, 3);
+
+  const displayedFoods =
+    category && category !== "all"
+      ? foods.filter(
+          (food) =>
+            String(food.category || "").toLowerCase() ===
+            decodeURIComponent(category).toLowerCase()
+        )
+      : foods;
 
   const reviews = [
     {
@@ -564,77 +573,254 @@ export default function RestaurantDetailsPage() {
 
         <section className="mt-10 mb-20">
 
-          <h2 className="text-xl font-extrabold text-gray-900 mb-5">
-            All Menu
-          </h2>
+          <div className="mb-5 flex items-center justify-between">
 
-          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <h2 className="text-xl font-extrabold text-gray-900">
+                {category && category !== "all"
+                  ? decodeURIComponent(category)
+                  : "All Menu"}
+              </h2>
 
-            {categories.map((category) => {
+              <p className="mt-1 text-[11px] text-gray-400">
+                {displayedFoods.length} items available
+              </p>
+            </div>
 
-              const categoryFood =
-                foods.find(
-                  (food) =>
-                    food.category === category
-                );
+            {!category && (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(`/restaurants/${id}/category/all`)
+                }
+                className="rounded-full bg-orange-50 px-4 py-2 text-[11px] font-extrabold text-orange-500 transition active:scale-95"
+              >
+                See All
+              </button>
+            )}
 
-              const categoryCount =
-                foods.filter(
-                  (food) =>
-                    food.category === category
-                ).length;
-
-              return (
-                <motion.div
-                  key={category}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() =>
-                    navigate(
-                      `/restaurants/${id}/category/${encodeURIComponent(
-                        category
-                      )}`
-                    )
-                  }
-                  className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden cursor-pointer"
-                >
-
-                  <div className="h-28 bg-orange-50 overflow-hidden">
-
-                    {categoryFood?.image ? (
-                      <img
-                        src={categoryFood.image}
-                        alt={category}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-5xl">
-                        🍽️
-                      </div>
-                    )}
-
-                  </div>
-
-                  <div className="p-4">
-
-                    <h3 className="font-extrabold text-slate-800 text-sm">
-                      {category}
-                    </h3>
-
-                    <p className="text-[10px] text-gray-400 mt-1">
-                      {categoryCount} items
-                    </p>
-
-                  </div>
-
-                </motion.div>
-              );
-            })}
+            {category && (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(`/restaurants/${id}`)
+                }
+                className="rounded-full bg-orange-50 px-4 py-2 text-[11px] font-extrabold text-orange-500 transition active:scale-95"
+              >
+                All Menu
+              </button>
+            )}
 
           </div>
 
-        </section>
+          {!category ? (
 
-      </div>
+            <div className="grid grid-cols-2 gap-4">
+
+              {categories.map((itemCategory) => {
+
+                const categoryFood =
+                  foods.find(
+                    (food) =>
+                      food.category === itemCategory
+                  );
+
+                const categoryCount =
+                  foods.filter(
+                    (food) =>
+                      food.category === itemCategory
+                  ).length;
+
+                return (
+                  <motion.div
+                    key={itemCategory}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() =>
+                      navigate(
+                        `/restaurants/${id}/category/${encodeURIComponent(
+                          itemCategory
+                        )}`
+                      )
+                    }
+                    className="cursor-pointer overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm"
+                  >
+
+                    <div className="h-28 overflow-hidden bg-orange-50">
+
+                      {categoryFood?.image ? (
+                        <img
+                          src={categoryFood.image}
+                          alt={itemCategory}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-orange-50">
+                          <Settings
+                            size={30}
+                            className="text-orange-300"
+                          />
+                        </div>
+                      )}
+
+                    </div>
+
+                    <div className="p-4">
+
+                      <h3 className="text-sm font-extrabold text-slate-800">
+                        {itemCategory}
+                      </h3>
+
+                      <p className="mt-1 text-[10px] text-gray-400">
+                        {categoryCount} items
+                      </p>
+
+                    </div>
+
+                  </motion.div>
+                );
+              })}
+
+            </div>
+
+          ) : (
+
+            <div className="grid grid-cols-2 gap-4">
+
+              {displayedFoods.map((food) => {
+
+                const foodIsFavourite =
+                  isItemFavourite(food.id);
+
+                const foodInCart =
+                  isFoodInCart(food.id);
+
+                return (
+                  <motion.div
+                    key={food.id}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() =>
+                      navigate(`/food/${food.id}`, {
+                        state: {
+                          food: {
+                            ...food,
+                            restaurantId: id,
+                            restaurantName:
+                              restaurant.name,
+                            restaurant,
+                          },
+                        },
+                      })
+                    }
+                    className="cursor-pointer overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm"
+                  >
+
+                    <div className="relative h-32 overflow-hidden bg-orange-50">
+
+                      {food.image ? (
+                        <img
+                          src={food.image}
+                          alt={food.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <Settings
+                            size={30}
+                            className="text-orange-300"
+                          />
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={(event) =>
+                          handleFoodFavourite(
+                            food,
+                            event
+                          )
+                        }
+                        className={`absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 shadow-md ${
+                          foodIsFavourite
+                            ? "text-red-500"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        <Heart
+                          size={17}
+                          fill={
+                            foodIsFavourite
+                              ? "currentColor"
+                              : "none"
+                          }
+                        />
+                      </button>
+
+                    </div>
+
+                    <div className="p-3">
+
+                      <div className="flex items-start justify-between gap-2">
+
+                        <h3 className="line-clamp-1 text-[13px] font-extrabold text-slate-800">
+                          {food.name}
+                        </h3>
+
+                        <span className="shrink-0 text-[13px] font-extrabold text-orange-500">
+                          ৳{food.price}
+                        </span>
+
+                      </div>
+
+                      <div className="mt-2 flex items-center gap-1">
+
+                        <Star
+                          size={12}
+                          fill="currentColor"
+                          className="text-orange-400"
+                        />
+
+                        <span className="text-[10px] font-bold text-gray-500">
+                          {food.rating || "4.5"}
+                        </span>
+
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={(event) =>
+                          handleAddToCart(
+                            food,
+                            event
+                          )
+                        }
+                        disabled={foodInCart}
+                        className={`mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl py-2.5 text-[10px] font-extrabold ${
+                          foodInCart
+                            ? "bg-green-500 text-white"
+                            : "bg-orange-500 text-white"
+                        }`}
+                      >
+                        {foodInCart ? (
+                          <>
+                            <Check size={13} />
+                            Added
+                          </>
+                        ) : (
+                          "Add to Cart"
+                        )}
+                      </button>
+
+                    </div>
+
+                  </motion.div>
+                );
+              })}
+
+            </div>
+
+          )}
+
+        </section>
 
       {/* REVIEW MODAL */}
 
@@ -938,6 +1124,7 @@ export default function RestaurantDetailsPage() {
         }}
       />
 
+    </div>
     </div>
   );
 }

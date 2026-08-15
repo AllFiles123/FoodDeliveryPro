@@ -49,22 +49,25 @@ export default function LoginPage() {
   const validateForm = () => {
     const nextErrors = {};
 
-    if (!formData.email.trim()) {
+    const email = formData.email.trim();
+    const password = formData.password;
+
+    if (!email) {
       nextErrors.email = "Email is required";
     } else if (
-      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(
-        formData.email
-      )
+      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)
     ) {
       nextErrors.email = "Please enter a valid email";
     }
 
-    if (!formData.password.trim()) {
+    if (!password.trim()) {
       nextErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
+    } else if (password.length < 6) {
       nextErrors.password =
         "Password must be at least 6 characters";
     }
+
+    setErrors(nextErrors);
 
     if (!agree) {
       showToast(
@@ -74,50 +77,57 @@ export default function LoginPage() {
       return false;
     }
 
-    setErrors(nextErrors);
-
     return Object.keys(nextErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (loading) return;
+
     if (!validateForm()) return;
 
     setLoading(true);
 
     try {
-      const response = await authService.login(formData);
+      const response = await authService.login({
+        email: formData.email.trim(),
+        password: formData.password,
+      });
+
+      if (!response?.token || !response?.user) {
+        throw new Error("Invalid login response");
+      }
 
       const user = {
-        id: response.user?.id || null,
-        fullName: response.user?.fullName || "",
+        id: response.user.id || null,
+        fullName: response.user.fullName || "",
         email:
-          response.user?.email ||
-          formData.email,
-        phone: response.user?.phone || "",
-        role: response.user?.role || "user",
+          response.user.email ||
+          formData.email.trim(),
+        phone: response.user.phone || "",
+        role: response.user.role || "user",
       };
 
       login(user, response.token);
 
+      showToast(
+        response.message || "Login successful",
+        "success"
+      );
+
       /*
-       * First-login setup remains user-specific.
-       * Existing account setup logic is preserved.
+       * Existing user's first-login setup.
+       *
+       * Each user gets a separate setup key.
        */
-      const userKey =
-        user.id || user.email;
+      const userKey = user.id || user.email;
 
       const setupKey =
         `initialSetupCompleted_${userKey}`;
 
       const hasCompletedSetup =
         localStorage.getItem(setupKey) === "true";
-
-      showToast(
-        "Login Successful",
-        "success"
-      );
 
       if (hasCompletedSetup) {
         navigate("/home", {
@@ -130,14 +140,25 @@ export default function LoginPage() {
       }
 
     } catch (error) {
-      showToast(
+      console.error("Login Error:", error);
+
+      const message =
         error?.response?.data?.message ||
-          "Login Failed",
-        "error"
-      );
+        error?.message ||
+        "Login failed. Please try again.";
+
+      showToast(message, "error");
+
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSocialLogin = (provider) => {
+    showToast(
+      `${provider} login will be connected with the backend later.`,
+      "info"
+    );
   };
 
   return (
@@ -145,12 +166,8 @@ export default function LoginPage() {
 
       <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col px-5 pb-6 pt-5 sm:px-7">
 
-        {/* =====================================================
-            TOP BAR
-            NO LOGO HERE
-        ===================================================== */}
+        {/* BACK */}
         <div className="flex h-10 items-center">
-
           <button
             type="button"
             onClick={() => navigate(-1)}
@@ -162,26 +179,16 @@ export default function LoginPage() {
               strokeWidth={2.2}
             />
           </button>
-
         </div>
 
-
-        {/* =====================================================
-            LOGIN / SIGN UP TABS
-        ===================================================== */}
+        {/* LOGIN / SIGNUP */}
         <div className="mt-7 rounded-full bg-[#fff0e4] p-1.5">
-
           <div className="grid grid-cols-2 gap-1">
 
-            {/* LOGIN ACTIVE */}
-            <button
-              type="button"
-              className="h-[50px] rounded-full bg-[#f29a52] text-sm font-bold text-white shadow-[0_6px_18px_rgba(242,154,82,0.20)]"
-            >
+            <div className="flex h-[50px] items-center justify-center rounded-full bg-[#f29a52] text-sm font-bold text-white shadow-[0_6px_18px_rgba(242,154,82,0.20)]">
               Log in
-            </button>
+            </div>
 
-            {/* SIGN UP */}
             <Link
               to="/signup"
               className="flex h-[50px] items-center justify-center rounded-full text-sm font-semibold text-slate-700 transition active:scale-[0.98]"
@@ -190,13 +197,9 @@ export default function LoginPage() {
             </Link>
 
           </div>
-
         </div>
 
-
-        {/* =====================================================
-            HEADER
-        ===================================================== */}
+        {/* HEADER */}
         <div className="mt-8">
 
           <h1 className="text-[29px] font-bold tracking-[-0.7px] text-slate-900 sm:text-[32px]">
@@ -210,10 +213,7 @@ export default function LoginPage() {
 
         </div>
 
-
-        {/* =====================================================
-            FORM
-        ===================================================== */}
+        {/* FORM */}
         <form
           onSubmit={handleSubmit}
           className="mt-7 flex flex-col"
@@ -241,7 +241,8 @@ export default function LoginPage() {
                 onChange={handleChange}
                 placeholder="Enter your email"
                 autoComplete="email"
-                className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
+                disabled={loading}
+                className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 disabled:opacity-60"
               />
 
             </div>
@@ -253,7 +254,6 @@ export default function LoginPage() {
             )}
 
           </div>
-
 
           {/* PASSWORD */}
           <div className="mt-5">
@@ -281,7 +281,8 @@ export default function LoginPage() {
                 onChange={handleChange}
                 placeholder="Enter your password"
                 autoComplete="current-password"
-                className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
+                disabled={loading}
+                className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 disabled:opacity-60"
               />
 
               <button
@@ -291,12 +292,13 @@ export default function LoginPage() {
                     (prev) => !prev
                   )
                 }
+                disabled={loading}
                 aria-label={
                   showPassword
                     ? "Hide password"
                     : "Show password"
                 }
-                className="ml-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-500 transition active:scale-90"
+                className="ml-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-500 transition active:scale-90 disabled:opacity-50"
               >
                 {showPassword ? (
                   <EyeOff
@@ -320,7 +322,6 @@ export default function LoginPage() {
             )}
 
           </div>
-
 
           {/* TERMS */}
           <div className="mt-5 flex items-start gap-2.5">
@@ -365,8 +366,7 @@ export default function LoginPage() {
 
           </div>
 
-
-          {/* FORGOT PASSWORD */}
+          {/* FORGOT */}
           <div className="mt-4 flex justify-end">
 
             <Link
@@ -378,25 +378,17 @@ export default function LoginPage() {
 
           </div>
 
-
-          {/* LOGIN BUTTON */}
+          {/* LOGIN */}
           <motion.button
             type="submit"
             disabled={loading}
-            whileTap={{
-              scale: 0.98,
-            }}
+            whileTap={{ scale: 0.98 }}
             className="mt-6 flex h-[55px] w-full items-center justify-center rounded-2xl bg-[#f29a52] text-[15px] font-bold text-white shadow-[0_9px_24px_rgba(242,154,82,0.24)] transition hover:bg-[#ed8e42] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading
-              ? "Logging in..."
-              : "Log in"}
+            {loading ? "Logging in..." : "Log in"}
           </motion.button>
 
-
-          {/* ===================================================
-              DIVIDER
-          =================================================== */}
+          {/* DIVIDER */}
           <div className="mt-7 flex items-center gap-3">
 
             <div className="h-px flex-1 bg-[#eee5de]" />
@@ -409,15 +401,14 @@ export default function LoginPage() {
 
           </div>
 
-
-          {/* ===================================================
-              SOCIAL BUTTONS
-          =================================================== */}
+          {/* SOCIAL */}
           <div className="mt-4 grid grid-cols-2 gap-3">
 
-            {/* GOOGLE */}
             <button
               type="button"
+              onClick={() =>
+                handleSocialLogin("Google")
+              }
               className="flex h-[50px] items-center justify-center gap-2 rounded-2xl border border-[#eee6df] bg-white text-sm font-semibold text-slate-700 transition hover:border-[#f5c59d] hover:bg-[#fffaf6] active:scale-[0.98]"
             >
               <span className="text-[17px] font-bold">
@@ -426,10 +417,11 @@ export default function LoginPage() {
               Google
             </button>
 
-
-            {/* APPLE */}
             <button
               type="button"
+              onClick={() =>
+                handleSocialLogin("Apple")
+              }
               className="flex h-[50px] items-center justify-center gap-2 rounded-2xl border border-[#eee6df] bg-white text-sm font-semibold text-slate-700 transition hover:border-[#f5c59d] hover:bg-[#fffaf6] active:scale-[0.98]"
             >
               <Apple
@@ -441,13 +433,10 @@ export default function LoginPage() {
 
           </div>
 
-
-          {/* ===================================================
-              SIGN UP
-          =================================================== */}
+          {/* SIGN UP */}
           <p className="mt-7 pb-3 text-center text-sm text-slate-500">
 
-            Already have an account?{" "}
+            Don't have an account?{" "}
 
             <Link
               to="/signup"

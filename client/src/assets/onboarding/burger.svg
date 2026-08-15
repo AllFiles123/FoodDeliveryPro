@@ -1,0 +1,31 @@
+<svg width="700" height="700" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bun" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffc15b"/>
+      <stop offset="100%" stop-color="#df7925"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="350" cy="565" rx="230" ry="40" fill="#d8c8b9" opacity=".35"/>
+
+  <path d="M145 310c15-105 85-160 205-160s190 55 205 160z"
+        fill="url(#bun)"/>
+
+  <g fill="#fff1bf">
+    <ellipse cx="245" cy="230" rx="10" ry="5"/>
+    <ellipse cx="300" cy="195" rx="9" ry="5"/>
+    <ellipse cx="370" cy="220" rx="10" ry="5"/>
+    <ellipse cx="430" cy="250" rx="9" ry="5"/>
+  </g>
+
+  <rect x="135" y="310" width="430" height="45" rx="18" fill="#62a846"/>
+  <path d="M135 355h430l-35 55H170z" fill="#f3c337"/>
+  <path d="M160 410h380l-20 70H180z" fill="#743b22"/>
+  <rect x="175" y="480" width="350" height="35" rx="12" fill="#df4d28"/>
+  <path d="M155 515h390c-25 65-95 90-195 90s-170-25-195-90z"
+        fill="url(#bun)"/>
+
+  <text x="350" y="665" text-anchor="middle"
+        font-family="Arial" font-size="30" font-weight="800"
+        fill="#7b431e">BURGER</text>
+</svg>
