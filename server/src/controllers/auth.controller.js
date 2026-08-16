@@ -24,12 +24,11 @@ export async function signup(req, res) {
     const {
       fullName,
       email,
-      phone,
       password,
     } = req.body;
 
 
-    if (!fullName || !email || !phone || !password) {
+    if (!fullName || !email || !password) {
 
       return res.status(400).json({
         success:false,
@@ -61,7 +60,6 @@ export async function signup(req, res) {
       createUser({
         fullName,
         email,
-        phone,
         password:hashedPassword,
       });
 

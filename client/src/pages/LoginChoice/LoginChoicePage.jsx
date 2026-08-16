@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Bike, ChevronLeft, UserRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import logo from "../../assets/kshudha-lagche-logo.svg";
+import logo from "../../assets/kshudha-lagche-logo.png";
 
 export default function LoginChoicePage() {
   const navigate = useNavigate();
