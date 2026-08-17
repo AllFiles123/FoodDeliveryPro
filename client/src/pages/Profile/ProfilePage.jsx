@@ -162,7 +162,47 @@ export default function ProfilePage() {
              <div className="flex items-center justify-between mb-8">
                <button onClick={() => setScreen("profile")} className="p-3 bg-white dark:bg-slate-900 rounded-2xl shadow-sm"><X size={20}/></button>
                <h2 className="text-xl font-black dark:text-white">Profile Details</h2>
-               <button onClick={()=>{setScreen('profile'); showToast("Profile Updated", "success")}} className="p-3 bg-orange-500 text-white rounded-full shadow-lg shadow-orange-200"><Check size={20}/></button>
+               <button
+  onClick={async () => {
+    try {
+      if (!formData.fullName?.trim() || !formData.phone?.trim()) {
+        showToast("Full name and phone are required", "error");
+        return;
+      }
+
+      const response = await profileService.updateProfile({
+        fullName: formData.fullName.trim(),
+        phone: formData.phone.trim(),
+      });
+
+      if (!response?.success || !response?.user) {
+        throw new Error(response?.message || "Profile update failed");
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        fullName: response.user.fullName || prev.fullName,
+        phone: response.user.phone || prev.phone,
+        email: response.user.email || prev.email,
+      }));
+
+      setScreen("profile");
+      showToast("Profile Updated", "success");
+
+    } catch (error) {
+      console.error("Profile update error:", error);
+      showToast(
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to update profile",
+        "error"
+      );
+    }
+  }}
+  className="p-3 bg-orange-500 text-white rounded-full shadow-lg shadow-orange-200"
+>
+  <Check size={20}/>
+</button>
              </div>
              <CardWrapper className="p-6">
                 <div className="flex flex-col items-center mb-8">
