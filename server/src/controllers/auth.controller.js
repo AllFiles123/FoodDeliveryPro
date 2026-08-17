@@ -1,138 +1,137 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-import {
-  getDatabase,
-  saveDatabase,
-} from "../database/database.js";
+import { query } from "../database/postgres.js";
 
 import {
   createUser,
   getUserByEmail,
 } from "../models/user.model.js";
 
-
 const JWT_SECRET =
   process.env.JWT_SECRET || "fooddelivery_secret";
 
 
+function createToken(user) {
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    },
+    JWT_SECRET,
+    {
+      expiresIn: "7d",
+    }
+  );
+}
+
+
+function publicUser(user) {
+  return {
+    id: user.id,
+    fullName: user.fullName,
+    email: user.email,
+    phone: user.phone,
+    role: user.role,
+  };
+}
+
+
+/* =========================
+   SIGNUP
+========================= */
 
 export async function signup(req, res) {
-
   try {
-
     const {
       fullName,
       email,
       password,
+      phone,
     } = req.body;
 
-
     if (!fullName || !email || !password) {
-
       return res.status(400).json({
-        success:false,
-        message:"All fields are required",
+        success: false,
+        message: "All fields are required",
       });
-
     }
 
+    const normalizedEmail =
+      String(email).trim().toLowerCase();
 
     const existingUser =
-      getUserByEmail(email);
-
+      await getUserByEmail(normalizedEmail);
 
     if (existingUser) {
-
       return res.status(409).json({
-        success:false,
-        message:"Email already registered",
+        success: false,
+        message: "Email already registered",
       });
-
     }
 
-
     const hashedPassword =
-      await bcrypt.hash(password,10);
-
+      await bcrypt.hash(password, 10);
 
     const user =
-      createUser({
-        fullName,
-        email,
-        password:hashedPassword,
+      await createUser({
+        fullName: String(fullName).trim(),
+        email: normalizedEmail,
+        phone: phone || null,
+        password: hashedPassword,
       });
 
-
-
-    const token =
-      jwt.sign(
-        {
-          id:user.id,
-          email:user.email,
-        },
-        JWT_SECRET,
-        {
-          expiresIn:"7d",
-        }
-      );
-
+    const token = createToken(user);
 
     return res.status(201).json({
-      success:true,
-      message:"Account created successfully",
+      success: true,
+      message: "Account created successfully",
       token,
-      user:{
-        id:user.id,
-        fullName:user.fullName,
-        email:user.email,
-        phone:user.phone,
-        role:user.role,
-      },
+      user: publicUser(user),
     });
 
-
-  } catch(error){
-
-    console.error(error);
+  } catch (error) {
+    console.error("Signup error:", error);
 
     return res.status(500).json({
-      success:false,
-      message:"Signup failed",
+      success: false,
+      message: "Signup failed",
     });
-
   }
-
 }
 
 
+/* =========================
+   LOGIN
+========================= */
 
-
-export async function login(req,res){
-
-  try{
-
+export async function login(req, res) {
+  try {
     const {
       email,
       password,
     } = req.body;
 
-
-    const user =
-      getUserByEmail(email);
-
-
-
-    if(!user){
-
-      return res.status(404).json({
-        success:false,
-        message:"User not found",
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
       });
-
     }
 
+    const normalizedEmail =
+      String(email).trim().toLowerCase();
 
+    const user =
+      await getUserByEmail(normalizedEmail);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
     const isMatch =
       await bcrypt.compare(
@@ -140,124 +139,81 @@ export async function login(req,res){
         user.password
       );
 
-
-    if(!isMatch){
-
+    if (!isMatch) {
       return res.status(401).json({
-        success:false,
-        message:"Invalid password",
+        success: false,
+        message: "Invalid password",
       });
-
     }
 
-
-
-    const token =
-      jwt.sign(
-        {
-          id:user.id,
-          email:user.email,
-        },
-        JWT_SECRET,
-        {
-          expiresIn:"7d",
-        }
-      );
-
-
+    const token = createToken(user);
 
     return res.json({
-
-      success:true,
-      message:"Login successful",
-
+      success: true,
+      message: "Login successful",
       token,
-
-      user:{
-        id:user.id,
-        fullName:user.fullName,
-        email:user.email,
-        phone:user.phone,
-        role:user.role,
-      },
-
+      user: publicUser(user),
     });
 
-
-
-  }catch(error){
-
-    console.error(error);
+  } catch (error) {
+    console.error("Login error:", error);
 
     return res.status(500).json({
-      success:false,
-      message:"Login failed",
+      success: false,
+      message: "Login failed",
+      diagnostic: error?.message || String(error),
     });
-
   }
-
 }
 
 
+/* =========================
+   FORGOT PASSWORD
+========================= */
 
+export async function forgotPassword(req, res) {
+  try {
+    const { email } = req.body;
 
-
-export async function forgotPassword(req,res){
-
-  try{
-
-    const {email}=req.body;
-
-
-    const user =
-      getUserByEmail(email);
-
-
-    if(!user){
-
-      return res.status(404).json({
-        success:false,
-        message:"User not found",
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
       });
-
     }
 
+    const normalizedEmail =
+      String(email).trim().toLowerCase();
+
+    const user =
+      await getUserByEmail(normalizedEmail);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
     const otp =
       Math.floor(
-        100000 + Math.random()*900000
+        100000 + Math.random() * 900000
       ).toString();
-
-
-
-    console.log("==================================");
-    console.log("🔐 Password Reset OTP:",otp);
-    console.log("📧 Email:",email);
-    console.log("==================================");
-
-
 
     const expiresAt =
       new Date(
-        Date.now()+10*60*1000
-      ).toISOString();
+        Date.now() + 10 * 60 * 1000
+      );
 
-
-
-    const db =
-      getDatabase();
-
-
-
-    db.run(
+    await query(
       `
       INSERT INTO password_resets
       (
-        userId,
+        "userId",
         otp,
-        expiresAt
+        "expiresAt"
       )
-      VALUES(?,?,?)
+      VALUES ($1, $2, $3)
       `,
       [
         user.id,
@@ -266,179 +222,165 @@ export async function forgotPassword(req,res){
       ]
     );
 
-
-    saveDatabase();
-
-
+    console.log("==================================");
+    console.log("🔐 Password Reset OTP:", otp);
+    console.log("📧 Email:", normalizedEmail);
+    console.log("==================================");
 
     return res.json({
-      success:true,
-      message:"OTP generated successfully",
+      success: true,
+      message: "OTP generated successfully",
       otp,
     });
 
-
-
-  }catch(error){
-
-    console.error(error);
+  } catch (error) {
+    console.error("Forgot password error:", error);
 
     return res.status(500).json({
-      success:false,
-      message:"Forgot password failed",
+      success: false,
+      message: "Forgot password failed",
     });
-
   }
-
 }
 
 
+/* =========================
+   VERIFY OTP
+========================= */
 
-
-
-export async function verifyOtp(req,res){
-
-  try{
-
+export async function verifyOtp(req, res) {
+  try {
     const {
       email,
       otp,
-    }=req.body;
+    } = req.body;
 
-
-
-    const user =
-      getUserByEmail(email);
-
-
-
-    if(!user){
-
-      return res.status(404).json({
-        success:false,
-        message:"User not found",
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and OTP are required",
       });
-
     }
 
+    const normalizedEmail =
+      String(email).trim().toLowerCase();
 
+    const user =
+      await getUserByEmail(normalizedEmail);
 
-    const db =
-      getDatabase();
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
-
-
-    const result =
-      db.exec(
+    const result = await query(
       `
       SELECT *
       FROM password_resets
-      WHERE userId=?
-      AND otp=?
+      WHERE "userId" = $1
+        AND otp = $2
+        AND "expiresAt" > CURRENT_TIMESTAMP
       ORDER BY id DESC
       LIMIT 1
       `,
       [
         user.id,
-        otp,
+        String(otp).trim(),
       ]
     );
 
-
-
-    if(!result.length ||
-       !result[0].values.length){
-
+    if (!result.rows.length) {
       return res.status(400).json({
-        success:false,
-        message:"Invalid OTP",
+        success: false,
+        message: "Invalid or expired OTP",
       });
-
     }
 
-
-
     return res.json({
-      success:true,
-      message:"OTP verified successfully",
+      success: true,
+      message: "OTP verified successfully",
     });
 
-
-
-  }catch(error){
-
-    console.error(error);
+  } catch (error) {
+    console.error("Verify OTP error:", error);
 
     return res.status(500).json({
-      success:false,
-      message:"OTP verification failed",
+      success: false,
+      message: "OTP verification failed",
     });
-
   }
-
 }
 
 
+/* =========================
+   RESET PASSWORD
+========================= */
 
-
-
-export async function resetPassword(req,res){
-
-  try{
-
+export async function resetPassword(req, res) {
+  try {
     const {
       email,
       password,
-    }=req.body;
+    } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
+    }
 
+    const normalizedEmail =
+      String(email).trim().toLowerCase();
+
+    const user =
+      await getUserByEmail(normalizedEmail);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
     const hashedPassword =
-      await bcrypt.hash(
-        password,
-        10
-      );
+      await bcrypt.hash(password, 10);
 
-
-
-    const db =
-      getDatabase();
-
-
-
-    db.run(
+    await query(
       `
       UPDATE users
-      SET password=?
-      WHERE email=?
+      SET
+        password = $1,
+        "updatedAt" = CURRENT_TIMESTAMP
+      WHERE id = $2
       `,
       [
         hashedPassword,
-        email,
+        user.id,
       ]
     );
 
-
-    saveDatabase();
-
-
+    await query(
+      `
+      DELETE FROM password_resets
+      WHERE "userId" = $1
+      `,
+      [user.id]
+    );
 
     return res.json({
-      success:true,
-      message:"Password updated successfully",
+      success: true,
+      message: "Password updated successfully",
     });
 
-
-
-  }catch(error){
-
-    console.error(error);
+  } catch (error) {
+    console.error("Reset password error:", error);
 
     return res.status(500).json({
-      success:false,
-      message:"Reset password failed",
+      success: false,
+      message: "Reset password failed",
     });
-
   }
-
 }
