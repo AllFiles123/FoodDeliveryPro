@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useRef, useEffect, useMemo, useState } from "react";
 import {
   Pencil, User, Package, MapPin, CreditCard, Bell, Moon, Sun, HelpCircle, LogOut, Settings,
   ChevronRight, Wallet, Building2, Upload, Plus, Trash2, X, Check, Navigation,
@@ -50,10 +50,10 @@ export default function ProfilePage() {
     about: user?.about || "",
   });
 
-  const [savedCards, setSavedCards] = useState(() => JSON.parse(localStorage.getItem("savedCards") || "[]"));
-  const [addresses, setAddresses] = useState(() => JSON.parse(localStorage.getItem("savedAddresses") || "[]"));
-  const [notifications, setNotifications] = useState(() => JSON.parse(localStorage.getItem("notifications") || "[]"));
-  const [savedPaymentMethods, setSavedPaymentMethods] = useState(() => JSON.parse(localStorage.getItem("savedPaymentMethods") || "[]"));
+  const [savedCards, setSavedCards] = useState([]);
+  const [addresses, setAddresses] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [savedPaymentMethods, setSavedPaymentMethods] = useState([]);
   const [theme, setTheme] = useState("light");
   const [language, setLanguage] = useState("English");
 
@@ -190,6 +190,144 @@ export default function ProfilePage() {
       setProfileSaving(false);
     }
   };
+
+
+  // ============================================================
+  // BACKEND PROFILE SYNC
+  // Profile data is now stored in the authenticated backend.
+  // ============================================================
+
+  const profileBackendReadyRef = useRef(false);
+  const profileSaveTimerRef = useRef(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadBackendProfile() {
+      try {
+        const data = await profileService.getFullProfile();
+
+        if (cancelled || !data) return;
+
+        const backendUser = data.user || {};
+        const backendProfile = data.profile || {};
+
+        if (backendUser.fullName !== undefined) {
+          // Keep existing user context/UI behaviour intact.
+        }
+
+        if (backendProfile.profileImage !== undefined) {
+          setProfileImage(backendProfile.profileImage || "");
+        }
+
+        if (Array.isArray(data.addresses)) {
+          setAddresses(data.addresses);
+        }
+
+        if (Array.isArray(data.paymentMethods)) {
+          setSavedPaymentMethods(data.paymentMethods);
+          setSavedCards(data.paymentMethods);
+        }
+
+        if (Array.isArray(data.notifications)) {
+          setNotifications(data.notifications);
+        }
+
+        if (backendProfile.theme) {
+          setTheme(backendProfile.theme);
+        }
+
+        if (backendProfile.language) {
+          setLanguage(backendProfile.language);
+        }
+
+        profileBackendReadyRef.current = true;
+      } catch (error) {
+        console.error("Profile backend load failed:", error);
+      }
+    }
+
+    if (user) {
+      loadBackendProfile();
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  useEffect(() => {
+    if (!profileBackendReadyRef.current) return;
+
+    if (profileSaveTimerRef.current) {
+      clearTimeout(profileSaveTimerRef.current);
+    }
+
+    profileSaveTimerRef.current = setTimeout(async () => {
+      try {
+        await profileService.updateProfile({
+          profileImage: profileImage || "",
+          theme: theme || "light",
+          language: language || "English"
+        });
+      } catch (error) {
+        console.error("Profile settings save failed:", error);
+      }
+    }, 500);
+
+    return () => {
+      if (profileSaveTimerRef.current) {
+        clearTimeout(profileSaveTimerRef.current);
+      }
+    };
+  }, [profileImage, theme, language]);
+
+  useEffect(() => {
+    if (!profileBackendReadyRef.current) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        await profileService.updateAddresses(addresses || []);
+      } catch (error) {
+        console.error("Addresses save failed:", error);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [addresses]);
+
+  useEffect(() => {
+    if (!profileBackendReadyRef.current) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        const methods =
+          savedPaymentMethods?.length
+            ? savedPaymentMethods
+            : savedCards || [];
+
+        await profileService.updatePaymentMethods(methods);
+      } catch (error) {
+        console.error("Payment methods save failed:", error);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [savedPaymentMethods, savedCards]);
+
+  useEffect(() => {
+    if (!profileBackendReadyRef.current) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        await profileService.updateNotifications(notifications || []);
+      } catch (error) {
+        console.error("Notifications save failed:", error);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [notifications]);
 
   return (
     <div className={`min-h-screen pb-28 transition-colors ${theme === 'dark' ? 'bg-slate-950' : 'bg-[#F9FAFB]'}`}>
