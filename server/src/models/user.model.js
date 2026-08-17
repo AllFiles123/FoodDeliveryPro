@@ -1,32 +1,25 @@
-import {
-  getDatabase,
-  saveDatabase,
-} from "../database/database.js";
+import { query } from "../database/postgres.js";
 
 
-export function createUserTable() {
+export async function createUserTable() {
 
-  const db = getDatabase();
-
-  db.run(`
+  await query(`
     CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      fullName TEXT NOT NULL,
+      id BIGSERIAL PRIMARY KEY,
+      "fullName" TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       phone TEXT,
       password TEXT NOT NULL,
       role TEXT DEFAULT 'user',
-      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
-  saveDatabase();
 }
 
 
-
-export function createUser({
+export async function createUser({
   fullName,
   email,
   phone,
@@ -34,169 +27,128 @@ export function createUser({
   role = "user",
 }) {
 
-  const db = getDatabase();
-
-
-  const statement = db.prepare(`
+  const result = await query(
+    `
     INSERT INTO users
     (
-      fullName,
+      "fullName",
       email,
       phone,
       password,
       role
     )
     VALUES
-    (
-      ?,
-      ?,
-      ?,
-      ?,
-      ?
-    )
-  `);
-
-
-  statement.run([
-    fullName,
-    email,
-    phone,
-    password,
-    role,
-  ]);
-
-
-  statement.free();
-
-
-  saveDatabase();
-
-
-  return getUserByEmail(email);
-}
-
-
-
-
-export function getUserByEmail(email) {
-
-  const db = getDatabase();
-
-
-  const statement = db.prepare(`
-    SELECT *
-    FROM users
-    WHERE email = ?
-  `);
-
-
-  const result =
-    statement.getAsObject([
-      email,
-    ]);
-
-
-  statement.free();
-
-
-  if (!result.id) {
-    return null;
-  }
-
-
-  return result;
-}
-
-
-
-
-export function getUserById(id) {
-
-  const db = getDatabase();
-
-
-  const statement = db.prepare(`
-    SELECT
+    ($1, $2, $3, $4, $5)
+    RETURNING
       id,
-      fullName,
+      "fullName",
       email,
       phone,
       role,
-      createdAt,
-      updatedAt
-    FROM users
-    WHERE id = ?
-  `);
+      "createdAt",
+      "updatedAt"
+    `,
+    [
+      fullName,
+      email,
+      phone || null,
+      password,
+      role,
+    ]
+  );
 
+  return result.rows[0];
 
-  const result =
-    statement.getAsObject([
-      id,
-    ]);
-
-
-  statement.free();
-
-
-  if (!result.id) {
-    return null;
-  }
-
-
-  return result;
 }
 
 
-export function createPasswordResetTable() {
+export async function getUserByEmail(email) {
 
-  const db = getDatabase();
+  const result = await query(
+    `
+    SELECT *
+    FROM users
+    WHERE email = $1
+    LIMIT 1
+    `,
+    [email]
+  );
 
-  db.run(`
+  return result.rows[0] || null;
+
+}
+
+
+export async function getUserById(id) {
+
+  const result = await query(
+    `
+    SELECT
+      id,
+      "fullName",
+      email,
+      phone,
+      role,
+      "createdAt",
+      "updatedAt"
+    FROM users
+    WHERE id = $1
+    LIMIT 1
+    `,
+    [id]
+  );
+
+  return result.rows[0] || null;
+
+}
+
+
+export async function createPasswordResetTable() {
+
+  await query(`
     CREATE TABLE IF NOT EXISTS password_resets (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      userId INTEGER NOT NULL,
+      id BIGSERIAL PRIMARY KEY,
+      "userId" BIGINT NOT NULL,
       otp TEXT NOT NULL,
-      expiresAt DATETIME NOT NULL,
-      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY(userId) REFERENCES users(id)
+      "expiresAt" TIMESTAMPTZ NOT NULL,
+      "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
-  saveDatabase();
 }
 
 
-export function updateUserProfile({
+export async function updateUserProfile({
   id,
   fullName,
   phone,
 }) {
 
-  const db = getDatabase();
-
-
-  const statement = db.prepare(`
+  const result = await query(
+    `
     UPDATE users
     SET
-      fullName = ?,
-      phone = ?,
-      updatedAt = CURRENT_TIMESTAMP
-    WHERE id = ?
-  `);
+      "fullName" = $1,
+      phone = $2,
+      "updatedAt" = CURRENT_TIMESTAMP
+    WHERE id = $3
+    RETURNING
+      id,
+      "fullName",
+      email,
+      phone,
+      role,
+      "createdAt",
+      "updatedAt"
+    `,
+    [
+      fullName,
+      phone || null,
+      id,
+    ]
+  );
 
+  return result.rows[0] || null;
 
-  statement.run([
-    fullName,
-    phone,
-    id,
-  ]);
-
-
-  statement.free();
-
-
-  saveDatabase();
-
-
-  return getUserById(id);
 }
+

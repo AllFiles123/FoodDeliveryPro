@@ -11,6 +11,22 @@ import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import profileService from "../../services/profileService";
 
+
+async function loadBackendProfile() {
+  try {
+    const response = await profileService.getProfile();
+
+    if (response?.success && response?.user) {
+      return response.user;
+    }
+
+    return null;
+  } catch (error) {
+    console.error("❌ Failed to load backend profile:", error);
+    return null;
+  }
+}
+
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, login, logout } = useAuth();
