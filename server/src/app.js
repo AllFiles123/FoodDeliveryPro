@@ -4,19 +4,29 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 
-import { connectDatabase } from "./database/database.js";
+import { query } from "./database/postgres.js";
 
 import authRoutes from "./routes/auth.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
+import profileDataRoutes from "./routes/profileData.routes.js";
 import restaurantRoutes from "./routes/restaurant.routes.js";
 import foodRoutes from "./routes/food.routes.js";
 import orderRoutes from "./routes/order.routes.js";
 import searchRoutes from "./routes/search.routes.js";
+import settingsRoutes from "./routes/settings.routes.js";
+import addressRoutes from "./routes/address.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 
 import {
   createUserTable,
   createPasswordResetTable,
+  createUserSettingsTable,
 } from "./models/user.model.js";
+
+import { createAddressTable } from "./models/address.model.js";
+import { createPaymentTable } from "./models/payment.model.js";
+import { createNotificationTable } from "./models/notification.model.js";
 
 import {
   createRestaurantTable,
@@ -24,6 +34,8 @@ import {
 import { createFoodTable } from "./models/food.model.js";
 import { createOrderTable } from "./models/order.model.js";
 import { createSearchTable } from "./models/search.model.js";
+import { createProfileTables } from "./models/profile.model.js";
+import { createProfileDataTables } from "./models/profileData.model.js";
 
 
 const app = express();
@@ -93,6 +105,11 @@ app.use(
   profileRoutes
 );
 
+app.use(
+  "/api/profile-data",
+  profileDataRoutes
+);
+
 
 
 // Restaurant Routes
@@ -116,6 +133,26 @@ app.use(
 app.use(
   "/api/search",
   searchRoutes
+);
+
+app.use(
+  "/api/settings",
+  settingsRoutes
+);
+
+app.use(
+  "/api/addresses",
+  addressRoutes
+);
+
+app.use(
+  "/api/payments",
+  paymentRoutes
+);
+
+app.use(
+  "/api/notifications",
+  notificationRoutes
 );
 
 
@@ -144,17 +181,20 @@ app.use((err, req, res, next) => {
 
 
 
-await connectDatabase();
+await query("SELECT 1");
 
-
-createUserTable();
-
-createPasswordResetTable();
-
-createRestaurantTable();
-createFoodTable();
-createOrderTable();
-createSearchTable();
+await createUserTable();
+await createPasswordResetTable();
+await createUserSettingsTable();
+await createAddressTable();
+await createPaymentTable();
+await createNotificationTable();
+await createRestaurantTable();
+await createFoodTable();
+await createOrderTable();
+await createSearchTable();
+await createProfileTables();
+await createProfileDataTables();
 
 
 
