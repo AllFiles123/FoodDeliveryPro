@@ -1,59 +1,75 @@
-import {
-  getDatabase,
-  saveDatabase,
-} from "../database/database.js";
+import { query } from "../database/postgres.js";
 
-export function createSearchTable() {
-  const db = getDatabase();
-
-  db.run(`
+export async function createSearchTable() {
+  await query(`
     CREATE TABLE IF NOT EXISTS search_logs (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      userId INTEGER,
+      id BIGSERIAL PRIMARY KEY,
+      "userId" BIGINT,
       query TEXT NOT NULL,
-      restaurantId INTEGER,
-      foodId INTEGER,
-      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      "restaurantId" BIGINT,
+      "foodId" BIGINT,
+      "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     )
   `);
-
-  saveDatabase();
 }
 
-export function createSearchLog(data) {
-  const db = getDatabase();
+export async function createSearchLog(data = {}) {
+  const searchQuery = String(data.query || "").trim();
 
-  const query = String(data.query || "").trim();
+  if (!searchQuery) {
+    return null;
+  }
 
-  if (!query) return;
+  const userId =
+    data.userId !== undefined &&
+    data.userId !== null &&
+    String(data.userId).trim() !== ""
+      ? String(data.userId)
+      : null;
 
-  const statement = db.prepare(`
+  const restaurantId =
+    data.restaurantId !== undefined &&
+    data.restaurantId !== null &&
+    String(data.restaurantId).trim() !== ""
+      ? String(data.restaurantId)
+      : null;
+
+  const foodId =
+    data.foodId !== undefined &&
+    data.foodId !== null &&
+    String(data.foodId).trim() !== ""
+      ? String(data.foodId)
+      : null;
+
+  const result = await query(
+    `
     INSERT INTO search_logs
     (
-      userId,
+      "userId",
       query,
-      restaurantId,
-      foodId
+      "restaurantId",
+      "foodId"
     )
-    VALUES (?, ?, ?, ?)
-  `);
+    VALUES
+    ($1::BIGINT, $2, $3::BIGINT, $4::BIGINT)
+    RETURNING id
+    `,
+    [
+      userId,
+      searchQuery,
+      restaurantId,
+      foodId,
+    ]
+  );
 
-  statement.run([
-    data.userId || null,
-    query,
-    data.restaurantId || null,
-    data.foodId || null,
-  ]);
-
-  statement.free();
-
-  saveDatabase();
+  return result.rows[0] || null;
 }
 
-export function searchRestaurantsAndFoods(query, limit = 30) {
-  const db = getDatabase();
-
-  const search = String(query || "").trim();
+export async function searchRestaurantsAndFoods(
+  searchText,
+  limit = 30
+) {
+  const search = String(searchText || "").trim();
 
   if (!search) {
     return {
@@ -62,126 +78,183 @@ export function searchRestaurantsAndFoods(query, limit = 30) {
     };
   }
 
-  const safeQuery = search
-    .replace(/[%_]/g, "\\$&")
-    .replace(/'/g, "''");
-
   const safeLimit = Math.max(
     1,
     Math.min(Number(limit) || 30, 100)
   );
 
-  const restaurantResult = db.exec(`
+  const pattern = `%${search}%`;
+
+  const restaurantResult = await query(
+    `
     SELECT *
     FROM restaurants
     WHERE
-      LOWER(name) LIKE LOWER('%${safeQuery}%')
-      OR LOWER(description) LIKE LOWER('%${safeQuery}%')
-      OR LOWER(category) LIKE LOWER('%${safeQuery}%')
-      OR LOWER(location) LIKE LOWER('%${safeQuery}%')
+      LOWER(name) LIKE LOWER($1)
+      OR LOWER(description) LIKE LOWER($1)
+      OR LOWER(category) LIKE LOWER($1)
+      OR LOWER(location) LIKE LOWER($1)
     ORDER BY
       CASE
-        WHEN LOWER(name) = LOWER('${safeQuery}')
+        WHEN LOWER(name) = LOWER($2)
         THEN 0
         ELSE 1
       END,
-      rating DESC,
+      rating DESC NULLS LAST,
       id DESC
-    LIMIT ${safeLimit}
-  `);
+    LIMIT $3::INTEGER
+    `,
+    [
+      pattern,
+      search,
+      safeLimit,
+    ]
+  );
 
-  const foodResult = db.exec(`
+  const foodResult = await query(
+    `
     SELECT
       f.*,
-      r.name AS restaurantName
+      r.name AS "restaurantName"
     FROM foods f
     LEFT JOIN restaurants r
-      ON r.id = f.restaurantId
+      ON r.id = f."restaurantId"
     WHERE
-      LOWER(f.name) LIKE LOWER('%${safeQuery}%')
-      OR LOWER(f.description) LIKE LOWER('%${safeQuery}%')
-      OR LOWER(f.category) LIKE LOWER('%${safeQuery}%')
+      LOWER(f.name) LIKE LOWER($1)
+      OR LOWER(f.description) LIKE LOWER($1)
+      OR LOWER(f.category) LIKE LOWER($1)
     ORDER BY
       CASE
-        WHEN LOWER(f.name) = LOWER('${safeQuery}')
+        WHEN LOWER(f.name) = LOWER($2)
         THEN 0
         ELSE 1
       END,
-      f.rating DESC,
+      f.rating DESC NULLS LAST,
       f.id DESC
-    LIMIT ${safeLimit}
-  `);
-
-  const mapResult = (result) => {
-    if (!result.length) return [];
-
-    return result[0].values.map((row) => {
-      const item = {};
-
-      result[0].columns.forEach(
-        (column, index) => {
-          item[column] = row[index];
-        }
-      );
-
-      return item;
-    });
-  };
+    LIMIT $3::INTEGER
+    `,
+    [
+      pattern,
+      search,
+      safeLimit,
+    ]
+  );
 
   return {
-    restaurants: mapResult(restaurantResult),
-    foods: mapResult(foodResult),
+    restaurants: restaurantResult.rows,
+    foods: foodResult.rows,
   };
 }
 
-export function getTopSearchFoodsByRestaurantId(
+
+export async function getGlobalTopSearchQueries(limit = 10) {
+  const safeLimit = Math.max(
+    1,
+    Math.min(Number(limit) || 10, 50)
+  );
+
+  const result = await query(
+    `
+    SELECT
+      LOWER(TRIM(query)) AS query,
+      COUNT(*)::INTEGER AS "searchCount"
+    FROM search_logs
+    WHERE TRIM(query) <> ''
+    GROUP BY LOWER(TRIM(query))
+    ORDER BY
+      "searchCount" DESC,
+      query ASC
+    LIMIT $1
+    `,
+    [safeLimit]
+  );
+
+  return result.rows;
+}
+
+export async function getTopSearchFoodsByRestaurantId(
   restaurantId,
   limit = 6
 ) {
-  const db = getDatabase();
+  const safeRestaurantId = String(
+    restaurantId ?? ""
+  ).trim();
 
-  const safeRestaurantId = Number(restaurantId);
   const safeLimit = Math.max(
     1,
     Math.min(Number(limit) || 6, 50)
   );
 
-  if (!Number.isFinite(safeRestaurantId)) {
+  if (!/^\d+$/.test(safeRestaurantId)) {
     return [];
   }
 
-  const result = db.exec(`
+  const result = await query(
+    `
     SELECT
       f.*,
-      COUNT(s.id) AS searchCount
+      COUNT(s.id)::INTEGER AS "searchCount"
     FROM foods f
     INNER JOIN search_logs s
-      ON (
-        s.foodId = f.id
-        OR (
-          s.foodId IS NULL
-          AND LOWER(s.query) = LOWER(f.name)
+      ON
+      (
+        s."foodId" = f.id
+        OR
+        (
+          s."foodId" IS NULL
+          AND LOWER(TRIM(s.query)) = LOWER(TRIM(f.name))
         )
       )
-    WHERE f.restaurantId = ${safeRestaurantId}
+    WHERE f."restaurantId" = $1::BIGINT
     GROUP BY f.id
-    ORDER BY searchCount DESC, f.id DESC
-    LIMIT ${safeLimit}
-  `);
+    ORDER BY
+      "searchCount" DESC,
+      f.id DESC
+    LIMIT $2::INTEGER
+    `,
+    [
+      safeRestaurantId,
+      safeLimit,
+    ]
+  );
 
-  if (!result.length) {
-    return [];
-  }
+  return result.rows;
+}
 
-  return result[0].values.map((row) => {
-    const item = {};
+export async function getGlobalTopSearchFoods(limit = 10) {
+  const safeLimit = Math.max(
+    1,
+    Math.min(Number(limit) || 10, 50)
+  );
 
-    result[0].columns.forEach(
-      (column, index) => {
-        item[column] = row[index];
-      }
-    );
+  const result = await query(
+    `
+    SELECT
+      f.*,
+      r.name AS "restaurantName",
+      COUNT(s.id)::INTEGER AS "searchCount"
+    FROM foods f
+    LEFT JOIN restaurants r
+      ON r.id = f."restaurantId"
+    INNER JOIN search_logs s
+      ON (
+        s."foodId" = f.id
+        OR (
+          s."foodId" IS NULL
+          AND LOWER(TRIM(s.query)) = LOWER(TRIM(f.name))
+        )
+      )
+    GROUP BY
+      f.id,
+      r.name
+    ORDER BY
+      "searchCount" DESC,
+      f.rating DESC,
+      f.id DESC
+    LIMIT $1
+    `,
+    [safeLimit]
+  );
 
-    return item;
-  });
+  return result.rows;
 }

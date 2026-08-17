@@ -1,45 +1,43 @@
 import api from "./api";
 
 const profileService = {
-  getProfile: async () => {
-    const response = await api.get("/profile");
-    return response.data;
+  async getFullProfile() {
+    const response = await api.get("/profile-data");
+    return response.data?.data || null;
   },
 
-  updateProfile: async (data) => {
-    const response = await api.put("/profile", data);
-    return response.data;
+  async updateProfile(data) {
+    const response = await api.put("/profile-data", data);
+    return response.data?.data || null;
   },
 
-  addAddress: async (data) => {
-    const response = await api.post("/profile/addresses", data);
-    return response.data;
+  async updateAddresses(addresses) {
+    const response = await api.put("/profile-data/addresses", {
+      addresses
+    });
+    return response.data?.data || null;
   },
 
-  updateAddress: async (id, data) => {
-    const response = await api.put(`/profile/addresses/${id}`, data);
-    return response.data;
+  async updatePaymentMethods(paymentMethods) {
+    const response = await api.put("/profile-data/payments", {
+      paymentMethods
+    });
+    return response.data?.data || null;
   },
 
-  deleteAddress: async (id) => {
-    const response = await api.delete(`/profile/addresses/${id}`);
-    return response.data;
+  async updateNotifications(notifications) {
+    const response = await api.put("/profile-data/notifications", {
+      notifications
+    });
+    return response.data?.data || null;
   },
 
-  addPaymentMethod: async (data) => {
-    const response = await api.post("/profile/payment-methods", data);
-    return response.data;
-  },
-
-  deletePaymentMethod: async (id) => {
-    const response = await api.delete(`/profile/payment-methods/${id}`);
-    return response.data;
-  },
-
-  markNotificationRead: async (id) => {
-    const response = await api.patch(`/profile/notifications/${id}/read`);
-    return response.data;
-  },
+  async updateFavourites(favourites) {
+    const response = await api.put("/profile-data/favourites", {
+      favourites
+    });
+    return response.data?.data || null;
+  }
 };
 
 export default profileService;

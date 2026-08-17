@@ -12,7 +12,7 @@ export async function createFoodController(req,res){
 
 
     const food =
-      createFood(req.body);
+      await createFood(req.body);
 
 
 
@@ -56,7 +56,7 @@ export async function getRestaurantFoods(req,res){
 
 
     const foods =
-      getFoodsByRestaurantId(
+      await getFoodsByRestaurantId(
         req.params.restaurantId
       );
 
@@ -101,7 +101,7 @@ export async function getSingleFood(req,res){
 
 
     const food =
-      getFoodById(
+      await getFoodById(
         req.params.id
       );
 

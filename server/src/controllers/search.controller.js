@@ -2,6 +2,8 @@ import {
   createSearchLog,
   searchRestaurantsAndFoods,
   getTopSearchFoodsByRestaurantId,
+  getGlobalTopSearchQueries,
+  getGlobalTopSearchFoods,
 } from "../models/search.model.js";
 
 export async function trackSearch(req, res) {
@@ -19,7 +21,7 @@ export async function trackSearch(req, res) {
       });
     }
 
-    createSearchLog({
+    await createSearchLog({
       userId: req.user?.id || null,
       query,
       restaurantId,
@@ -42,11 +44,11 @@ export async function trackSearch(req, res) {
 
 export async function searchAll(req, res) {
   try {
-    const query = String(
+    const searchQuery = String(
       req.query.q || ""
     ).trim();
 
-    if (!query) {
+    if (!searchQuery) {
       return res.json({
         success: true,
         query: "",
@@ -56,16 +58,16 @@ export async function searchAll(req, res) {
     }
 
     const results =
-      searchRestaurantsAndFoods(query);
+      await searchRestaurantsAndFoods(searchQuery);
 
-    createSearchLog({
+    await createSearchLog({
       userId: req.user?.id || null,
-      query,
+      query: searchQuery,
     });
 
     return res.json({
       success: true,
-      query,
+      query: searchQuery,
       ...results,
     });
   } catch (error) {
@@ -84,7 +86,7 @@ export async function getRestaurantTopSearches(
 ) {
   try {
     const foods =
-      getTopSearchFoodsByRestaurantId(
+      await getTopSearchFoodsByRestaurantId(
         req.params.restaurantId
       );
 
@@ -98,6 +100,31 @@ export async function getRestaurantTopSearches(
     return res.status(500).json({
       success: false,
       message: "Failed to get top search items",
+    });
+  }
+}
+
+export async function getGlobalTopSearches(
+  req,
+  res
+) {
+  try {
+    const limit =
+      Number(req.query.limit) || 10;
+
+    const foods =
+      await getGlobalTopSearchFoods(limit);
+
+    return res.json({
+      success: true,
+      foods,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get global top searches",
     });
   }
 }

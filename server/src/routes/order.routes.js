@@ -8,17 +8,18 @@ import {
   changeOrderStatus,
 } from "../controllers/order.controller.js";
 
-
 import {
   authMiddleware,
 } from "../middleware/auth.middleware.js";
 
 
-
 const router = Router();
 
 
-
+/*
+  Place Order
+  POST /api/orders
+*/
 router.post(
   "/",
   authMiddleware,
@@ -26,7 +27,10 @@ router.post(
 );
 
 
-
+/*
+  My Orders
+  GET /api/orders
+*/
 router.get(
   "/",
   authMiddleware,
@@ -34,8 +38,21 @@ router.get(
 );
 
 
+/*
+  Order Details
+  GET /api/orders/:id
+*/
+router.get(
+  "/:id",
+  authMiddleware,
+  trackOrder
+);
 
-// User order tracking
+
+/*
+  Order Tracking
+  GET /api/orders/:id/track
+*/
 router.get(
   "/:id/track",
   authMiddleware,
@@ -43,8 +60,10 @@ router.get(
 );
 
 
-
-// Cancel order
+/*
+  Cancel Order
+  PATCH /api/orders/:id/cancel
+*/
 router.patch(
   "/:id/cancel",
   authMiddleware,
@@ -52,15 +71,17 @@ router.patch(
 );
 
 
+/*
+  Update Order Status
+  PATCH /api/orders/:id/status
 
-// Update status
-// Later admin panel এ ব্যবহার হবে
+  Later admin/rider panel can use this.
+*/
 router.patch(
   "/:id/status",
   authMiddleware,
   changeOrderStatus
 );
-
 
 
 export default router;

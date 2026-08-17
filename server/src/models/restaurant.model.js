@@ -1,54 +1,27 @@
-import {
-  getDatabase,
-  saveDatabase,
-} from "../database/database.js";
+import { query } from "../database/postgres.js";
 
-
-export function createRestaurantTable() {
-
-  const db = getDatabase();
-
-
-  db.run(`
+export async function createRestaurantTable() {
+  await query(`
     CREATE TABLE IF NOT EXISTS restaurants (
-
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-
+      id BIGSERIAL PRIMARY KEY,
       name TEXT NOT NULL,
-
       image TEXT,
-
       description TEXT,
-
       category TEXT,
-
-      rating REAL DEFAULT 0,
-
-      deliveryTime TEXT,
-
+      rating NUMERIC DEFAULT 0,
+      "deliveryTime" TEXT,
       location TEXT,
-
-      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-      updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-
+      "openingTime" TEXT DEFAULT '10:00',
+      "closingTime" TEXT DEFAULT '23:00',
+      "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     )
   `);
-
-
-  saveDatabase();
-
 }
 
-
-
-
-export function createRestaurant(data) {
-
-  const db = getDatabase();
-
-
-  const statement = db.prepare(`
+export async function createRestaurant(data) {
+  const result = await query(
+    `
     INSERT INTO restaurants
     (
       name,
@@ -56,135 +29,51 @@ export function createRestaurant(data) {
       description,
       category,
       rating,
-      deliveryTime,
-      location
+      "deliveryTime",
+      location,
+      "openingTime",
+      "closingTime"
     )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    RETURNING *
+    `,
+    [
+      data.name,
+      data.image || "",
+      data.description || "",
+      data.category || "",
+      data.rating || 0,
+      data.deliveryTime || "",
+      data.location || "",
+      data.openingTime || "10:00",
+      data.closingTime || "23:00",
+    ]
+  );
 
-    VALUES
-    (
-      ?,
-      ?,
-      ?,
-      ?,
-      ?,
-      ?,
-      ?
-    )
-  `);
-
-
-
-  statement.run([
-
-    data.name,
-
-    data.image || "",
-
-    data.description || "",
-
-    data.category || "",
-
-    data.rating || 0,
-
-    data.deliveryTime || "",
-
-    data.location || ""
-
-  ]);
-
-
-
-  statement.free();
-
-
-  saveDatabase();
-
-
-  return getRestaurants();
-
+  return result.rows[0];
 }
 
-
-
-
-
-export function getRestaurants() {
-
-  const db = getDatabase();
-
-
-  const result = db.exec(`
+export async function getRestaurants() {
+  const result = await query(`
     SELECT *
     FROM restaurants
     ORDER BY id DESC
   `);
 
-
-
-  if (!result.length) {
-
-    return [];
-
-  }
-
-
-
-  const columns = result[0].columns;
-
-
-  return result[0].values.map(row => {
-
-    const item = {};
-
-
-    columns.forEach((column,index)=>{
-
-      item[column] = row[index];
-
-    });
-
-
-    return item;
-
-  });
-
-
+  return result.rows;
 }
 
-
-
-
-export function getRestaurantById(id) {
-
-  const db = getDatabase();
-
-
-  const statement = db.prepare(`
+export async function getRestaurantById(id) {
+  const result = await query(
+    `
     SELECT *
     FROM restaurants
-    WHERE id = ?
-  `);
+    WHERE id = $1
+    LIMIT 1
+    `,
+    [id]
+  );
 
-
-
-  const result =
-    statement.getAsObject([
-      id
-    ]);
-
-
-
-  statement.free();
-
-
-
-  if(!result.id){
-
-    return null;
-
-  }
-
-
-  return result;
-
+  return result.rows[0] || null;
 }
+

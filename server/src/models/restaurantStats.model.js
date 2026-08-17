@@ -1,30 +1,32 @@
-import { getDatabase } from "../database/database.js";
+import { query } from "../database/postgres.js";
 
-export function getBestSellingFoodsByRestaurantId(
+export async function getBestSellingFoodsByRestaurantId(
   restaurantId,
   limit = 6
 ) {
-  const db = getDatabase();
+  const safeRestaurantId = Number(restaurantId);
+  const safeLimit = Math.max(
+    1,
+    Math.min(Number(limit) || 6, 50)
+  );
 
-  const ordersResult = db.exec(`
+  if (!Number.isFinite(safeRestaurantId)) {
+    return [];
+  }
+
+  const ordersResult = await query(`
     SELECT items
     FROM orders
     WHERE items IS NOT NULL
   `);
 
-  if (!ordersResult.length) {
-    return [];
-  }
-
   const salesMap = new Map();
 
-  for (const row of ordersResult[0].values) {
-    const rawItems = row[0];
-
+  for (const row of ordersResult.rows) {
     let items = [];
 
     try {
-      items = JSON.parse(rawItems || "[]");
+      items = JSON.parse(row.items || "[]");
     } catch {
       items = [];
     }
@@ -37,8 +39,9 @@ export function getBestSellingFoodsByRestaurantId(
         item.restaurant_id;
 
       if (
-        String(itemRestaurantId) !==
-        String(restaurantId)
+        itemRestaurantId === undefined ||
+        itemRestaurantId === null ||
+        String(itemRestaurantId) !== String(safeRestaurantId)
       ) {
         continue;
       }
@@ -58,12 +61,11 @@ export function getBestSellingFoodsByRestaurantId(
       const quantity =
         Number(item.quantity) || 1;
 
-      const current =
-        salesMap.get(String(foodId)) || 0;
+      const key = String(foodId);
 
       salesMap.set(
-        String(foodId),
-        current + quantity
+        key,
+        (salesMap.get(key) || 0) + quantity
       );
     }
   }
@@ -73,42 +75,36 @@ export function getBestSellingFoodsByRestaurantId(
   }
 
   const foodIds = [...salesMap.keys()]
-    .map((id) => Number(id))
+    .map(Number)
     .filter(Number.isFinite);
 
   if (!foodIds.length) {
     return [];
   }
 
-  const result = db.exec(`
+  const result = await query(
+    `
     SELECT *
     FROM foods
-    WHERE restaurantId = ${Number(restaurantId)}
-      AND id IN (${foodIds.join(",")})
-  `);
+    WHERE "restaurantId" = $1
+      AND id = ANY($2::bigint[])
+    `,
+    [
+      safeRestaurantId,
+      foodIds,
+    ]
+  );
 
-  if (!result.length) {
-    return [];
-  }
-
-  return result[0].values
-    .map((row) => {
-      const food = {};
-
-      result[0].columns.forEach(
-        (column, index) => {
-          food[column] = row[index];
-        }
-      );
-
-      food.soldCount =
-        salesMap.get(String(food.id)) || 0;
-
-      return food;
-    })
+  return result.rows
+    .map((food) => ({
+      ...food,
+      soldCount:
+        salesMap.get(String(food.id)) || 0,
+    }))
     .sort(
       (a, b) =>
-        b.soldCount - a.soldCount
+        Number(b.soldCount) -
+        Number(a.soldCount)
     )
-    .slice(0, Number(limit));
+    .slice(0, safeLimit);
 }

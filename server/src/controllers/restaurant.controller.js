@@ -11,7 +11,7 @@ import {
 export async function createRestaurantController(req, res) {
   try {
     const restaurant =
-      createRestaurant(req.body);
+      await createRestaurant(req.body);
 
     return res.status(201).json({
       success: true,
@@ -31,7 +31,7 @@ export async function createRestaurantController(req, res) {
 export async function getAllRestaurants(req, res) {
   try {
     const restaurants =
-      getRestaurants();
+      await getRestaurants();
 
     return res.json({
       success: true,
@@ -50,7 +50,7 @@ export async function getAllRestaurants(req, res) {
 export async function getSingleRestaurant(req, res) {
   try {
     const restaurant =
-      getRestaurantById(
+      await getRestaurantById(
         req.params.id
       );
 
@@ -81,7 +81,7 @@ export async function getRestaurantFeaturedFoods(
 ) {
   try {
     const foods =
-      getBestSellingFoodsByRestaurantId(
+      await getBestSellingFoodsByRestaurantId(
         req.params.id
       );
 
