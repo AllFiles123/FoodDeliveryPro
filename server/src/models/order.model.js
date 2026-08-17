@@ -1,40 +1,45 @@
-import { getDatabase, saveDatabase } from "../database/database.js";
-import db from "../database/database.js";
+import { query } from "../database/postgres.js";
 
 
-export const createOrderTable = () => {
-
-  getDatabase().run(`
+export async function createOrderTable() {
+  await query(`
     CREATE TABLE IF NOT EXISTS orders (
-
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-      userId INTEGER NOT NULL,
-
+      id BIGSERIAL PRIMARY KEY,
+      "userId" BIGINT NOT NULL,
       items TEXT NOT NULL,
-
-      totalAmount REAL NOT NULL,
-
-      deliveryAddress TEXT,
-
-      paymentMethod TEXT DEFAULT 'COD',
-
-      orderStatus TEXT DEFAULT 'Order Placed',
-
-      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-      updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-
+      "totalAmount" NUMERIC NOT NULL,
+      "paymentMethod" TEXT DEFAULT 'COD',
+      address TEXT,
+      "deliveryCharge" NUMERIC DEFAULT 0,
+      status TEXT DEFAULT 'Pending',
+      "customerName" TEXT,
+      "customerPhone" TEXT,
+      "deliveryType" TEXT,
+      zone TEXT,
+      division TEXT,
+      district TEXT,
+      upazila TEXT,
+      area TEXT,
+      "fullAddress" TEXT,
+      subtotal NUMERIC DEFAULT 0,
+      vat NUMERIC DEFAULT 0,
+      discount NUMERIC DEFAULT 0,
+      "paymentStatus" TEXT DEFAULT 'Pending',
+      "orderStatus" TEXT DEFAULT 'Order Placed',
+      "orderNumber" TEXT,
+      "restaurantName" TEXT,
+      "trackingStatus" TEXT DEFAULT 'Order Placed',
+      "trackingHistory" TEXT DEFAULT '[]',
+      "estimatedDeliveryTime" TEXT DEFAULT '30-45 minutes',
+      "cancelledAt" TIMESTAMPTZ DEFAULT NULL,
+      "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     )
   `);
-
-};
-
+}
 
 
-
-export const createOrder = (order) => {
-
+export async function createOrder(order) {
   const {
     userId,
     items,
@@ -42,6 +47,7 @@ export const createOrder = (order) => {
     deliveryAddress,
     address,
     paymentMethod,
+    deliveryCharge,
     customerName,
     customerPhone,
     deliveryType,
@@ -56,8 +62,10 @@ export const createOrder = (order) => {
     discount,
     paymentStatus,
     restaurantName,
+    status,
+    orderStatus,
     trackingStatus,
-    trackingHistory
+    trackingHistory,
   } = order;
 
 
@@ -65,258 +73,233 @@ export const createOrder = (order) => {
     "FD" + Date.now();
 
 
-console.log("CREATE ORDER USERID =", userId);
-  const db = getDatabase();
-
-
-  const stmt = db.prepare(`
+  const result = await query(
+    `
     INSERT INTO orders
     (
-      userId,
+      "userId",
       items,
-      totalAmount,
+      "totalAmount",
       address,
-      paymentMethod,
-      customerName,
-      customerPhone,
-      deliveryType,
+      "deliveryCharge",
+      "paymentMethod",
+      "customerName",
+      "customerPhone",
+      "deliveryType",
       zone,
       division,
       district,
       upazila,
       area,
-      fullAddress,
+      "fullAddress",
       subtotal,
       vat,
       discount,
-      paymentStatus,
-      orderNumber,
-      restaurantName,
-      trackingStatus,
-      trackingHistory
+      "paymentStatus",
+      status,
+      "orderStatus",
+      "orderNumber",
+      "restaurantName",
+      "trackingStatus",
+      "trackingHistory"
     )
-
     VALUES
-    (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-  `);
-
-
-  stmt.run([
-    userId,
-    JSON.stringify(items || []),
-    totalAmount || 0,
-    address || deliveryAddress || fullAddress || "",
-    paymentMethod || "COD",
-    customerName || "",
-    customerPhone || "",
-    deliveryType || "",
-    zone || "",
-    division || "",
-    district || "",
-    upazila || "",
-    area || "",
-    fullAddress || "",
-    subtotal || 0,
-    vat || 0,
-    discount || 0,
-    paymentStatus || "Pending",
-    orderNumber,
-    restaurantName || "",
-    trackingStatus || "Order Placed",
-    JSON.stringify(trackingHistory || [])
-  ]);
-
-
-  saveDatabase();
-  stmt.free();
-
-
-  const result = db.exec(
-    `SELECT id FROM orders WHERE orderNumber='${orderNumber}'`
+    (
+      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,
+      $12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,
+      $23,$24,$25
+    )
+    RETURNING *
+    `,
+    [
+      userId,
+      JSON.stringify(items || []),
+      totalAmount || 0,
+      address || deliveryAddress || fullAddress || "",
+      deliveryCharge || 0,
+      paymentMethod || "COD",
+      customerName || "",
+      customerPhone || "",
+      deliveryType || "",
+      zone || "",
+      division || "",
+      district || "",
+      upazila || "",
+      area || "",
+      fullAddress || "",
+      subtotal || 0,
+      vat || 0,
+      discount || 0,
+      paymentStatus || "Pending",
+      status || orderStatus || "Pending",
+      orderStatus || status || "Pending",
+      orderNumber,
+      restaurantName || "",
+      trackingStatus || orderStatus || status || "Pending",
+      JSON.stringify(trackingHistory || []),
+    ]
   );
 
 
-  saveDatabase();
-
-
-  return result[0].values[0][0];
-
-};
-
-
-export const getOrdersByUser = (userId) => {
-
-
-  const stmt = getDatabase().prepare(`
-
-    SELECT *
-
-    FROM orders
-
-    WHERE userId=?
-
-    ORDER BY createdAt DESC
-
-  `);
-
-
-
-  const orders = [];
-
-  stmt.bind([userId]);
-
-  while(stmt.step()){
-
-    const order = stmt.getAsObject();
-
-    orders.push({
-
-      ...order,
-
-      items:
-
-      JSON.parse(order.items || "[]"),
-
-      trackingHistory:
-
-      JSON.parse(order.trackingHistory || "[]")
-
-    });
-
-  }
-
-  stmt.free();
-
-  return orders;
-
-};
-
-
-
-
-
-export const getOrderById = (id,userId) => {
-
-
-  const stmt = getDatabase().prepare(`
-
-    SELECT *
-
-    FROM orders
-
-    WHERE id=? AND userId=?
-
-  `);
-
-
-
-  const order = stmt.get(
-    id,
-    userId
-  );
-
-
-
-  if(!order) return null;
-
+  const orderResult = result.rows[0];
 
 
   return {
-
-    ...order,
-
-    items:
-    JSON.parse(order.items || "[]"),
-
-    trackingHistory:
-    JSON.parse(order.trackingHistory || "[]")
-
+    ...orderResult,
+    items: JSON.parse(orderResult.items || "[]"),
+    trackingHistory: JSON.parse(
+      orderResult.trackingHistory || "[]"
+    ),
   };
-
-};
-
+}
 
 
-
-
-export const cancelOrder = (id,userId) => {
-
-
-  const stmt = getDatabase().prepare(`
-
-    UPDATE orders
-
-    SET
-
-    orderStatus='Cancelled',
-
-    trackingStatus='Cancelled',
-
-    trackingHistory=?,
-
-    cancelledAt=CURRENT_TIMESTAMP,
-
-    updatedAt=CURRENT_TIMESTAMP
-
-
-    WHERE id=? AND userId=?
-
+export async function getOrdersByUser(userId) {
+  const dbInfo = await query(`
+    SELECT
+      current_database() AS database,
+      current_schema() AS schema,
+      current_user AS db_user,
+      inet_server_addr()::text AS server_ip,
+      inet_server_port() AS server_port,
+      current_setting('search_path') AS search_path
   `);
 
+  console.log("===== RENDER DATABASE DEBUG =====");
+  console.log(dbInfo.rows[0]);
 
 
-  return stmt.run([
+  const result = await query(
+    `
+    SELECT *
+    FROM orders
+    WHERE "userId" = $1
+    ORDER BY "createdAt" DESC
+    `,
+    [userId]
+  );
 
-    JSON.stringify([
-      {
-        status:"Cancelled",
-        time:new Date().toISOString()
-      }
-    ]),
 
-    id,
+  return result.rows.map((order) => ({
+    ...order,
+    items: JSON.parse(order.items || "[]"),
+    trackingHistory: JSON.parse(
+      order.trackingHistory || "[]"
+    ),
+  }));
+}
 
-    userId
 
+export async function getOrderById(id, userId) {
+  const result = await query(
+    `
+    SELECT *
+    FROM orders
+    WHERE id = $1
+      AND "userId" = $2
+    LIMIT 1
+    `,
+    [id, userId]
+  );
+
+
+  const order = result.rows[0];
+
+
+  if (!order) {
+    return null;
+  }
+
+
+  return {
+    ...order,
+    items: JSON.parse(order.items || "[]"),
+    trackingHistory: JSON.parse(
+      order.trackingHistory || "[]"
+    ),
+  };
+}
+
+
+export async function cancelOrder(id, userId) {
+  const trackingHistory = JSON.stringify([
+    {
+      status: "Cancelled",
+      time: new Date().toISOString(),
+    },
   ]);
 
-};
 
-
-
-
-
-export const updateOrderStatus = (id,status) => {
-
-
-  const stmt = getDatabase().prepare(`
-
+  const result = await query(
+    `
     UPDATE orders
-
     SET
+      status = 'Cancelled',
+      "orderStatus" = 'Cancelled',
+      "trackingStatus" = 'Cancelled',
+      "trackingHistory" = $1,
+      "cancelledAt" = CURRENT_TIMESTAMP,
+      "updatedAt" = CURRENT_TIMESTAMP
+    WHERE id = $2
+      AND "userId" = $3
+      AND "orderStatus" <> 'Cancelled'
+    RETURNING *
+    `,
+    [
+      trackingHistory,
+      id,
+      userId,
+    ]
+  );
 
-    orderStatus=?,
 
-    trackingStatus=?,
-
-    updatedAt=CURRENT_TIMESTAMP
+  const order = result.rows[0];
 
 
-    WHERE id=?
+  if (!order) {
+    return null;
+  }
 
-  `);
+
+  return {
+    ...order,
+    items: JSON.parse(order.items || "[]"),
+    trackingHistory: JSON.parse(
+      order.trackingHistory || "[]"
+    ),
+  };
+}
 
 
+export async function updateOrderStatus(id, status) {
+  const result = await query(
+    `
+    UPDATE orders
+    SET
+      status = $1,
+      "orderStatus" = $1,
+      "trackingStatus" = $1,
+      "updatedAt" = CURRENT_TIMESTAMP
+    WHERE id = $2
+    RETURNING *
+    `,
+    [status, id]
+  );
 
-  return stmt.run([
 
-    status,
+  const order = result.rows[0];
 
-    status,
 
-    id
+  if (!order) {
+    return null;
+  }
 
-  ]);
 
-};
-
+  return {
+    ...order,
+    items: JSON.parse(order.items || "[]"),
+    trackingHistory: JSON.parse(
+      order.trackingHistory || "[]"
+    ),
+  };
+}
