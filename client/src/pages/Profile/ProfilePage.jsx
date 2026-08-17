@@ -13,7 +13,7 @@ import profileService from "../../services/profileService";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, login, logout } = useAuth();
   const { showToast } = useToast();
 
   const [screen, setScreen] = useState("profile");
@@ -185,6 +185,9 @@ export default function ProfilePage() {
         phone: response.user.phone || prev.phone,
         email: response.user.email || prev.email,
       }));
+
+      // Keep AuthContext + persisted user data synchronized
+      login(response.user);
 
       setScreen("profile");
       showToast("Profile Updated", "success");
