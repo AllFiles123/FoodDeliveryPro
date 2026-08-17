@@ -54,8 +54,8 @@ export default function ProfilePage() {
   const [addresses, setAddresses] = useState(() => JSON.parse(localStorage.getItem("savedAddresses") || "[]"));
   const [notifications, setNotifications] = useState(() => JSON.parse(localStorage.getItem("notifications") || "[]"));
   const [savedPaymentMethods, setSavedPaymentMethods] = useState(() => JSON.parse(localStorage.getItem("savedPaymentMethods") || "[]"));
-  const [theme, setTheme] = useState("light");
-  const [language, setLanguage] = useState("English");
+  const [theme, setTheme] = useState(localStorage.getItem("appTheme") || "light");
+  const [language, setLanguage] = useState(localStorage.getItem("appLanguage") || "English");
 
   // Add Card Temp State (Original logic)
   const [cardData, setCardData] = useState({ holder: "", number: "", expiry: "", cvv: "", location: "Bangladesh", zipCode: "", type: "Visa" });
@@ -91,54 +91,11 @@ export default function ProfilePage() {
     showToast("Card saved successfully", "success");
   };
 
-  const loadProfileFromBackend = async () => {
-    try {
-      const data = await profileService.getProfile();
-
-      const profile = data?.user || {};
-
-      if (typeof setProfileImage === "function") {
-        setProfileImage(profile.profileImage || "");
-      }
-
-      if (typeof setAddresses === "function") {
-        setAddresses(data?.addresses || []);
-      }
-
-      if (typeof setSavedPaymentMethods === "function") {
-        setSavedPaymentMethods(data?.paymentMethods || []);
-      }
-
-      if (typeof setSavedCards === "function") {
-        setSavedCards(data?.paymentMethods || []);
-      }
-
-      if (typeof setNotifications === "function") {
-        setNotifications(data?.notifications || []);
-      }
-
-      if (typeof setTheme === "function") {
-        setTheme(profile.theme || "light");
-      }
-
-      if (typeof setLanguage === "function") {
-        setLanguage(profile.language || "English");
-      }
-
-      return data;
-    } catch (error) {
-      console.error("Profile backend load failed:", error);
-      return null;
-    }
-  };
-
-
   useEffect(() => {
-    loadProfileFromBackend();
-  }, []);
-
-  useEffect(() => {
-
+    localStorage.setItem("savedCards", JSON.stringify(savedCards));
+    localStorage.setItem("savedAddresses", JSON.stringify(addresses));
+    localStorage.setItem("savedPaymentMethods", JSON.stringify(savedPaymentMethods));
+    localStorage.setItem("appTheme", theme);
     document.documentElement.dataset.theme = theme;
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [savedCards, addresses, savedPaymentMethods, theme]);

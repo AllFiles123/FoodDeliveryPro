@@ -1,42 +1,42 @@
 import api from "./api";
 
 const profileService = {
-  async getProfile() {
+  getProfile: async () => {
     const response = await api.get("/profile");
     return response.data;
   },
 
-  async updateProfile(data) {
+  updateProfile: async (data) => {
     const response = await api.put("/profile", data);
     return response.data;
   },
 
-  async addAddress(data) {
+  addAddress: async (data) => {
     const response = await api.post("/profile/addresses", data);
     return response.data;
   },
 
-  async updateAddress(id, data) {
+  updateAddress: async (id, data) => {
     const response = await api.put(`/profile/addresses/${id}`, data);
     return response.data;
   },
 
-  async deleteAddress(id) {
+  deleteAddress: async (id) => {
     const response = await api.delete(`/profile/addresses/${id}`);
     return response.data;
   },
 
-  async addPaymentMethod(data) {
+  addPaymentMethod: async (data) => {
     const response = await api.post("/profile/payment-methods", data);
     return response.data;
   },
 
-  async deletePaymentMethod(id) {
+  deletePaymentMethod: async (id) => {
     const response = await api.delete(`/profile/payment-methods/${id}`);
     return response.data;
   },
 
-  async markNotificationRead(id) {
+  markNotificationRead: async (id) => {
     const response = await api.patch(`/profile/notifications/${id}/read`);
     return response.data;
   },
