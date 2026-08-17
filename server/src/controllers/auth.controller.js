@@ -161,7 +161,6 @@ export async function login(req, res) {
     return res.status(500).json({
       success: false,
       message: "Login failed",
-      diagnostic: error?.message || String(error),
     });
   }
 }
